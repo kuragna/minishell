@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/17 19:04:35 by aabourri          #+#    #+#             */
-/*   Updated: 2023/09/22 16:24:54 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/09/29 18:41:29 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,17 +27,26 @@
 # include <errno.h>
 
 #include <fcntl.h>
-#include <assert.h> // NOTE: need to remove it
-
-/* NOTE: let's change it to third argument from main function instead global variable*/
-extern char **environ; // NOTE: maybe we need to use third argument 
+#include <assert.h>
 
 # include "../libft/libft.h"
 
-#define MS_SLASH '\\'
-#define MS_S_QUOTE '\''
-#define MS_D_QUOTE '\"'
-#define MS_ERR strerror(errno)
+#define MS_SLASH	'\\'
+#define MS_S_QUOTE 	'\''
+#define MS_D_QUOTE 	'\"'
+#define MS_DOLLAR	'$'
+
+#define MS_ERROR(...) ms_error(3, __VA_ARGS__)
+
+
+#define MS_STDIN 	0
+#define MS_STDOUT 	1
+#define MS_STDERR 	2
+
+
+/* ================= exit status ================= */
+#define MS_CNF 127 // command to found
+/* ================= exit status ================= */
 
 /* ================= readline ================= */
 
@@ -54,8 +63,9 @@ void	rl_replace_line (const char *text, int clear_undo);
 
 /* ================= General ================= */
 
-char	*ms_trim_left(char *line);
-void	ms_error(const char *res, const char *strerr); // exmple: minishell: djsk: command not found
+void	ms_error(const int size, ...); // exmple: minishell: djsk: command not found
+void	ms_leaks(void);
+void	ms_exec(char *cmd, char **args);
 
 /* ================= General ================= */
 

@@ -2,7 +2,7 @@
 
 #include <unistd.h>
 
-
+#define MS_PRINT(str) printf("%s:%d: %s\n", __FILE__, __LINE__, str)
 
 /* ================ parsing ================= */
 /* TODO: trim space
@@ -12,7 +12,8 @@
  * TODO: >> redirect output in append mode
  * TODO: | pipe
  * TODO: $ environment variable
- * TODO: cmd */
+ * TODO: cmd
+ * TODO: cmd args */
 /* ================ parsing ================= */
 
 /* ================ builtin ================= */
@@ -30,188 +31,327 @@
  * TODO: ctrl-\ does nothin */
 /* ================ interactive mode ================= */
 
-/* ls --> simple cmd
- * ls -l --> cmd with option
- * ls | grep --> pipe cmd
- * < file cmd --> redirect input file
- * cmd > file --> redirect output
- **/
 
-typedef enum 
-{
-	TOKEN_PIPE,
-	TOKEN_R_IN,
-	TOKEN_R_APPEND,
-	TOKEN_R_OUT,
-	TOKEN_OTHER,
-} Token_type;
+// [<] = open(filename, O_RDONLY);
+// [>] = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0644)
+// [>>] = open(filename, O_WRONLY | O_CREAT | O_APPEND, 0644)
 
-typedef struct Token
-{
-	Token_type	token_type;
-	char	*lexeme;
-	struct Token *next;
-} Token;
+char	*tokens[] = {
+	"end of input",
+	"pipe",
+	"less",
+	"great",
+	"dless",
+	"dgreat",
+	"word",
+	"arg",
+};
 
-Token *token_node(char *lexeme, Token_type token_type)
+void	ms_error(const int size, ...)
 {
-	Token *token = malloc(sizeof(*token));
-	token->token_type = token_type;
-	token->lexeme = lexeme;
-	token->next = NULL;
+	va_list	ap;
+
+	va_start(ap, size);
+	for (int i = 0; i < size; i++)
+	{
+		ft_putstr_fd(va_arg(ap, char *), 2);
+	}
+	ft_putchar_fd('\n', 2);
+	va_end(ap);
+}
+
+
+typedef enum
+{
+	TOKEN_END = 0, // end of input
+	TOKEN_PIPE, // pipe
+	TOKEN_LESS, // redirect input
+	TOKEN_GREAT, // redirect output
+	TOKEN_DLESS, // redirect input with delimitar
+	TOKEN_DGREAT, // redirect outut in append mode
+	TOKEN_WORD, // command name and filename
+	TOKEN_ARG,
+} t_token_type;
+typedef struct
+{
+	char *line;
+	size_t len;
+	size_t	pos;
+	size_t	start;
+	size_t	end;
+} t_lexer;
+
+typedef struct s_token
+{
+	t_token_type token_type;
+	char	*text;
+	size_t	len;
+	struct s_token *next;
+} t_token;
+
+typedef struct s_cmd
+{
+	char	*name;
+	char	**args;
+} t_cmd;
+
+int ms_trim_left(t_lexer *l)
+{
+	while (l->pos < l->len && ft_isspace(l->line[l->pos]))
+	{
+		l->pos += 1;
+	}
+	return l->pos;
+}
+
+t_cmd	*cmd_new(t_token *token)
+{
+	if (token->token_type != TOKEN_WORD)
+		return NULL;
+	t_cmd	*cmd;
+
+	cmd = malloc(sizeof(*cmd));
+
+	cmd->name = malloc(sizeof(*cmd) * (token->len + 1));
+
+	ft_strlcpy(cmd->name, token->text, token->len + 1);
+
+	return cmd;
+}
+
+int	ms_is_metachar(int c)
+{
+	if (c == ' ' || c == '\t' || c == '|' || c == '<' || c == '>')
+		return 1;
+	return 0;
+}
+
+t_lexer ms_lexer_init(char *line, size_t len)
+{
+	t_lexer lexer;
+
+	lexer.line = line;
+	lexer.len = len;
+	lexer.pos = 0;
+	lexer.end = 0;
+	return lexer;
+}
+
+void	token_(t_token *token, t_token_type type, t_lexer *l, size_t len)
+{
+	token->token_type = type;
+	token->len = len;
+	l->pos += len;
+}
+
+t_token token_next(t_lexer *l)
+{
+	l->pos = ms_trim_left(l);
+
+	t_token token = {
+		.token_type = TOKEN_END,
+		.text = l->line + l->pos,
+	};
+
+	if (l->pos >= l->len) return token;
+
+	if (l->line[l->pos] == '<' && l->line[l->pos + 1] == '<')
+	{
+		token_(&token, TOKEN_DLESS, l, 2);
+	}
+	else if (l->line[l->pos] == '>' && l->line[l->pos + 1] == '>')
+	{
+		token_(&token, TOKEN_DGREAT, l, 2);
+	}
+	else if (l->line[l->pos] == '|')
+	{
+		token_(&token, TOKEN_PIPE, l, 1);
+	}
+	else if (l->line[l->pos] == '<')
+	{
+		token_(&token, TOKEN_LESS, l, 1);
+	}
+	else if (l->line[l->pos] == '>')
+	{
+		token_(&token, TOKEN_GREAT, l, 1);
+	}
+	else
+	{
+		while (l->pos < l->len && !ms_is_metachar(l->line[l->pos]))
+		{
+			l->pos += 1;
+			token.len += 1;
+		}
+		token.token_type = TOKEN_WORD;
+	}
 	return token;
 }
 
-void	token_add(Token **list, Token *token)
+
+void	ms_sig_handler(int sig)
 {
-	token->next = *list;
-	*list = token;
+	(void) sig;
+	printf("Not implemented yet\n");
+	return ;
 }
 
-void	print_token(Token *list)
+void	ms_exit(char *line)
 {
-	const char	*tokens[] = {
-		"TOKEN_PIPE",
-		"TOKEN_R_IN",
-		"TOKEN_R_APPEND",
-		"TOKEN_R_OUT",
-		"TOKEN_OTHER",
-	};
+	if (!line || ft_strncmp(line, "exit", 4) == 0)
+	{
+		ft_printf("exit\n");
+		exit(EXIT_SUCCESS);
+	}
+} 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+typedef struct s_env
+{
+	t_list	*list;
+	size_t	size;
+} t_env;
+
+void	ms_env_sort(t_list *list)
+{
+	char	*t;
+	size_t	len;
+
 	while (list)
 	{
-		printf("[%s]: %s\n", tokens[list->token_type], list->lexeme);
+		t_list	*next = list->next;
+		while (next)
+		{
+			len = ft_strlen(list->content);
+			if (ft_strncmp(list->content, next->content, len) > 0)
+			{
+				// TODO: swap function
+				t = list->content;
+				list->content = next->content;
+				next->content = t;
+			}
+			next = next->next;
+		}
 		list = list->next;
 	}
 }
 
-int main2(void)
-{
-	Token	*list = NULL;
-	char	*input = "< infile ls | cat > outfile >> file";
-	char	**token = ft_split(input, ' ');
 
-	int	i = 0;
-	while (token[i] != NULL)
+
+
+void	ms_env(t_env *env)
+{
+	size_t	i;
+	t_list	*list;
+
+	i = 0;
+	list = env->list;
+	while (list && i < env->size)
 	{
-		if (ft_strncmp(token[i], ">>", 2) == 0)
-		{
-			token_add(&list, token_node(token[i], TOKEN_R_APPEND));
-		}
-		else if (ft_strncmp(token[i], "<", 1) == 0)
-		{
-			token_add(&list, token_node(token[i], TOKEN_R_IN));
-		}
-		else if (ft_strncmp(token[i], "|", 1) == 0)
-		{
-			token_add(&list, token_node(token[i], TOKEN_PIPE));
-		}
-		else if (ft_strncmp(token[i], ">", 1) == 0)
-		{
-			token_add(&list, token_node(token[i], TOKEN_R_OUT));
-		}
-		else
-			token_add(&list, token_node(token[i], TOKEN_OTHER));
+		ft_printf("%s\n", list->content);
+		list = list->next;
 		i += 1;
 	}
-	print_token(list);
-	return (0);
-}
-
-// 	rl_replace_line(NULL, 0);
-// 	rl_on_new_line();
-// 	rl_redisplay();
-// 	add_history(NULL);
-
-void	find_leaks(void)
-{
-	system("leaks -q minishell");
 }
 
 
-void	ms_error(const char *res, const char *strerr)
+void	ms_env_dup(t_env *env, char **envp)
 {
-	ft_putstr_fd("minishell: ", 2);
-	ft_putstr_fd((char *)res, 2);
-	ft_putstr_fd(": ", 2);
-	ft_putendl_fd((char *)strerr, 2);
-}
+	size_t	i;
 
-
-
-
-char	*ms_trim_left(char *line)
-{
-	while (*line && ft_isspace(*line))
+	i = 0;
+	while (envp[i] != NULL)
 	{
-		line += 1;
+		ft_lstadd_back(&env->list, ft_lstnew(envp[i]));
+		env->size += 1;
+		i += 1;
 	}
-	return (line);
 }
 
-void	ms_readline()
+void	ms_export_print(t_env *env)
 {
-	char	*prompt = ft_strjoin("ms - ", getcwd(NULL, 0)); // NOTE: this is just for test changing path
-	while (1)
+	size_t	i;
+	t_list	*list;
+
+	i = 0;
+	list = env->list;
+	ms_env_sort(env->list);
+	// TODO: ignore last one, same with export
+	while (list && i < env->size)
 	{
-		char	*line = readline(ft_strjoin(prompt, "$"));
-
-		// TODO: replace line with token
-		if (ft_memcmp(line, "exit", ft_strlen(line)) == 0)
-			exit(EXIT_SUCCESS);
-		if (ft_memcmp(line, "echo", 4) == 0)
-			ms_echo(line);
-		if (ft_memcmp(line, "env", 3) == 0)
-			ms_env();
-		if (ft_memcmp(line, "pwd", 3) == 0)
-			ms_pwd();
-		add_history(line); // NOTE: try [UP] or [DOWN] key
+		ft_printf("declare -x %s\n", list->content);
+		list = list->next;
+		i += 1;
 	}
-	rl_clear_history(); // NOTE: reset memory for history
-}
-
-void	ms_echo(char *str)
-{
-	// NOTE: not tested enough
-	// TODO: handle trim space
-	// TODO: fix strign if has quotes function printing newline
-	// TODO: with option -n
-	// TODO: trim space from right
-	
-	str += 4;
-	str = ms_trim_left(str);
-
-	printf("%s\n", str);
-
-	while (*str != '\0')
-	{
-		printf("[%d] - [%c]\n", *str, *str);
-		str += 1;
-	}
-
-	return ;
-	while (*str != '\0')
-	{
-		if (*str == MS_SLASH)
-			str += 1;
-		if (*(str - 1) != MS_SLASH)
-		{
-			if (*str == MS_S_QUOTE || *str == MS_D_QUOTE)
-				str += 1;
-		}
-		ft_printf("%c", *str);
-		str += 1;
-	}
-	ft_printf("\n");
 }
 
 
-int	main(int argc, char **argv)
+int main(int argc, char **argv, char **envp)
 {
 	(void) argc;
 	(void) argv;
+	(void) envp;
+	if (!isatty(MS_STDIN))
+	{
+		MS_ERROR("minishell: ", "Invalid tty", "");
+		return (1);
+	}
+
+	t_env env = {0};
+
+	ms_env_dup(&env, envp);
+
+	ms_env(&env);
 
 
-	ms_readline();
 
-	return (0);
+	return 0;
+
+	signal(SIGINT, ms_sig_handler);
+
+	while (1)
+	{
+		// TODO: if cmd builtin just invoke function
+		// TODO: otherwise, create child process
+		char	*line = readline("ms$ ");
+		ms_exit(line);
+	}
+
+	return 0;
 }
+
+
+/*
+ * redirection = {
+ * 	'>' <word>
+ * 	'>' <word>
+ * 	'>>' <word>
+ * 	'<<' <word>
+ * }
+ * simple_cmd = {
+ *	<word>
+ * }
+ *
+*/
+
+/*
+	input-> lexer-> tokens
+	tokens-> parser-> AST
+	AST->	evaluator-> evaluated AST
+	evaluated AST -executor-> output
+*/
+/*
+ * input line 					| 	valid/invalid
+ * cat								Valid
+ * cat file1 	 				|	Valid
+ * cat < file1 					|	Valid
+ * cat > file1					|	Valid
+ * cat < file1 > file2			|	Valid
+ * cat > file1 < file2			|	Valid
+ * cat file1 > file2			|	Valid
+ * cat > file2 file1			|	Valid
+ * < file1						|	Invalid
+ * cat file1 <					| 	Invalid
+ * cat file1 >					|	Invalid
+ * cat file1 > file2 > file3 	|	Invalid
+ * cat < file1 < file2			|	Invalid
+ */

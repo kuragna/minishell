@@ -1,6 +1,6 @@
 NAME	   = minishell
 CC		   = gcc
-CFLAGS	   = -Wall -Werror -Wextra -fsanitize=thread
+CFLAGS	   = -Wall -Werror -Wextra -fsanitize=address
 LDFLAGS    = -L./libft -lft -lreadline
 RM		   = rm -f
 SRC		   = main.c ms_builtins.c 
