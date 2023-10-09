@@ -1,5 +1,6 @@
 #include "../include/minishell.h"
 
+
 #define MS_PRINT(str) printf("%s:%d: %s\n", __FILE__, __LINE__, str)
 
 /* ================ parsing ================= */
@@ -190,88 +191,11 @@ void	ms_exit(char *line)
 {
 	if (!line || ft_strncmp(line, "exit", 4) == 0)
 	{
-		ft_printf("exit\n");
+		ft_putendl_fd("exit", MS_STDOUT);
 		exit(EXIT_SUCCESS);
 	}
 } 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#if 0
-
-int	ms_start(int c);
-int	ms_symbol(char *str, int c);
-
-typedef struct s_env
-{
-	t_list	*list;
-	size_t	size;
-} t_env;
-
-void	ms_env_sort(t_list *list)
-{
-	char	*t;
-	size_t	len;
-
-	while (list)
-	{
-		t_list	*next = list->next;
-		while (next)
-		{
-			len = ft_strlen(list->content);
-			if (ft_strncmp(list->content, next->content, len) > 0)
-			{
-				// TODO: swap function
-				t = list->content;
-				list->content = next->content;
-				next->content = t;
-			}
-			next = next->next;
-		}
-		list = list->next;
-	}
-}
-
-void	ms_env(t_env *env)
-{
-	size_t	i;
-	t_list	*list;
-
-	i = 0;
-	list = env->list;
-	while (list && i < env->size)
-	{
-		ft_printf("%s\n", list->content);
-		list = list->next;
-		i += 1;
-	}
-}
-
-void	ms_env_dup(t_env *env, char **envp)
-{
-	size_t	i;
-
-	i = 0;
-	while (envp[i] != NULL)
-	{
-		ft_lstadd_front(&env->list, ft_lstnew(envp[i]));
-		env->size += 1;
-		i += 1;
-	}
-}
-
-void	ms_unset(t_env *env, char *key)
-{
-	(void) env;
-
-	if (!ms_start(*key) || !ms_symbol(key + 1, 0))
-	{
-		MS_ERROR("unset: ", key, ": not a valid identifier");
-		return ;
-	}
-	// TODO: unset key from environment variables
-}
-
-#endif
 
 /* name of environment variable should start with underscore */
 int	ms_start(int c)
@@ -457,13 +381,16 @@ void	ms_env(t_env *env)
 
 void	ms_sig_handler(int sig)
 {
-	(void) sig;
+	if (sig == SIGQUIT)
+	{
+		rl_redisplay();
+		return ;
+	}
 	write(MS_STDOUT, "\n", 1);
 	rl_on_new_line();
 	rl_replace_line("", 0);
 	rl_redisplay();
 }
-
 
 
 
@@ -486,16 +413,15 @@ int main(int argc, char **argv, char **envp)
 	struct sigaction sa;
 	sa.sa_handler = ms_sig_handler;
 	sa.sa_flags = SA_RESTART;
-	sigaction(SIGINT, &sa, NULL);
-
+	sigaction(SIGINT, &sa, NULL); // ctrl-c
+	sigaction(SIGQUIT, &sa, NULL);
 
 	// prompt
 	while (1)
 	{
 		line = readline("$ ");
 		if (line == NULL)
-			break;
-		printf("line: %s\n", line);
+			ms_exit(line);
 		add_history(line);
 		free(line); // readline allocates memory for line
 	}

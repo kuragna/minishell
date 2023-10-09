@@ -1,35 +1,82 @@
-NAME	   = minishell
-CC		   = gcc
-CFLAGS	   = -Wall -Werror -Wextra -g3 #-fsanitize=address
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    Makefile                                           :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: glacroix <glacroix@student.42madrid.com    +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2023/10/09 14:16:51 by glacroix          #+#    #+#              #
+#    Updated: 2023/10/09 16:54:12 by aabourri         ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
 
+#Colors
+# **************************************************************************** #
+RESET  		= "\x1B[0m"
+RED  		= "\x1B[31m"
+GREEN  		= "\x1B[32m"
+YELLOW  	= "\x1B[33m"
+BLUE 		= "\x1B[34m"
+MAGENTA 	= "\x1B[35m"
+CAYN  		= "\x1B[36m"
+WHITE  		= "\x1B[37m"
+
+#Program name
+# **************************************************************************** #
+NAME	   = minishell
+
+#SRC & OBJS Details
+# **************************************************************************** #
+SRCS		   = main.c ms_builtins.c 
+OBJ			= $(SRCS:%.c=objs/%.o)
+SRCS			:= $(addprefix src/, $(SRCS))
+
+#Routes
+# **************************************************************************** #
 LDLIBFT		= ./libft
 RL			= /Users/${USER}/.brew/opt/readline/ 
 
-LDFLAGS		= -L$(LDLIBFT) -L$(addsuffix lib, $(RL)) -I$(addsuffix include, $(RL)) -lft -lreadline
-RM		   = rm -f
-SRC		   = main.c ms_builtins.c 
-SRC			:= $(addprefix src/, $(SRC))
+#Execution
+# **************************************************************************** #
+CC		   = gcc
+CFLAGS	   = -Wall -Werror -Wextra
+LDFLAGS    = -L$(LDLIBFT) -L$(addsuffix lib, $(RL)) 
+LDFLAGS    += -I$(addsuffix include, $(RL)) -lft -lreadline
+RM		   = rm -rf
+DEBUG      += -fsanitize=address -g3
 
-OBJ			= $(SRC:.c=.o)
 
+#SRC Execution
+# **************************************************************************** #
+$(NAME): libft objs $(OBJ)
+	@$(CC) -o $@ $(CFLAGS) $(LDFLAGS) $(OBJ)
+	@echo $(MAGENTA) "\n         Minishell Compiled!       \n" $(RESET)
 
+#Makefile Cmds
+# **************************************************************************** #
 all: $(NAME)
 
-libft: 
-	make -C ./libft
+test:
+	@echo $(OBJ)
 
-%.o: %.c
-	$(CC) -c $(CFLAGS) $< -o $@
-$(NAME): libft $(OBJ)
-	$(CC) -o $@ $(CFLAGS) $(LDFLAGS) $(OBJ)
+libft: 
+	@make -C ./libft
+
+objs/%.o: %.c
+	@$(CC) -c $(CFLAGS) $< -o $@
+
+objs: 
+	@mkdir -p objs/src
+
 clean:
-	make clean -C ./libft
-	$(RM) $(OBJ)
+	@make clean -C ./libft
+	@$(RM) objs
 
 fclean: clean
-	make fclean -C ./libft
-	$(RM) $(NAME)
+	@make fclean -C ./libft
+	@$(RM) $(NAME)
+	@echo $(RED) "\n >>>>>>>> Deleted all *.o and *.a! <<<<<<<< \n" $(RESET)
 
 re: fclean all
 
-.PHONY: all clean fclean re libft test
+.PHONY: all clean fclean re libft
