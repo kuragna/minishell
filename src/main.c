@@ -1,7 +1,5 @@
 #include "../include/minishell.h"
 
-#include <unistd.h>
-
 #define MS_PRINT(str) printf("%s:%d: %s\n", __FILE__, __LINE__, str)
 
 /* ================ parsing ================= */
@@ -188,13 +186,6 @@ t_token token_next(t_lexer *l)
 }
 
 
-void	ms_sig_handler(int sig)
-{
-	(void) sig;
-	printf("Not implemented yet\n");
-	return ;
-}
-
 void	ms_exit(char *line)
 {
 	if (!line || ft_strncmp(line, "exit", 4) == 0)
@@ -204,6 +195,11 @@ void	ms_exit(char *line)
 	}
 } 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#if 0
+
+int	ms_start(int c);
+int	ms_symbol(char *str, int c);
 
 typedef struct s_env
 {
@@ -235,9 +231,6 @@ void	ms_env_sort(t_list *list)
 	}
 }
 
-
-
-
 void	ms_env(t_env *env)
 {
 	size_t	i;
@@ -253,7 +246,6 @@ void	ms_env(t_env *env)
 	}
 }
 
-
 void	ms_env_dup(t_env *env, char **envp)
 {
 	size_t	i;
@@ -261,28 +253,218 @@ void	ms_env_dup(t_env *env, char **envp)
 	i = 0;
 	while (envp[i] != NULL)
 	{
-		ft_lstadd_back(&env->list, ft_lstnew(envp[i]));
+		ft_lstadd_front(&env->list, ft_lstnew(envp[i]));
 		env->size += 1;
 		i += 1;
 	}
 }
 
-void	ms_export_print(t_env *env)
+void	ms_unset(t_env *env, char *key)
+{
+	(void) env;
+
+	if (!ms_start(*key) || !ms_symbol(key + 1, 0))
+	{
+		MS_ERROR("unset: ", key, ": not a valid identifier");
+		return ;
+	}
+	// TODO: unset key from environment variables
+}
+
+#endif
+
+/* name of environment variable should start with underscore */
+int	ms_start(int c)
+{
+	return ft_isalpha(c) || c == '_';
+}
+/* name of environment variable should not contain special characters, except underscore */
+int	ms_symbol(char *str, int c)
+{
+	while (*str && *str != c)
+	{
+		if (!(ft_isalnum(*str) || *str == '_'))
+			return (0);	
+		str += 1;
+	}
+	return (1);
+}
+
+/*
+ *	'env' command prints variable if has [name=value]
+ *	otherwise, just ignore
+ *	Maybe good idea to add a flag to check if variable has both name and value or not
+ * */
+typedef struct s_env
+{
+	char	**vars;
+	size_t	capacity;
+	size_t	lenght;
+} t_env;
+
+
+// TODO: make it dynamicly
+size_t	env_size(char **envp)
 {
 	size_t	i;
-	t_list	*list;
 
 	i = 0;
-	list = env->list;
-	ms_env_sort(env->list);
-	// TODO: ignore last one, same with export
-	while (list && i < env->size)
+	while (envp[i] != NULL)
 	{
-		ft_printf("declare -x %s\n", list->content);
-		list = list->next;
+		i += 1;
+	}
+	return i;
+}
+
+void	env_realloc(t_env **env)
+{
+	size_t	i;
+	char	**new;
+
+	(*env)->capacity *= 2;
+	new = malloc(sizeof(char *) * (*env)->capacity);
+
+	i = 0;
+
+	while (i < (*env)->lenght)
+	{
+		new[i] = (*env)->vars[i];
+		i += 1;
+	}
+
+	free((*env)->vars);
+	(*env)->vars = new;
+}
+
+void	env_append_null(t_env *env)
+{
+	env->vars[env->lenght] = NULL;	
+}
+
+void	env_add(t_env **env, char *var)
+{
+	if ((*env)->capacity == (*env)->lenght)
+	{
+		env_realloc(env);
+	}
+	(*env)->vars[(*env)->lenght] = var;
+	if (var != NULL)
+		(*env)->lenght += 1;
+}
+
+t_env env_dup(char **envp)
+{
+	size_t	i;
+	t_env	env;
+
+	i = 0;
+
+	env.capacity = env_size(envp);
+	env.lenght = 0;
+	env.vars = malloc(sizeof(char *) * (env.capacity + 1));
+
+	while (envp[i] != NULL)
+	{
+		env.vars[i] = envp[i];
+		i += 1;
+	}
+	env.lenght += i;
+	return env;
+}
+
+void	env_sort(t_env *env)
+{
+	size_t	len;
+	size_t	i;
+	size_t	j;
+	char	*t;
+
+	i = 0;
+	while (env->vars[i])
+	{
+		j = 0;
+		while (env->vars[j])
+		{
+			len = ft_strlen(env->vars[j]);
+			if (ft_strncmp(env->vars[i], env->vars[j], len) < 0)
+			{
+				t = env->vars[i];
+				env->vars[i] = env->vars[j];
+				env->vars[j] = t;
+			}
+			j += 1;
+		}
 		i += 1;
 	}
 }
+
+
+void	export_print(t_env *env)
+{
+	size_t	i;
+
+	i = 0;
+	env_sort(env);
+	while (env->vars[i])
+	{
+		printf("declare -x %s\n", env->vars[i]);
+		i += 1;
+	}
+}
+
+void	ms_export(t_env *env, char *var)
+{
+	char	*end;
+	int		i;
+	int		len;
+
+	if (!ms_start(*var) || !ms_symbol(var + 1, '='))
+	{
+		MS_ERROR("export: ", var, ": not a valid identifier");
+		return ;
+	}
+	end = ft_strchr(var, '=');
+	i = env->lenght - 1;
+
+	if (!end)
+		return ;
+
+	len = end - var;
+	while (i >= 0)
+	{
+		if (ft_strncmp(env->vars[i], var, len) == 0)
+		{
+			env->vars[i] = var;
+			return ;
+		}
+		i -= 1;
+	}
+	env_add(&env, var);
+	env_append_null(env);
+}
+
+void	ms_env(t_env *env)
+{
+	size_t	i;
+
+	i = 0;
+	while (i < env->lenght && env->vars[i])
+	{
+		printf("%s\n", env->vars[i]);
+		i += 1;
+	}
+}
+
+void	ms_sig_handler(int sig)
+{
+	(void) sig;
+	write(MS_STDOUT, "\n", 1);
+	rl_on_new_line();
+	rl_replace_line("", 0);
+	rl_redisplay();
+}
+
+
 
 
 int main(int argc, char **argv, char **envp)
@@ -290,32 +472,34 @@ int main(int argc, char **argv, char **envp)
 	(void) argc;
 	(void) argv;
 	(void) envp;
+
+	char	*line;
+
+	atexit(ms_leaks);
+
 	if (!isatty(MS_STDIN))
 	{
-		MS_ERROR("minishell: ", "Invalid tty", "");
 		return (1);
 	}
 
-	t_env env = {0};
+	// catch signal
+	struct sigaction sa;
+	sa.sa_handler = ms_sig_handler;
+	sa.sa_flags = SA_RESTART;
+	sigaction(SIGINT, &sa, NULL);
 
-	ms_env_dup(&env, envp);
 
-	ms_env(&env);
-
-
-
-	return 0;
-
-	signal(SIGINT, ms_sig_handler);
-
+	// prompt
 	while (1)
 	{
-		// TODO: if cmd builtin just invoke function
-		// TODO: otherwise, create child process
-		char	*line = readline("ms$ ");
-		ms_exit(line);
+		line = readline("$ ");
+		if (line == NULL)
+			break;
+		printf("line: %s\n", line);
+		add_history(line);
+		free(line); // readline allocates memory for line
 	}
-
+	rl_clear_history(); // clear all memory for history
 	return 0;
 }
 

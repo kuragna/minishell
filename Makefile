@@ -1,12 +1,17 @@
 NAME	   = minishell
 CC		   = gcc
-CFLAGS	   = -Wall -Werror -Wextra -fsanitize=address
-LDFLAGS    = -L./libft -lft -lreadline
+CFLAGS	   = -Wall -Werror -Wextra -g3 #-fsanitize=address
+
+LDLIBFT		= ./libft
+RL			= /Users/${USER}/.brew/opt/readline/ 
+
+LDFLAGS		= -L$(LDLIBFT) -L$(addsuffix lib, $(RL)) -I$(addsuffix include, $(RL)) -lft -lreadline
 RM		   = rm -f
 SRC		   = main.c ms_builtins.c 
 SRC			:= $(addprefix src/, $(SRC))
 
 OBJ			= $(SRC:.c=.o)
+
 
 all: $(NAME)
 
@@ -27,4 +32,4 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: all clean fclean re libft
+.PHONY: all clean fclean re libft test

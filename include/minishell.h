@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/17 19:04:35 by aabourri          #+#    #+#             */
-/*   Updated: 2023/09/29 18:41:29 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/10/09 14:11:51 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,14 +20,12 @@
 # include <unistd.h>
 # include <string.h>
 # include <stdlib.h>
+# include <errno.h>
+# include <signal.h>
+# include <fcntl.h>
 
 # include <sys/stat.h>
 # include <dirent.h>
-
-# include <errno.h>
-
-#include <fcntl.h>
-#include <assert.h>
 
 # include "../libft/libft.h"
 
@@ -37,7 +35,6 @@
 #define MS_DOLLAR	'$'
 
 #define MS_ERROR(...) ms_error(3, __VA_ARGS__)
-
 
 #define MS_STDIN 	0
 #define MS_STDOUT 	1

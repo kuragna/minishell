@@ -58,17 +58,6 @@ void	ms_echo(char *text)
 	printf("\n");
 }
 
-
-void	ms_unset(void)
-{
-	assert(0 && "TODO: unset not implemented yet");
-}
-
-void	ms_export(void)
-{
-	assert(0 && "TODO: export not implemented yet");
-}
-
 int	ms_cd(const char *path)
 {
 	int err = chdir(path);
