@@ -392,38 +392,76 @@ void	ms_sig_handler(int sig)
 	rl_redisplay();
 }
 
+int	ms_catch_signal()
+{
+	int	err;
+	struct sigaction sa;
 
+	sa.sa_handler = ms_sig_handler;
+	sa.sa_flags = SA_RESTART;
+	err = sigaction(SIGINT, &sa, NULL); // ctrl-c
+	if (err == -1)
+	{
+		MS_ERROR("minishell: ", "", strerror(errno));
+		return (1);
+	}
+	err = sigaction(SIGQUIT, &sa, NULL); // ctrl-/
+	if (err == -1)
+	{
+		MS_ERROR("minishell: ", "", strerror(errno));
+		return (1);
+	}
+	return (0);
+}
+
+int	ms_terminal_mode(void)
+{
+	struct termios attr;
+
+	// TODO: make sure error format as follow [minishell: res: err]
+	if (!isatty(MS_STDIN))
+	{
+		MS_ERROR("minishell: ", ttyname(MS_STDIN), strerror(errno));
+		return (1);
+	}
+	if (tcgetattr(MS_STDIN, &attr) == -1)
+	{
+		MS_ERROR("minishell: ", "", strerror(errno));
+		return (1);
+	}
+	attr.c_lflag &= ~(ECHOCTL);
+	if (tcsetattr(MS_STDIN, TCSANOW, &attr) == -1)
+	{
+		MS_ERROR("minishell: ", "", strerror(errno));
+		return (1);
+	}
+	return (0);
+}
 
 int main(int argc, char **argv, char **envp)
 {
+	atexit(ms_leaks);
+
 	(void) argc;
 	(void) argv;
 	(void) envp;
 
 	char	*line;
 
-	atexit(ms_leaks);
-
-	if (!isatty(MS_STDIN))
-	{
+	if (ms_terminal_mode())
 		return (1);
-	}
-
 	// catch signal
-	struct sigaction sa;
-	sa.sa_handler = ms_sig_handler;
-	sa.sa_flags = SA_RESTART;
-	sigaction(SIGINT, &sa, NULL); // ctrl-c
-	sigaction(SIGQUIT, &sa, NULL);
+	if (ms_catch_signal())
+		return (1);
+
 
 	// prompt
 	while (1)
 	{
 		line = readline("$ ");
-		if (line == NULL)
-			ms_exit(line);
+		ms_exit(line); // check before call function
 		add_history(line);
-		free(line); // readline allocates memory for line
+		free(line); // readline allocates memory
 	}
 	rl_clear_history(); // clear all memory for history
 	return 0;
