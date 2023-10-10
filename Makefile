@@ -6,7 +6,7 @@
 #    By: glacroix <glacroix@student.42madrid.com    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/10/09 14:16:51 by glacroix          #+#    #+#              #
-#    Updated: 2023/10/09 16:54:12 by aabourri         ###   ########.fr        #
+#    Updated: 2023/10/10 15:03:23 by aabourri         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -27,7 +27,7 @@ NAME	   = minishell
 
 #SRC & OBJS Details
 # **************************************************************************** #
-SRCS		   = main.c ms_builtins.c 
+SRCS		   = main.c ms_builtins.c ms_utilts.c
 OBJ			= $(SRCS:%.c=objs/%.o)
 SRCS			:= $(addprefix src/, $(SRCS))
 

@@ -255,7 +255,6 @@ void	env_realloc(t_env **env)
 		new[i] = (*env)->vars[i];
 		i += 1;
 	}
-
 	free((*env)->vars);
 	(*env)->vars = new;
 }
@@ -386,11 +385,14 @@ void	ms_sig_handler(int sig)
 		rl_redisplay();
 		return ;
 	}
+	if (waitpid(-1, NULL, 0) > 0)
+		return ;
+	rl_replace_line("", 0);
 	write(MS_STDOUT, "\n", 1);
 	rl_on_new_line();
-	rl_replace_line("", 0);
 	rl_redisplay();
 }
+
 
 int	ms_catch_signal()
 {
@@ -438,9 +440,28 @@ int	ms_terminal_mode(void)
 	return (0);
 }
 
+void	child_handler(int sig)
+{
+	if (sig == SIGINT)
+		exit(0);
+}
+
+int	ms_child_process()
+{
+	signal(SIGINT, child_handler);
+	char	*path = "/bin/cat";
+	char	*args[] = {
+		"cat",
+		NULL,
+	};
+	ms_exec(path, args);
+	//execve(path, args, NULL);
+	return (0);
+}
+
 int main(int argc, char **argv, char **envp)
 {
-	atexit(ms_leaks);
+	//atexit(ms_leaks);
 
 	(void) argc;
 	(void) argv;
@@ -454,13 +475,23 @@ int main(int argc, char **argv, char **envp)
 	if (ms_catch_signal())
 		return (1);
 
-
+	pid_t	pid;
 	// prompt
 	while (1)
 	{
 		line = readline("$ ");
 		ms_exit(line); // check before call function
 		add_history(line);
+
+		pid = fork();
+		if (pid == 0)
+		{
+			ms_child_process();
+			// child
+		}
+		else
+			waitpid(pid, NULL, 0);// parent
+
 		free(line); // readline allocates memory
 	}
 	rl_clear_history(); // clear all memory for history
