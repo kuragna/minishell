@@ -446,7 +446,7 @@ void	child_handler(int sig)
 		exit(0);
 }
 
-int	ms_child_process()
+/*int	ms_child_process()
 {
 	signal(SIGINT, child_handler);
 	char	*path = "/bin/cat";
@@ -457,7 +457,7 @@ int	ms_child_process()
 	ms_exec(path, args);
 	//execve(path, args, NULL);
 	return (0);
-}
+}*/
 
 int main(int argc, char **argv, char **envp)
 {
@@ -475,7 +475,7 @@ int main(int argc, char **argv, char **envp)
 	if (ms_catch_signal())
 		return (1);
 
-	pid_t	pid;
+//	pid_t	pid;
 	// prompt
 	while (1)
 	{
@@ -484,7 +484,7 @@ int main(int argc, char **argv, char **envp)
 		ms_echo(line);
 		add_history(line);
 
-		pid = fork();
+/*		pid = fork();
 		if (pid == 0)
 		{
 			ms_child_process();
@@ -492,7 +492,7 @@ int main(int argc, char **argv, char **envp)
 		}
 		else
 			waitpid(pid, NULL, 0);// parent
-
+*/
 		free(line); // readline allocates memory
 	}
 	rl_clear_history(); // clear all memory for history
