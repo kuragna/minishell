@@ -6,7 +6,7 @@
 #    By: glacroix <glacroix@student.42madrid.com    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/10/09 14:16:51 by glacroix          #+#    #+#              #
-#    Updated: 2023/10/10 19:50:38 by glacroix         ###   ########.fr        #
+#    Updated: 2023/10/10 15:03:23 by aabourri         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -32,6 +32,7 @@ SRCS		   = main.c\
 				builtins/ms_cd.c\
 				builtins/ms_echo.c\
 				builtins/ms_pwd.c\
+
 
 OBJ			= $(SRCS:%.c=objs/%.o)
 SRCS			:= $(addprefix src/, $(SRCS))

@@ -22,6 +22,9 @@ int	ms_cmd_path(char **cmd)
 	char	**paths = ms_get_paths();
 	size_t	i = 0;
 
+	if (ft_strchr(*cmd, '/'))
+		return (1);
+
 	while (paths[i] != NULL)
 	{
 		cmd_path = ms_path_prefix(paths[i], *cmd);
@@ -41,7 +44,7 @@ void	ms_exec(char *cmd, char **args)
 {
 	if (ms_cmd_path(&cmd) == 0)
 	{
-		MS_ERROR("minishell: ", cmd, "command not found");
+		MS_ERROR("minishell: ", cmd, ": command not found");
 		exit(MS_CNF);
 	}
 	execve(cmd, args, NULL);
