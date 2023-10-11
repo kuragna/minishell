@@ -481,6 +481,7 @@ int main(int argc, char **argv, char **envp)
 	{
 		line = readline("$ ");
 		ms_exit(line); // check before call function
+		ms_echo(line);
 		add_history(line);
 
 		pid = fork();

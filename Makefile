@@ -27,7 +27,13 @@ NAME	   = minishell
 
 #SRC & OBJS Details
 # **************************************************************************** #
-SRCS		   = main.c ms_builtins.c ms_utilts.c
+SRCS		   = main.c\
+				ms_builtins.c\
+				builtins/ms_cd.c\
+				builtins/ms_echo.c\
+				builtins/ms_pwd.c\
+
+
 OBJ			= $(SRCS:%.c=objs/%.o)
 SRCS			:= $(addprefix src/, $(SRCS))
 
@@ -67,6 +73,7 @@ objs/%.o: %.c
 
 objs: 
 	@mkdir -p objs/src
+	@mkdir -p objs/src/builtins
 
 clean:
 	@make clean -C ./libft

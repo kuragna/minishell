@@ -2,10 +2,10 @@
 #define MS_BUILTIN_H
 
 
-// void	ms_echo(char *str);
-// int		ms_pwd(void);
+void	ms_echo(char *str);
+int		ms_pwd(void);
 // void	ms_env(void);
-// void	ms_cd(void);
+int		ms_cd(const char *path);
 // void	ms_unset(void);
 // void	ms_export(void);
 
