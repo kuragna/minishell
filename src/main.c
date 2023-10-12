@@ -4,8 +4,7 @@
 #define MS_PRINT(str) printf("%s:%d: %s\n", __FILE__, __LINE__, str)
 
 /* ================ parsing ================= */
-/* TODO: trim space
- * TODO: < redirect input
+/* TODO: < redirect input
  * TODO: > redirect output
  * TODO: << 
  * TODO: >> redirect output in append mode
@@ -18,16 +17,17 @@
 /* ================ builtin ================= */
 /* TODO: echo with -n
  * TODO: cd "relative or absolute path"
- * TODO: pwd
  * TODO: export
  * TODO: unset
  * TODO: env
- * TODO: exit */
+ * DONE: pwd
+ * DONE: exit */
 /* ================ builtin ================= */
 /* ================ interactive mode ================= */
-/* TODO: ctrl-C: displays a new prompt
- * TODO: ctrl-D: exit
- * TODO: ctrl-\ does nothin */
+/* TODO: ctrl-c: kill child process
+ * DONE: ctrl-c: displays a new prompt
+ * DONE: ctrl-D: exit
+ * DONE: ctrl-\ does nothin */
 /* ================ interactive mode ================= */
 
 
@@ -88,12 +88,6 @@ typedef struct s_token
 	struct s_token *next;
 } t_token;
 
-typedef struct s_cmd
-{
-	char	*name;
-	char	**args;
-} t_cmd;
-
 int ms_trim_left(t_lexer *l)
 {
 	while (l->pos < l->len && ft_isspace(l->line[l->pos]))
@@ -103,24 +97,9 @@ int ms_trim_left(t_lexer *l)
 	return l->pos;
 }
 
-t_cmd	*cmd_new(t_token *token)
-{
-	if (token->token_type != TOKEN_WORD)
-		return NULL;
-	t_cmd	*cmd;
-
-	cmd = malloc(sizeof(*cmd));
-
-	cmd->name = malloc(sizeof(*cmd) * (token->len + 1));
-
-	ft_strlcpy(cmd->name, token->text, token->len + 1);
-
-	return cmd;
-}
-
 int	ms_is_metachar(int c)
 {
-	if (c == ' ' || c == '\t' || c == '|' || c == '<' || c == '>')
+	if (c == '|' || c == '<' || c == '>')
 		return 1;
 	return 0;
 }
@@ -187,44 +166,11 @@ t_token token_next(t_lexer *l)
 }
 
 
-void	ms_exit(char *line)
-{
-	if (!line || ft_strncmp(line, "exit", 4) == 0)
-	{
-		ft_putendl_fd("exit", MS_STDOUT);
-		exit(EXIT_SUCCESS);
-	}
-} 
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/* name of environment variable should start with underscore */
-int	ms_start(int c)
-{
-	return ft_isalpha(c) || c == '_';
-}
-/* name of environment variable should not contain special characters, except underscore */
-int	ms_symbol(char *str, int c)
-{
-	while (*str && *str != c)
-	{
-		if (!(ft_isalnum(*str) || *str == '_'))
-			return (0);	
-		str += 1;
-	}
-	return (1);
-}
 
-/*
- *	'env' command prints variable if has [name=value]
- *	otherwise, just ignore
- *	Maybe good idea to add a flag to check if variable has both name and value or not
- * */
-typedef struct s_env
-{
-	char	**vars;
-	size_t	capacity;
-	size_t	lenght;
-} t_env;
+
 
 
 // TODO: make it dynamicly
@@ -284,7 +230,7 @@ t_env env_dup(char **envp)
 
 	env.capacity = env_size(envp);
 	env.lenght = 0;
-	env.vars = malloc(sizeof(char *) * (env.capacity + 1));
+	env.vars = malloc(sizeof(char *) * (env.capacity + 1)); // check error
 
 	while (envp[i] != NULL)
 	{
@@ -292,8 +238,24 @@ t_env env_dup(char **envp)
 		i += 1;
 	}
 	env.lenght += i;
+	env_append_null(&env);
 	return env;
 }
+
+void	*ft_realloc(void *ptr, size_t size)
+{
+	void	*new;
+
+	if (size == 0)
+		return NULL;
+	new = malloc(size);
+	if (!new)
+		return NULL;
+	ft_memmove(new, ptr, size);
+	free(ptr);
+	return new;
+}
+
 
 void	env_sort(t_env *env)
 {
@@ -306,9 +268,9 @@ void	env_sort(t_env *env)
 	while (env->vars[i])
 	{
 		j = 0;
+		len = ft_strlen(env->vars[i]);
 		while (env->vars[j])
 		{
-			len = ft_strlen(env->vars[j]);
 			if (ft_strncmp(env->vars[i], env->vars[j], len) < 0)
 			{
 				t = env->vars[i];
@@ -317,63 +279,6 @@ void	env_sort(t_env *env)
 			}
 			j += 1;
 		}
-		i += 1;
-	}
-}
-
-
-void	export_print(t_env *env)
-{
-	size_t	i;
-
-	i = 0;
-	env_sort(env);
-	while (env->vars[i])
-	{
-		printf("declare -x %s\n", env->vars[i]);
-		i += 1;
-	}
-}
-
-void	ms_export(t_env *env, char *var)
-{
-	char	*end;
-	int		i;
-	int		len;
-
-	if (!ms_start(*var) || !ms_symbol(var + 1, '='))
-	{
-		MS_ERROR("export: ", var, ": not a valid identifier");
-		return ;
-	}
-	end = ft_strchr(var, '=');
-	i = env->lenght - 1;
-
-	if (!end)
-		return ;
-
-	len = end - var;
-	while (i >= 0)
-	{
-		if (ft_strncmp(env->vars[i], var, len) == 0)
-		{
-			env->vars[i] = var;
-			return ;
-		}
-		i -= 1;
-	}
-	env_add(&env, var);
-	env_append_null(env);
-}
-
-void	ms_env(t_env *env)
-{
-	size_t	i;
-
-	i = 0;
-	while (i < env->lenght && env->vars[i])
-	{
-		printf("%s\n", env->vars[i]);
 		i += 1;
 	}
 }
@@ -448,58 +353,39 @@ void	child_handler(int sig)
 
 int	ms_child_process()
 {
-	signal(SIGINT, child_handler);
-	char	*path = "/bin/cat";
-	char	*args[] = {
-		"cat",
-		NULL,
-	};
-	ms_exec(path, args);
-	//execve(path, args, NULL);
+	printf("Not implemented yet\n");
 	return (0);
 }
 
-int main(int argc, char **argv, char **envp)
+int main2(int argc, char **argv, char **envp)
 {
-	//atexit(ms_leaks);
-
 	(void) argc;
 	(void) argv;
 	(void) envp;
-
 	char	*line;
-
+	//atexit(ms_leaks);
+	//////////////////////////////////////////////////
 	if (ms_terminal_mode())
 		return (1);
 	// catch signal
 	if (ms_catch_signal())
 		return (1);
+	//////////////////////////////////////////////////
+	
+	t_env env = env_dup(envp);
 
-	pid_t	pid;
 	// prompt
 	while (1)
 	{
 		line = readline("$ ");
+		ms_env(env);
 		ms_exit(line); // check before call function
-		ms_echo(line);
 		add_history(line);
-
-		pid = fork();
-		if (pid == 0)
-		{
-			ms_child_process();
-			// child
-		}
-		else
-			waitpid(pid, NULL, 0);// parent
-
 		free(line); // readline allocates memory
 	}
 	rl_clear_history(); // clear all memory for history
 	return 0;
 }
-
-
 /*
  * redirection = {
  * 	'>' <word>

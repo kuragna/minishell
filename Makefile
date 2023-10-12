@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: glacroix <glacroix@student.42madrid.com    +#+  +:+       +#+         #
+#    By: aabourri <aabourri@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/10/09 14:16:51 by glacroix          #+#    #+#              #
-#    Updated: 2023/10/10 15:03:23 by aabourri         ###   ########.fr        #
+#    Updated: 2023/10/12 17:51:29 by aabourri         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -28,10 +28,13 @@ NAME	   = minishell
 #SRC & OBJS Details
 # **************************************************************************** #
 SRCS		   = main.c\
-				ms_builtins.c\
 				builtins/ms_cd.c\
 				builtins/ms_echo.c\
 				builtins/ms_pwd.c\
+				builtins/ms_env.c\
+				builtins/ms_exit.c\
+				builtins/ms_env_utilts.c\
+				
 
 
 OBJ			= $(SRCS:%.c=objs/%.o)
@@ -45,11 +48,10 @@ RL			= /Users/${USER}/.brew/opt/readline/
 #Execution
 # **************************************************************************** #
 CC		   = gcc
-CFLAGS	   = -Wall -Werror -Wextra
+CFLAGS	   = -Wall -Werror -Wextra -g3 -fsanitize=address
 LDFLAGS    = -L$(LDLIBFT) -L$(addsuffix lib, $(RL)) 
 LDFLAGS    += -I$(addsuffix include, $(RL)) -lft -lreadline
-RM		   = rm -rf
-DEBUG      += -fsanitize=address -g3
+RM		   = rm -rf 
 
 
 #SRC Execution
