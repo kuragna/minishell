@@ -468,7 +468,7 @@ int main(int argc, char **argv, char **envp)
 	(void) envp;
 
 	char	*line;
-
+	//char	**args;
 	if (ms_terminal_mode())
 		return (1);
 	// catch signal
@@ -481,9 +481,8 @@ int main(int argc, char **argv, char **envp)
 	{
 		line = readline("$ ");
 		ms_exit(line); // check before call function
-		ms_echo(line);
 		add_history(line);
-
+	//	args = split_line(line);
 /*		pid = fork();
 		if (pid == 0)
 		{

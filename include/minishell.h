@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/17 19:04:35 by aabourri          #+#    #+#             */
-/*   Updated: 2023/10/09 20:37:02 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/10/12 23:33:03 by glacroix         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,6 +58,12 @@ void	rl_replace_line (const char *text, int clear_undo);
 #include "../include/ms_builtin.h"
 
 /* ================= builtin ================= */
+
+/* ================= parsing ================= */
+
+#include "../include/ms_lexer.h"
+
+/* ================= parsing ================= */
 
 /* ================= General ================= */
 

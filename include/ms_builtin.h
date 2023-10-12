@@ -4,7 +4,7 @@
 #define SINGLE_QUOTE '\''
 #define DOUBLE_QUOTE '\"'
 
-void	ms_echo(char *str);
+void	ms_echo(char **input);
 int		ms_pwd(void);
 // void	ms_env(void);
 int		ms_cd(const char *path);

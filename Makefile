@@ -6,7 +6,7 @@
 #    By: glacroix <glacroix@student.42madrid.com    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/10/09 14:16:51 by glacroix          #+#    #+#              #
-#    Updated: 2023/10/10 15:03:23 by aabourri         ###   ########.fr        #
+#    Updated: 2023/10/12 23:34:53 by glacroix         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -32,10 +32,11 @@ SRCS		   = main.c\
 				builtins/ms_cd.c\
 				builtins/ms_echo.c\
 				builtins/ms_pwd.c\
+				lexer/split_line.c\
 
+SRCS			:= $(addprefix src/, $(SRCS))
 
 OBJ			= $(SRCS:%.c=objs/%.o)
-SRCS			:= $(addprefix src/, $(SRCS))
 
 #Routes
 # **************************************************************************** #
@@ -74,6 +75,7 @@ objs/%.o: %.c
 objs: 
 	@mkdir -p objs/src
 	@mkdir -p objs/src/builtins
+	@mkdir -p objs/src/lexer
 
 clean:
 	@make clean -C ./libft
