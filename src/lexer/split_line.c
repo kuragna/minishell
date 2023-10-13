@@ -6,7 +6,7 @@
 /*   By: glacroix <glacroix@student.42madrid>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/12 21:29:19 by glacroix          #+#    #+#             */
-/*   Updated: 2023/10/12 23:45:28 by glacroix         ###   ########.fr       */
+/*   Updated: 2023/10/13 19:59:42 by glacroix         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,61 +32,77 @@
 
 // this was a test but it's the wrong approach, it is not optimal to count words when we don't know how long our line will; hence the option of using lists.
 
-/*
-static int	word_count(char const *str, char *delimiters)
+
+//need to free new_str in another function
+char *remove_characters(char *text, char c)
 {
-	int word_count, i, j;
-	char const *temp;
-	
-	i=0;
-	while (delimiters && delimiters[i])
-		printf("delimiters[i] = %c\n", delimiters[i++]);
-	word_count = 0;
-	i = 0;
-	j = 0;
-	while (delimiters[i])
+	char *new_str;
+	int i = 0;
+	int j = 0;
+
+	new_str = malloc(sizeof(text) * ft_strlen(text) + 1);
+	if (!new_str)
+		return NULL;
+	while (text && text[i])
 	{
-		temp = str;
-		while (*temp)
-		{
-			while (*temp && *temp == delimiters[i])
-				temp++;
-			if (*temp)
-				word_count++;
-			while (*temp && *temp != delimiters[i])
-				temp++;
-		}
-		i++;
+		if (text[i] != c)
+			new_str[j++] = text[i++];
+		else
+			i++;
 	}
-	return (word_count);
+	new_str[j] = '\0';
+	return (new_str);
 }
+
+void single_quote_mode(t_token *token, char *line, size_t *start, size_t *end)
+{
+	(*end)++;
+	while (line && line[*end] != SINGLE_QUOTE)
+		(*end)++;
+	while (line && line[*end] != SPACE)
+		(*end)++;
+	char *test = ft_substr(line, *start, *end);
+	test = remove_characters(test, SINGLE_QUOTE); 
+	ft_lstadd_front(&token->list, ft_lstnew(test));
+	printf("list->content = %s\n", token->list->content);
+
+				
+}
+
+t_token *split_line(char *line)
+{
+	t_token *token = NULL;
+	size_t start;
+	size_t end;
+			
+
+	start = 0;
+	end = 0;
+	token = malloc(sizeof(t_token));
+	//ft_memset(token, 0, sizeof(*token));
+	while (line && line[end])
+	{
+		if (line[end] == SINGLE_QUOTE)
+			single_quote_mode(token, line, &start, &end);
+		/*else if (line[end] == '|')
+		{
+			char *test1 = ft_substr(line, start, end);
+			ft_lstadd_back(&token->list, ft_lstnew(test1));
+		}*/
+		
+		end++;
+
+	}
+	return (token);
+}
+
+#if 1
 
 int main()
 {
-	char const *str = "ls -la";
-	char delimiters[4] = {'|', '>', '<', 0};
-	printf("str [ %s ]\n", str);
-	printf("word count = %d\n", word_count(str, delimiters));
+	char *str = "'src/ 42'1234 test1";
+	split_line(str);
 	return (0);
 }
 
-char **ft_split_multiple_c(char const *str, char *str)
-{
-	char	**tokens;
-	char	**delimiters;
-	int		nb_words;
-	int		j = 0;
-
-	if (!str)
-		return (NULL);
-	delimiters = ft_split(str, 32);
-	nb_words = word_count(s, delimiters);
-	
-}
-
-char **split_line(char *line)
-{
-	char **args	= ft_split(line, '|');
-
-	return args;
-}*/
+#endif

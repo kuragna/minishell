@@ -80,13 +80,6 @@ typedef struct
 	size_t	end;
 } t_lexer;
 
-typedef struct s_token
-{
-	t_token_type token_type;
-	char	*text;
-	size_t	len;
-	struct s_token *next;
-} t_token;
 
 typedef struct s_cmd
 {
@@ -103,7 +96,7 @@ int ms_trim_left(t_lexer *l)
 	return l->pos;
 }
 
-t_cmd	*cmd_new(t_token *token)
+/*t_cmd	*cmd_new(t_token *token)
 {
 	if (token->token_type != TOKEN_WORD)
 		return NULL;
@@ -117,7 +110,7 @@ t_cmd	*cmd_new(t_token *token)
 
 	return cmd;
 }
-
+*/
 int	ms_is_metachar(int c)
 {
 	if (c == ' ' || c == '\t' || c == '|' || c == '<' || c == '>')
@@ -136,7 +129,7 @@ t_lexer ms_lexer_init(char *line, size_t len)
 	return lexer;
 }
 
-void	token_(t_token *token, t_token_type type, t_lexer *l, size_t len)
+/*void	token_(t_token *token, t_token_type type, t_lexer *l, size_t len)
 {
 	token->token_type = type;
 	token->len = len;
@@ -186,7 +179,7 @@ t_token token_next(t_lexer *l)
 	return token;
 }
 
-
+*/
 void	ms_exit(char *line)
 {
 	if (!line || ft_strncmp(line, "exit", 4) == 0)
@@ -457,7 +450,9 @@ void	child_handler(int sig)
 	ms_exec(path, args);
 	//execve(path, args, NULL);
 	return (0);
-}*/
+}
+*/
+#if 0
 
 int main(int argc, char **argv, char **envp)
 {
@@ -483,7 +478,7 @@ int main(int argc, char **argv, char **envp)
 		ms_exit(line); // check before call function
 		add_history(line);
 	//	args = split_line(line);
-/*		pid = fork();
+		pid = fork();
 		if (pid == 0)
 		{
 			ms_child_process();
@@ -498,6 +493,7 @@ int main(int argc, char **argv, char **envp)
 	return 0;
 }
 
+#endif
 
 /*
  * redirection = {
