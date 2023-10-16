@@ -6,7 +6,7 @@
 /*   By: glacroix <glacroix@student.42madrid>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/12 21:29:19 by glacroix          #+#    #+#             */
-/*   Updated: 2023/10/13 19:59:42 by glacroix         ###   ########.fr       */
+/*   Updated: 2023/10/16 21:04:01 by glacroix         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,12 +40,16 @@ char *remove_characters(char *text, char c)
 	int i = 0;
 	int j = 0;
 
-	new_str = malloc(sizeof(text) * ft_strlen(text) + 1);
+	if (!text)
+		return NULL;
+	text = ft_strtrim(text, " ");
+	new_str = malloc(sizeof(*new_str) * ft_strlen(text) + 1);
 	if (!new_str)
 		return NULL;
-	while (text && text[i])
+//	printf("[%s]\n", text);
+	while (text[i])
 	{
-		if (text[i] != c)
+		if (text[i] && text[i] != c)
 			new_str[j++] = text[i++];
 		else
 			i++;
@@ -54,44 +58,66 @@ char *remove_characters(char *text, char c)
 	return (new_str);
 }
 
+//INTERESTING = if you free string, you also free the nodes of the list
+//TODO: add check for when SINGLE_QUOTE OR DOUBLE_QUOTE aren't closed
 void single_quote_mode(t_token *token, char *line, size_t *start, size_t *end)
 {
-	(*end)++;
-	while (line && line[*end] != SINGLE_QUOTE)
-		(*end)++;
-	while (line && line[*end] != SPACE)
-		(*end)++;
-	char *test = ft_substr(line, *start, *end);
-	test = remove_characters(test, SINGLE_QUOTE); 
-	ft_lstadd_front(&token->list, ft_lstnew(test));
-	printf("list->content = %s\n", token->list->content);
+	char	*string;
 
-				
+	string = NULL;
+	(*end)++;
+	while (line[*end] && line[*end] != SINGLE_QUOTE)
+		(*end)++;
+	while (line[*end] && line[*end] != SPACE)
+		(*end)++;
+	string = ft_substr(line, *start, *end - *start);
+	string = remove_characters(string, SINGLE_QUOTE);
+	ft_lstadd_back(&token->list, ft_lstnew(string));
+//	free(string);
+	if (line[*end] != '\0')
+		*start = *end + 1;
+}
+
+void double_quote_mode(t_token *token, char *line, size_t *start, size_t *end)
+{
+	char	*string;
+
+	string = NULL;
+	(*end)++;
+	while (line[*end] && line[*end] != DOUBLE_QUOTE)
+		(*end)++;
+	while (line[*end] && line[*end] != SPACE)
+		(*end)++;
+	string = ft_substr(line, *start, *end - *start);
+	string = remove_characters(string, DOUBLE_QUOTE); 
+	ft_lstadd_back(&token->list, ft_lstnew(string));
+	if (line[*end] != '\0')
+		*start = *end + 1;
 }
 
 t_token *split_line(char *line)
 {
-	t_token *token = NULL;
-	size_t start;
-	size_t end;
+	t_token	*token;
+	size_t	start;
+	size_t	end;
+	size_t	len;
 			
 
+	token = NULL;
 	start = 0;
 	end = 0;
 	token = malloc(sizeof(t_token));
-	//ft_memset(token, 0, sizeof(*token));
-	while (line && line[end])
+	ft_memset(token, 0, sizeof(*token));
+	len = ft_strlen(line);
+	while (end < len)
 	{
-		if (line[end] == SINGLE_QUOTE)
-			single_quote_mode(token, line, &start, &end);
-		/*else if (line[end] == '|')
-		{
-			char *test1 = ft_substr(line, start, end);
-			ft_lstadd_back(&token->list, ft_lstnew(test1));
-		}*/
-		
+		while (ft_isspace(line[end]))
+			end++;
+		if (line[end] && line[end] == SINGLE_QUOTE)
+			single_quote_mode(token, line, &start, &end);	
+		else if (line[end] == DOUBLE_QUOTE)
+			double_quote_mode(token, line, &start, &end);
 		end++;
-
 	}
 	return (token);
 }
@@ -100,8 +126,13 @@ t_token *split_line(char *line)
 
 int main()
 {
-	char *str = "'src/ 42'1234 test1";
-	split_line(str);
+	char *str = readline("$> ");
+	t_token *token = split_line(str);
+	while (token->list != NULL)
+	{
+		printf("\ncontent = [%s]\n", token->list->content);
+		token->list = token->list->next;
+	}
 	return (0);
 }
 
