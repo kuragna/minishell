@@ -6,7 +6,7 @@
 /*   By: glacroix <glacroix@student.42madrid>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/12 21:29:19 by glacroix          #+#    #+#             */
-/*   Updated: 2023/10/16 21:04:01 by glacroix         ###   ########.fr       */
+/*   Updated: 2023/10/17 20:36:32 by glacroix         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,14 +111,23 @@ t_token *split_line(char *line)
 	len = ft_strlen(line);
 	while (end < len)
 	{
-		while (ft_isspace(line[end]))
-			end++;
+		while (ft_isspace(line[start]))
+			start++;
 		if (line[end] && line[end] == SINGLE_QUOTE)
 			single_quote_mode(token, line, &start, &end);	
 		else if (line[end] == DOUBLE_QUOTE)
 			double_quote_mode(token, line, &start, &end);
+		else if (line[end] == SPACE)
+		{
+			char *string = ft_substr(line, start, end - start);
+			ft_lstadd_back(&token->list, ft_lstnew(string));
+			if (line[end] != '\0')
+				start = end + 1;
+		}
 		end++;
 	}
+	//char *string = ft_substr(line, start, end - start);
+	//ft_lstadd_back(&token->list, ft_lstnew(string));
 	return (token);
 }
 
@@ -126,7 +135,7 @@ t_token *split_line(char *line)
 
 int main()
 {
-	char *str = readline("$> ");
+	char *str = "ls -la | cat \"srcs -e\"";//readline("$> ");
 	t_token *token = split_line(str);
 	while (token->list != NULL)
 	{
