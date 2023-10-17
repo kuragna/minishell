@@ -31,7 +31,18 @@
  * */
 
 // this was a test but it's the wrong approach, it is not optimal to count words when we don't know how long our line will; hence the option of using lists.
+/*int delimiters_present(char *text)
+{
+	(void)text;
+	char *delimiters[5] = {"|", ">", "<", ">>", NULL};
+	while (text && *text)
+	{
+		if (*text == *delimiters[i])
+			return (1);
 
+	}
+	return 0;
+}*/
 
 //need to free new_str in another function
 char *remove_characters(char *text, char c)
@@ -60,6 +71,8 @@ char *remove_characters(char *text, char c)
 
 //INTERESTING = if you free string, you also free the nodes of the list
 //TODO: add check for when SINGLE_QUOTE OR DOUBLE_QUOTE aren't closed
+//TODO: add conditions for when delimiter is found in line
+//TODO: end of string when in normal mode doesn't get tokenized'
 void single_quote_mode(t_token *token, char *line, size_t *start, size_t *end)
 {
 	char	*string;
@@ -109,7 +122,7 @@ t_token *split_line(char *line)
 	token = malloc(sizeof(t_token));
 	ft_memset(token, 0, sizeof(*token));
 	len = ft_strlen(line);
-	while (end < len)
+	while (end <= len)
 	{
 		while (ft_isspace(line[start]))
 			start++;
@@ -124,10 +137,13 @@ t_token *split_line(char *line)
 			if (line[end] != '\0')
 				start = end + 1;
 		}
+		else if (end == len)
+		{
+			char *string = ft_substr(line, start, end - start);
+			ft_lstadd_back(&token->list, ft_lstnew(string));
+		}
 		end++;
 	}
-	//char *string = ft_substr(line, start, end - start);
-	//ft_lstadd_back(&token->list, ft_lstnew(string));
 	return (token);
 }
 
@@ -135,11 +151,12 @@ t_token *split_line(char *line)
 
 int main()
 {
-	char *str = "ls -la | cat \"srcs -e\"";//readline("$> ");
+	char *str = "ls -la | cat srcs -e";//readline("$> ");
 	t_token *token = split_line(str);
+	delimiters_present(str);
 	while (token->list != NULL)
 	{
-		printf("\ncontent = [%s]\n", token->list->content);
+		printf("\ncontent = [%s]\n", (char *)token->list->content);
 		token->list = token->list->next;
 	}
 	return (0);
