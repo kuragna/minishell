@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/17 19:04:35 by aabourri          #+#    #+#             */
-/*   Updated: 2023/10/12 23:33:03 by glacroix         ###   ########.fr       */
+/*   Updated: 2023/10/19 13:08:12 by glacroix         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,6 +70,7 @@ void	rl_replace_line (const char *text, int clear_undo);
 void	ms_error(const int size, ...); // exmple: minishell: djsk: command not found
 void	ms_leaks(void);
 void	ms_exec(char *cmd, char **args);
+void	ms_exit(char *line);
 
 /* ================= General ================= */
 
