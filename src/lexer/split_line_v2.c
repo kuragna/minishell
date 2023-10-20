@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   split_line.c                                       :+:      :+:    :+:   */
+/*   split_line_v2.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: glacroix <glacroix@student.42madrid>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/12 21:29:19 by glacroix          #+#    #+#             */
-/*   Updated: 2023/10/20 18:52:20 by glacroix         ###   ########.fr       */
+/*   Updated: 2023/10/20 18:54:58 by glacroix         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,150 +33,21 @@
  * -----------------------------------------------------------------------------------
  * */
 
-int delimiters_present(char *text)
-{
-	int	i;
-	int j;
-	//char *delimiters[5] = {"|", ">", "<", ">>", NULL};
-	char delimiters[5] = {'|', '>', '<', '\0'}; //do not forget >>
+typedef struct s_lexer {
+	char *input;
+	char *result;
+	size_t start;
+	size_t end;
+}			t_lexer;
 
-	i = 0;
-	j = 0;
-	while (i < 5)
-	{
-		j = 0;
-		while (text && text[j])
-		{
-			printf("text[%d] = %c | delimiter[%d] = %c\n", j, text[j], i, delimiters[i]);
-			if (text[j] == delimiters[i])
-				return (i);
-			j++;
-		}
-		i++;	
-	}
-	return -1;
+
+char *create_token(char *input)
+{
+	
 }
 
-//need to free new_str in another function
-char *remove_characters(char *text, char c)
-{
-	char *new_str;
-	int i = 0;
-	int j = 0;
 
-	if (!text)
-		return NULL;
-	text = ft_strtrim(text, " ");
-	new_str = malloc(sizeof(*new_str) * ft_strlen(text) + 1);
-	if (!new_str)
-		return NULL;
-//	printf("[%s]\n", text);
-	while (text[i])
-	{
-		if (text[i] && text[i] != c)
-			new_str[j++] = text[i++];
-		else
-			i++;
-	}
-	new_str[j] = '\0';
-	return (new_str);
-}
-
-//INTERESTING = if you free string, you also free the nodes of the list
-//DONE: add check for when SINGLE_QUOTE OR DOUBLE_QUOTE aren't closed
-//DONE: end of string when in normal mode doesn't get tokenized => make this cleaner
-//TODO: add conditions for when delimiter is found in line
-int single_quote_mode(t_token *token, char *line, size_t *start, size_t *end)
-{
-	char	*string;
-
-	string = NULL;
-	(*end)++;
-	if (!ft_strchr(line + *end, '\''))
-		return (ft_putstr_fd("Error: not closing quotes\n", 2), 1);
-	while (line[*end] && line[*end] != SINGLE_QUOTE)
-		(*end)++;
-	while (line[*end] && line[*end] != SPACE)
-		(*end)++;
-	string = ft_substr(line, *start, *end - *start);
-	string = remove_characters(string, SINGLE_QUOTE);
-	ft_lstadd_back(&token->list, ft_lstnew(string));
-	if (line[*end] != '\0')
-		*start = *end + 1;
-	return (0);
-}
-
-int double_quote_mode(t_token *token, char *line, size_t *start, size_t *end)
-{
-	char	*string;
-
-	string = NULL;
-	(*end)++;
-	if (!ft_strchr(line + *end, '\"'))
-		return (ft_putstr_fd("Error: not closing quotes\n", 2), 1);
-	while (line[*end] && line[*end] != DOUBLE_QUOTE)
-		(*end)++;
-	while (line[*end] && line[*end] != SPACE)
-		(*end)++;
-	//if (line[*end] && line[*end] == SINGLE_QUOTE && ft_strchr(line + *end, '\''))
-	//{
-		//printf("here\n");	
-		//single_quote_mode(token, line, start, end);
-	//}
-	string = ft_substr(line, *start, *end - *start);
-	string = remove_characters(string, DOUBLE_QUOTE); 
-	ft_lstadd_back(&token->list, ft_lstnew(string));
-	if (line[*end] != '\0')
-		*start = *end + 1;
-	return (0);
-}
-
-t_token *split_line(char *line)
-{
-	t_token	*token;
-	size_t	start;
-	size_t	end;
-	size_t	len;
-			
-
-	token = NULL;
-	start = 0;
-	end = 0;
-	token = malloc(sizeof(t_token));
-	ft_memset(token, 0, sizeof(*token));
-	len = ft_strlen(line);
-	while (end <= len)
-	{
-		while (ft_isspace(line[start]))
-			start++;
-		if (line[end] && line[end] == SINGLE_QUOTE)
-		{
-			if (single_quote_mode(token, line, &start, &end))
-				exit(EXIT_FAILURE);
-		}
-		else if (line[end] == DOUBLE_QUOTE)
-		{
-			if (double_quote_mode(token, line, &start, &end))
-				exit(EXIT_FAILURE);
-		}
-		else if (line[end] == SPACE)
-		{
-			char *string = ft_substr(line, start, end - start);
-			ft_lstadd_back(&token->list, ft_lstnew(string));
-			if (line[end] != '\0')
-				start = end + 1;
-		}
-		else if (end == len)
-		{
-			char *string = ft_substr(line, start, end - start);
-			ft_lstadd_back(&token->list, ft_lstnew(string));
-		}
-		end++;
-	}
-	return (token);
-}
-
-#if 0
+#if 1 
 
 int main()
 {
@@ -188,12 +59,7 @@ int main()
 		str = readline("$> ");
 		ms_exit(str);
 		add_history(str);
-		t_token *token = split_line(str);
-		while (token->list != NULL)
-		{
-			printf("\ncontent = [%s]\n", (char *)token->list->content);
-			token->list = token->list->next;
-		}
+		create_token(str);
 	}
 	return (0);
 	//printf("%d\n", delimiters_present(str));
