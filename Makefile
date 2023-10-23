@@ -6,7 +6,7 @@
 #    By: glacroix <glacroix@student.42madrid.com    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/10/09 14:16:51 by glacroix          #+#    #+#              #
-#    Updated: 2023/10/16 18:05:08 by glacroix         ###   ########.fr        #
+#    Updated: 2023/10/23 17:10:53 by glacroix         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -32,7 +32,8 @@ SRCS		   = main.c\
 				builtins/ms_cd.c\
 				builtins/ms_echo.c\
 				builtins/ms_pwd.c\
-				lexer/split_line.c\
+				lexer/split_line_v2.c\
+				#lexer/split_line.c\
 
 SRCS			:= $(addprefix src/, $(SRCS))
 
@@ -46,7 +47,7 @@ RL			= /Users/${USER}/.brew/opt/readline/
 #Execution
 # **************************************************************************** #
 CC		   = gcc
-CFLAGS	   = -Wall -Werror -Wextra -g3 -fsanitize=address
+CFLAGS	   = -Wall -Werror -Wextra -g3 #-fsanitize=address
 LDFLAGS    = -L$(LDLIBFT) -L$(addsuffix lib, $(RL)) 
 LDFLAGS    += -I$(addsuffix include, $(RL)) -lft -lreadline
 RM		   = rm -rf

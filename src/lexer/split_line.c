@@ -6,7 +6,7 @@
 /*   By: glacroix <glacroix@student.42madrid>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/12 21:29:19 by glacroix          #+#    #+#             */
-/*   Updated: 2023/10/20 18:52:20 by glacroix         ###   ########.fr       */
+/*   Updated: 2023/10/23 16:45:40 by glacroix         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,17 +92,27 @@ int single_quote_mode(t_token *token, char *line, size_t *start, size_t *end)
 
 	string = NULL;
 	(*end)++;
-	if (!ft_strchr(line + *end, '\''))
-		return (ft_putstr_fd("Error: not closing quotes\n", 2), 1);
+	//if (!ft_strchr(line + *end, '\''))
+		//return (ft_putstr_fd("Error: not closing quotes\n", 2), 1);
 	while (line[*end] && line[*end] != SINGLE_QUOTE)
 		(*end)++;
+	if (line[*end] && line[*end] == SINGLE_QUOTE && ft_strchr(line + *end + 1, '\''))
+	{
+		//printf("here\n");	
+		single_quote_mode(token, line, start, end);
+	}
+	if (line[*end] && line[*end] == DOUBLE_QUOTE && ft_strchr(line + *end + 1, '\"'))
+	{
+		//printf("here\n");	
+		double_quote_mode(token, line, start, end);
+	}
 	while (line[*end] && line[*end] != SPACE)
 		(*end)++;
 	string = ft_substr(line, *start, *end - *start);
-	string = remove_characters(string, SINGLE_QUOTE);
+	//string = remove_characters(string, SINGLE_QUOTE);
 	ft_lstadd_back(&token->list, ft_lstnew(string));
 	if (line[*end] != '\0')
-		*start = *end + 1;
+		*start = *(end + 1);
 	return (0);
 }
 
@@ -112,19 +122,24 @@ int double_quote_mode(t_token *token, char *line, size_t *start, size_t *end)
 
 	string = NULL;
 	(*end)++;
-	if (!ft_strchr(line + *end, '\"'))
-		return (ft_putstr_fd("Error: not closing quotes\n", 2), 1);
+	//if (!ft_strchr(line + *end, '\"'))
+		//return (ft_putstr_fd("Error: not closing quotes\n", 2), 1);
 	while (line[*end] && line[*end] != DOUBLE_QUOTE)
 		(*end)++;
+	if (line[*end] && line[*end] == SINGLE_QUOTE && ft_strchr(line + *(end + 1), '\''))
+	{
+		//printf("here\n");	
+		single_quote_mode(token, line, start, end);
+	}
+	if (line[*end] && line[*end] == DOUBLE_QUOTE && ft_strchr(line + *(end + 1), '\"'))
+	{
+		//printf("here\n");	
+		double_quote_mode(token, line, start, end);
+	}
 	while (line[*end] && line[*end] != SPACE)
 		(*end)++;
-	//if (line[*end] && line[*end] == SINGLE_QUOTE && ft_strchr(line + *end, '\''))
-	//{
-		//printf("here\n");	
-		//single_quote_mode(token, line, start, end);
-	//}
 	string = ft_substr(line, *start, *end - *start);
-	string = remove_characters(string, DOUBLE_QUOTE); 
+	//string = remove_characters(string, DOUBLE_QUOTE); 
 	ft_lstadd_back(&token->list, ft_lstnew(string));
 	if (line[*end] != '\0')
 		*start = *end + 1;

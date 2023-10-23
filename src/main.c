@@ -71,14 +71,14 @@ typedef enum
 	TOKEN_WORD, // command name and filename
 	TOKEN_ARG,
 } t_token_type;
-typedef struct
-{
-	char *line;
-	size_t len;
-	size_t	pos;
-	size_t	start;
-	size_t	end;
-} t_lexer;
+//typedef struct
+//{
+	//char *line;
+	//size_t len;
+	//size_t	pos;
+	//size_t	start;
+	//size_t	end;
+//} t_lexer;
 
 
 typedef struct s_cmd
@@ -87,14 +87,14 @@ typedef struct s_cmd
 	char	**args;
 } t_cmd;
 
-int ms_trim_left(t_lexer *l)
-{
-	while (l->pos < l->len && ft_isspace(l->line[l->pos]))
-	{
-		l->pos += 1;
-	}
-	return l->pos;
-}
+//int ms_trim_left(t_lexer *l)
+//{
+	//while (l->pos < l->len && ft_isspace(l->line[l->pos]))
+	//{
+		//l->pos += 1;
+	//}
+	//return l->pos;
+//}
 
 /*t_cmd	*cmd_new(t_token *token)
 {
@@ -118,7 +118,7 @@ int	ms_is_metachar(int c)
 	return 0;
 }
 
-t_lexer ms_lexer_init(char *line, size_t len)
+/*t_lexer ms_lexer_init(char *line, size_t len)
 {
 	t_lexer lexer;
 
@@ -129,7 +129,7 @@ t_lexer ms_lexer_init(char *line, size_t len)
 	return lexer;
 }
 
-/*void	token_(t_token *token, t_token_type type, t_lexer *l, size_t len)
+void	token_(t_token *token, t_token_type type, t_lexer *l, size_t len)
 {
 	token->token_type = type;
 	token->len = len;
