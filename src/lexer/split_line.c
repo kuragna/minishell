@@ -6,7 +6,7 @@
 /*   By: glacroix <glacroix@student.42madrid>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/12 21:29:19 by glacroix          #+#    #+#             */
-/*   Updated: 2023/10/23 16:45:40 by glacroix         ###   ########.fr       */
+/*   Updated: 2023/10/24 19:00:12 by glacroix         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,45 @@
  * -----------------------------------------------------------------------------------
  * */
 
+#include "../../include/minishell.h"
+
+# define SINGLE '\''
+# define DOUBLE '\"'
+
+int find_next(char *str, char c)
+{
+	if (*str && ft_strchr(str, c))
+		return (1);
+	return (0);
+}
+
+//TODO: move the position of i to after the next quote so it doesn't check it twice
+int check_quotes(char *str)
+{
+	size_t	len;
+	size_t 	i;
+	int		res;
+
+	res = 1;
+	i = 0;
+	len = ft_strlen(str);
+	while (i < len && str[i] != SINGLE_QUOTE && str[i] != DOUBLE_QUOTE)
+		i++;
+	if (str[i] == SINGLE_QUOTE || str[i] == DOUBLE_QUOTE)
+	{
+		printf("[%s] | and char is [%c]\n", &str[i+1], str[i]);	
+		res = find_next(str + i + 1, str[i]);
+		printf("res = %d\n", res);
+	}
+	if (!res)
+		return (0);
+	printf("HERE\n");
+	if (str[i] != '\0')
+		res = check_quotes(str + i + 2);
+	//printf("no forever\n");
+	return (res);
+}
+
 int delimiters_present(char *text)
 {
 	int	i;
@@ -57,30 +96,48 @@ int delimiters_present(char *text)
 	return -1;
 }
 
-//need to free new_str in another function
-char *remove_characters(char *text, char c)
+int ft_isprint_no_quotes_spaces(char c)
 {
-	char *new_str;
-	int i = 0;
-	int j = 0;
-
-	if (!text)
-		return NULL;
-	text = ft_strtrim(text, " ");
-	new_str = malloc(sizeof(*new_str) * ft_strlen(text) + 1);
-	if (!new_str)
-		return NULL;
-//	printf("[%s]\n", text);
-	while (text[i])
-	{
-		if (text[i] && text[i] != c)
-			new_str[j++] = text[i++];
-		else
-			i++;
-	}
-	new_str[j] = '\0';
-	return (new_str);
+	return (c > 32 && c < 127 && c != SINGLE_QUOTE && c != DOUBLE_QUOTE);
 }
+
+char *ft_clean_string(char *string, t_token *token)
+{
+	(void)token;
+	char *new_content;
+	size_t	i;
+	size_t	j;
+	size_t len_string;
+
+
+	i = 0;
+	j = 0;
+	len_string = ft_strlen(string);
+	new_content = malloc(sizeof(char) * len_string + 1);
+	if (!new_content)
+		return NULL;
+	if (ft_strchr(string, '\'') || ft_strchr(string, '\"'))
+	{
+		while (string[j] != '\0')
+		{
+			while (ft_isprint_no_quotes_spaces(string[j]))
+				new_content[i++] = string[j++];
+			if (j < len_string && (string[j] == DOUBLE_QUOTE && string[j+1] == DOUBLE_QUOTE))
+				j += 2;
+			else if (j < len_string && (string[j] == SINGLE_QUOTE && string[j+1] == SINGLE_QUOTE))
+				j += 2;
+
+		//if (ft_strchr(string, '|'))
+		//if (ft_strchr(string, '>'))
+		//if (ft_strchr(string, '<'))
+		//if (ft_strchr(string, '>'))
+		}
+		new_content[i] = '\0';
+		return (new_content);
+	}
+	return (string);
+}
+
 
 //INTERESTING = if you free string, you also free the nodes of the list
 //DONE: add check for when SINGLE_QUOTE OR DOUBLE_QUOTE aren't closed
@@ -92,24 +149,18 @@ int single_quote_mode(t_token *token, char *line, size_t *start, size_t *end)
 
 	string = NULL;
 	(*end)++;
-	//if (!ft_strchr(line + *end, '\''))
-		//return (ft_putstr_fd("Error: not closing quotes\n", 2), 1);
+	if (!ft_strchr(line + *end, '\''))
+		return (ft_putstr_fd("Error: not closing quotes\n", 2), 1);
 	while (line[*end] && line[*end] != SINGLE_QUOTE)
 		(*end)++;
-	if (line[*end] && line[*end] == SINGLE_QUOTE && ft_strchr(line + *end + 1, '\''))
-	{
-		//printf("here\n");	
-		single_quote_mode(token, line, start, end);
-	}
-	if (line[*end] && line[*end] == DOUBLE_QUOTE && ft_strchr(line + *end + 1, '\"'))
-	{
-		//printf("here\n");	
-		double_quote_mode(token, line, start, end);
-	}
 	while (line[*end] && line[*end] != SPACE)
 		(*end)++;
 	string = ft_substr(line, *start, *end - *start);
-	//string = remove_characters(string, SINGLE_QUOTE);
+	//string = ft_strtrim (string, "\'");
+//	string = ft_clean_string(string, token);
+	string = ft_clean_string(string, token);
+	printf("string = [%s]\n", string);
+	return (0);
 	ft_lstadd_back(&token->list, ft_lstnew(string));
 	if (line[*end] != '\0')
 		*start = *(end + 1);
@@ -122,30 +173,24 @@ int double_quote_mode(t_token *token, char *line, size_t *start, size_t *end)
 
 	string = NULL;
 	(*end)++;
-	//if (!ft_strchr(line + *end, '\"'))
-		//return (ft_putstr_fd("Error: not closing quotes\n", 2), 1);
+	if (!ft_strchr(line + *end, '\"'))
+		return (ft_putstr_fd("Error: not closing quotes\n", 2), 1);
 	while (line[*end] && line[*end] != DOUBLE_QUOTE)
 		(*end)++;
-	if (line[*end] && line[*end] == SINGLE_QUOTE && ft_strchr(line + *(end + 1), '\''))
-	{
-		//printf("here\n");	
-		single_quote_mode(token, line, start, end);
-	}
-	if (line[*end] && line[*end] == DOUBLE_QUOTE && ft_strchr(line + *(end + 1), '\"'))
-	{
-		//printf("here\n");	
-		double_quote_mode(token, line, start, end);
-	}
 	while (line[*end] && line[*end] != SPACE)
 		(*end)++;
 	string = ft_substr(line, *start, *end - *start);
-	//string = remove_characters(string, DOUBLE_QUOTE); 
+	//string = ft_strtrim (string, "\"");
+	string = ft_clean_string(string, token);
+	printf("string = [%s]\n", string);
+	return (0);
 	ft_lstadd_back(&token->list, ft_lstnew(string));
 	if (line[*end] != '\0')
 		*start = *end + 1;
 	return (0);
 }
 
+//TODO: shell never exists, should just print the error and give back the prompt
 t_token *split_line(char *line)
 {
 	t_token	*token;
@@ -160,6 +205,10 @@ t_token *split_line(char *line)
 	token = malloc(sizeof(t_token));
 	ft_memset(token, 0, sizeof(*token));
 	len = ft_strlen(line);
+	//if (quotes are wrong)
+		//go out---done;
+	if (!check_quotes(line))
+		return (ft_putstr_fd("Quotes are not enclosed\n", 2), NULL);
 	while (end <= len)
 	{
 		while (ft_isspace(line[start]))
@@ -191,7 +240,10 @@ t_token *split_line(char *line)
 	return (token);
 }
 
-#if 0
+
+//"Ahmed is a beast''"'''test
+
+#if 1
 
 int main()
 {
@@ -204,7 +256,7 @@ int main()
 		ms_exit(str);
 		add_history(str);
 		t_token *token = split_line(str);
-		while (token->list != NULL)
+		while (token && token->list != NULL)
 		{
 			printf("\ncontent = [%s]\n", (char *)token->list->content);
 			token->list = token->list->next;
