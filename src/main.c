@@ -371,7 +371,7 @@ void	ms_env(t_env *env)
 	}
 }
 
-void	ms_sig_handler(int sig)
+/*void	ms_sig_handler(int sig)
 {
 	if (sig == SIGQUIT)
 	{
@@ -432,7 +432,7 @@ int	ms_terminal_mode(void)
 	}
 	return (0);
 }
-
+*/
 void	child_handler(int sig)
 {
 	if (sig == SIGINT)
