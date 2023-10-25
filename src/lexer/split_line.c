@@ -38,10 +38,10 @@
 # define SINGLE '\''
 # define DOUBLE '\"'
 
-int find_next(char *str, char c)
+size_t find_next(char *str, char c)
 {
 	if (*str && ft_strchr(str, c))
-		return (1);
+		return (ft_strchr(str, c) - str + 1);
 	return (0);
 }
 
@@ -50,25 +50,23 @@ int check_quotes(char *str)
 {
 	size_t	len;
 	size_t 	i;
-	int		res;
+	size_t	res;
 
 	res = 1;
 	i = 0;
 	len = ft_strlen(str);
 	while (i < len && str[i] != SINGLE_QUOTE && str[i] != DOUBLE_QUOTE)
 		i++;
-	if (str[i] == SINGLE_QUOTE || str[i] == DOUBLE_QUOTE)
+	if (str[i] && (str[i] == SINGLE_QUOTE || str[i] == DOUBLE_QUOTE))
 	{
-		printf("[%s] | and char is [%c]\n", &str[i+1], str[i]);	
 		res = find_next(str + i + 1, str[i]);
-		printf("res = %d\n", res);
+		if (res)
+			i = res;
 	}
 	if (!res)
 		return (0);
-	printf("HERE\n");
 	if (str[i] != '\0')
 		res = check_quotes(str + i + 2);
-	//printf("no forever\n");
 	return (res);
 }
 
@@ -101,6 +99,11 @@ int ft_isprint_no_quotes_spaces(char c)
 	return (c > 32 && c < 127 && c != SINGLE_QUOTE && c != DOUBLE_QUOTE);
 }
 
+int ft_isprint_no_quotes(char c)
+{
+	return (c > 31 && c < 127 && c != SINGLE_QUOTE && c != DOUBLE_QUOTE);
+}
+
 char *ft_clean_string(char *string, t_token *token)
 {
 	(void)token;
@@ -120,13 +123,14 @@ char *ft_clean_string(char *string, t_token *token)
 	{
 		while (string[j] != '\0')
 		{
-			while (ft_isprint_no_quotes_spaces(string[j]))
+			while (ft_isprint_no_quotes(string[j]))
 				new_content[i++] = string[j++];
 			if (j < len_string && (string[j] == DOUBLE_QUOTE && string[j+1] == DOUBLE_QUOTE))
 				j += 2;
 			else if (j < len_string && (string[j] == SINGLE_QUOTE && string[j+1] == SINGLE_QUOTE))
 				j += 2;
-
+			else
+				j++;
 		//if (ft_strchr(string, '|'))
 		//if (ft_strchr(string, '>'))
 		//if (ft_strchr(string, '<'))
@@ -157,10 +161,7 @@ int single_quote_mode(t_token *token, char *line, size_t *start, size_t *end)
 		(*end)++;
 	string = ft_substr(line, *start, *end - *start);
 	//string = ft_strtrim (string, "\'");
-//	string = ft_clean_string(string, token);
 	string = ft_clean_string(string, token);
-	printf("string = [%s]\n", string);
-	return (0);
 	ft_lstadd_back(&token->list, ft_lstnew(string));
 	if (line[*end] != '\0')
 		*start = *(end + 1);
@@ -182,8 +183,6 @@ int double_quote_mode(t_token *token, char *line, size_t *start, size_t *end)
 	string = ft_substr(line, *start, *end - *start);
 	//string = ft_strtrim (string, "\"");
 	string = ft_clean_string(string, token);
-	printf("string = [%s]\n", string);
-	return (0);
 	ft_lstadd_back(&token->list, ft_lstnew(string));
 	if (line[*end] != '\0')
 		*start = *end + 1;
@@ -205,8 +204,6 @@ t_token *split_line(char *line)
 	token = malloc(sizeof(t_token));
 	ft_memset(token, 0, sizeof(*token));
 	len = ft_strlen(line);
-	//if (quotes are wrong)
-		//go out---done;
 	if (!check_quotes(line))
 		return (ft_putstr_fd("Quotes are not enclosed\n", 2), NULL);
 	while (end <= len)
