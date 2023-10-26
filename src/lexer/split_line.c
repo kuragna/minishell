@@ -6,7 +6,7 @@
 /*   By: glacroix <glacroix@student.42madrid>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/12 21:29:19 by glacroix          #+#    #+#             */
-/*   Updated: 2023/10/26 15:52:51 by glacroix         ###   ########.fr       */
+/*   Updated: 2023/10/26 16:44:50 by glacroix         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -143,6 +143,7 @@ char *ft_clean_string(char *string, t_token *token)
 			else
 				new_content[j++] = string[i++];
 		}
+		new_content[j] = '\0';
 		return (new_content);
 	}
 	return (string);
