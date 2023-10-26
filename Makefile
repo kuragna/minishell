@@ -6,7 +6,7 @@
 #    By: aabourri <aabourri@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/10/09 14:16:51 by glacroix          #+#    #+#              #
-#    Updated: 2023/10/12 17:51:29 by aabourri         ###   ########.fr        #
+#    Updated: 2023/10/25 16:46:42 by aabourri         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -27,18 +27,22 @@ NAME	   = minishell
 
 #SRC & OBJS Details
 # **************************************************************************** #
-SRCS		   = main.c\
-				builtins/ms_cd.c\
-				builtins/ms_echo.c\
-				builtins/ms_pwd.c\
-				builtins/ms_env.c\
-				builtins/ms_exit.c\
-				builtins/ms_env_utilts.c\
+SRCS		   = main.c \
+				ms_signal.c \
+				ms_utilts.c \
+				builtins/ms_env_utilts.c \
+				builtins/ms_export.c \
+				builtins/ms_env.c \
+				builtins/ms_exit.c \
+				builtins/ms_unset.c \
+				builtins/ms_echo.c \
+				builtins/ms_pwd.c \
+				builtins/ms_cd.c \
 				
 
 
 OBJ			= $(SRCS:%.c=objs/%.o)
-SRCS			:= $(addprefix src/, $(SRCS))
+SRCS		:= $(addprefix src/, $(SRCS))
 
 #Routes
 # **************************************************************************** #

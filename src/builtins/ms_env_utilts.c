@@ -17,3 +17,17 @@ int	ms_symbol(char *str, int c)
 	}
 	return (1);
 }
+
+int	ms_get_idx(t_env *env, const char *var, size_t len)
+{
+	size_t i;
+
+	i = 0;
+	while (i < env->length)
+	{
+		if (ft_strncmp(env->vars[i], var, len) == 0)
+			return (i);
+		i += 1;
+	}
+	return (-1);
+}

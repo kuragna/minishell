@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ms_echo.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: glacroix <glacroix@student.42madrid>       +#+  +:+       +#+        */
+/*   By: aabourri <aabourri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/10 19:23:04 by glacroix          #+#    #+#             */
-/*   Updated: 2023/10/10 19:23:39 by glacroix         ###   ########.fr       */
+/*   Updated: 2023/10/15 20:24:39 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ static int	err_quotes_check(char *text)
 	return (0);
 }
 
-void	ms_echo(char *text)
+void	ms_echo_(char *text)
 {
 	// TODO: handle trim space
 	// TODO: fix strign if has quotes function printing newline
@@ -68,13 +68,10 @@ void	ms_echo(char *text)
 	char *output;
 
 	output = malloc(sizeof(char) * (ft_strlen(text) + 1));
-
-	if (text && *text == MS_DOLLAR)
-		text = getenv(text + 1);
 	if (err_quotes_check(text) == 1)
 	{
-		MS_ERROR("missing a quote\n");
-		return;
+		ms_error("missing a quote\n");
+		return ;
 	}
 	while (text && text[i])
 	{
@@ -103,4 +100,33 @@ void	ms_echo(char *text)
 	output[j] = '\0';
 	printf("%s\n", output);
 	free(output);
+}
+
+void	ms_echo(char *text)
+{
+	(void) text;
+	int	flag;
+	size_t i = 0;
+
+	flag = 1;
+	if (ft_strncmp(text, "-n", 2) == 0 && (*(text + 2) == ' ' || *(text + 2) == '\0'))
+	{
+		flag = 0;
+		i += 3;
+	}
+	while (text[i] != '\0')
+	{
+		if (text[i] == '\"')
+			i += 1;
+		if (ft_isspace(text[i]) && text[i] == '\\')
+		{
+			printf("here\n");
+			i += 1;
+		}
+		ft_printf("%c", text[i]);
+		i += 1;	
+	}
+
+	if (flag)
+		printf("\n");
 }

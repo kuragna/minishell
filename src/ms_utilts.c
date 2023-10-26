@@ -1,5 +1,6 @@
 #include "../include/minishell.h"
 
+
 char	**ms_get_paths(void)
 {
 	const char	*path = getenv("PATH");
@@ -9,7 +10,8 @@ char	**ms_get_paths(void)
 	return paths;
 }
 
-char	*ms_path_prefix(char *path, char *cmd)
+
+char	*ms_path_suffix(char *path, char *cmd)
 {
 	char	*slash = ft_strjoin(path, "/");
 	char	*p_path = ft_strjoin(slash, cmd);
@@ -19,15 +21,18 @@ char	*ms_path_prefix(char *path, char *cmd)
 int	ms_cmd_path(char **cmd)
 {
 	char	*cmd_path;
-	char	**paths = ms_get_paths();
-	size_t	i = 0;
+	char	**paths;
+	size_t	i;
 
-	if (ft_strchr(*cmd, '/'))
+	if (ft_strncmp(*cmd, "./", 2) == 0 || ft_strchr(*cmd, '/'))
+	{
 		return (1);
-
+	}
+	i =  0;
+	paths = ms_get_paths();
 	while (paths[i] != NULL)
 	{
-		cmd_path = ms_path_prefix(paths[i], *cmd);
+		cmd_path = ms_path_suffix(paths[i], *cmd);
 		if (access(cmd_path, X_OK) == 0)
 		{
 			*cmd = cmd_path;
@@ -40,13 +45,46 @@ int	ms_cmd_path(char **cmd)
 	return 1;
 }
 
-void	ms_exec(char *cmd, char **args)
+#if 1
+
+int	ms_interactive_mode(void)
 {
-	if (ms_cmd_path(&cmd) == 0)
+	struct termios attr;
+
+	// TODO: make sure error format as follow [minishell: res: err]
+	if (!isatty(MS_STDIN))
 	{
-		MS_ERROR("minishell: ", cmd, ": command not found");
-		exit(MS_CNF);
+		return ms_error("minishell: %s: %s\n", strerror(errno)); 
 	}
-	execve(cmd, args, NULL);
+	if (tcgetattr(MS_STDIN, &attr) == -1)
+	{
+		return ms_error("minishell: %s: %s\n", strerror(errno));
+	}
+	attr.c_lflag &= ~(ECHOCTL);
+	if (tcsetattr(MS_STDIN, TCSANOW, &attr) == -1)
+	{
+		return ms_error("minishell: %s: %s\n", strerror(errno));
+	}
+	return (0);
 }
 
+
+char	*ms_getenv(t_env *env, char *name)
+{
+	char	*var;
+	int		pos;
+
+	if (env == NULL)
+		return NULL;
+
+	pos = ms_get_idx(env, name, ft_strlen(name));
+	if (pos == -1)
+		return (NULL);
+	var =  ft_strchr(env->vars[pos], '=');
+	if (var == NULL)
+		return NULL;
+	return (var + 1);
+}
+
+
+#endif
