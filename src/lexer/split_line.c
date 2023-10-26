@@ -6,7 +6,7 @@
 /*   By: glacroix <glacroix@student.42madrid>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/12 21:29:19 by glacroix          #+#    #+#             */
-/*   Updated: 2023/10/26 15:35:24 by glacroix         ###   ########.fr       */
+/*   Updated: 2023/10/26 15:52:51 by glacroix         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -170,7 +170,7 @@ int single_quote_mode(t_token *token, char *line, size_t *start, size_t *end)
 	string = ft_clean_string(string, token);
 	ft_lstadd_back(&token->list, ft_lstnew(string));
 	if (line[*end] != '\0')
-		*start = *(end + 1);
+		*start = *end + 1;
 	return (0);
 }
 
