@@ -6,7 +6,7 @@
 /*   By: glacroix <glacroix@student.42madrid>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/12 21:29:19 by glacroix          #+#    #+#             */
-/*   Updated: 2023/10/24 19:00:12 by glacroix         ###   ########.fr       */
+/*   Updated: 2023/10/26 15:04:36 by glacroix         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,37 +38,39 @@
 # define SINGLE '\''
 # define DOUBLE '\"'
 
-size_t find_next(char *str, char c)
-{
-	if (*str && ft_strchr(str, c))
-		return (ft_strchr(str, c) - str + 1);
-	return (0);
-}
-
-//TODO: move the position of i to after the next quote so it doesn't check it twice
 int check_quotes(char *str)
 {
-	size_t	len;
-	size_t 	i;
-	size_t	res;
+	size_t i;
+	size_t len;
 
-	res = 1;
 	i = 0;
 	len = ft_strlen(str);
-	while (i < len && str[i] != SINGLE_QUOTE && str[i] != DOUBLE_QUOTE)
-		i++;
-	if (str[i] && (str[i] == SINGLE_QUOTE || str[i] == DOUBLE_QUOTE))
+	while (str[i] && str[i] != '\0')
 	{
-		res = find_next(str + i + 1, str[i]);
-		if (res)
-			i = res;
+		if (str[i] == SINGLE_QUOTE)
+		{
+			i++;
+			while (str[i] && str[i] != SINGLE_QUOTE)
+				i++;
+			if (str[i] != SINGLE_QUOTE)
+				return (0);
+			i++;
+		}
+		else if (str[i] == DOUBLE_QUOTE)
+		{
+			i++;
+			while (str[i] && str[i] != DOUBLE_QUOTE)
+				i++;
+			if (str[i] != DOUBLE_QUOTE)
+				return (0);
+			i++;
+		}
+		else
+			i++;
 	}
-	if (!res)
-		return (0);
-	if (str[i] != '\0')
-		res = check_quotes(str + i + 2);
-	return (res);
+	return (1);
 }
+
 
 int delimiters_present(char *text)
 {
@@ -181,6 +183,7 @@ int double_quote_mode(t_token *token, char *line, size_t *start, size_t *end)
 	while (line[*end] && line[*end] != SPACE)
 		(*end)++;
 	string = ft_substr(line, *start, *end - *start);
+	printf("str = %s\n", string);
 	//string = ft_strtrim (string, "\"");
 	string = ft_clean_string(string, token);
 	ft_lstadd_back(&token->list, ft_lstnew(string));
