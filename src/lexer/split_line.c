@@ -6,7 +6,7 @@
 /*   By: glacroix <glacroix@student.42madrid>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/12 21:29:19 by glacroix          #+#    #+#             */
-/*   Updated: 2023/10/26 15:04:36 by glacroix         ###   ########.fr       */
+/*   Updated: 2023/10/26 15:35:24 by glacroix         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,22 +123,26 @@ char *ft_clean_string(char *string, t_token *token)
 		return NULL;
 	if (ft_strchr(string, '\'') || ft_strchr(string, '\"'))
 	{
-		while (string[j] != '\0')
+		printf("here\n");
+		while (string[i] && string[i] != '\0')
 		{
-			while (ft_isprint_no_quotes(string[j]))
-				new_content[i++] = string[j++];
-			if (j < len_string && (string[j] == DOUBLE_QUOTE && string[j+1] == DOUBLE_QUOTE))
-				j += 2;
-			else if (j < len_string && (string[j] == SINGLE_QUOTE && string[j+1] == SINGLE_QUOTE))
-				j += 2;
+			if (string[i] == SINGLE_QUOTE)
+			{
+				i++;
+				while (string[i] && string[i] != SINGLE_QUOTE)
+					new_content[j++] = string[i++];
+				i++;
+			}
+			else if (string[i] == DOUBLE_QUOTE)
+			{
+				i++;
+				while (string[i] && string[i] != DOUBLE_QUOTE)
+					new_content[j++] = string[i++];
+				i++;
+			}
 			else
-				j++;
-		//if (ft_strchr(string, '|'))
-		//if (ft_strchr(string, '>'))
-		//if (ft_strchr(string, '<'))
-		//if (ft_strchr(string, '>'))
+				new_content[j++] = string[i++];
 		}
-		new_content[i] = '\0';
 		return (new_content);
 	}
 	return (string);
