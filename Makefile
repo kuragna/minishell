@@ -6,7 +6,7 @@
 #    By: aabourri <aabourri@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/10/09 14:16:51 by glacroix          #+#    #+#              #
-#    Updated: 2023/10/30 15:18:21 by aabourri         ###   ########.fr        #
+#    Updated: 2023/10/31 16:15:09 by aabourri         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -27,19 +27,19 @@ NAME	   = minishell
 
 #SRC & OBJS Details
 # **************************************************************************** #
-SRCS		   = ms_signal.c \
-				 ms_utilts.c \
+SRCS		=	builtins/ms_env.c \
+				ms_signal.c \
+				ms_utilts.c \
+				ms_ismetachar.c \
+				ms_error.c \
+				ms_trim_left.c \
 				builtins/ms_env_utilts.c \
-				builtins/ms_export.c \
-				builtins/ms_env.c \
 				builtins/ms_exit.c \
 				builtins/ms_unset.c \
 				builtins/ms_echo.c \
 				builtins/ms_pwd.c \
 				builtins/ms_cd.c \
-				ms_ismetachar.c \
-				ms_error.c \
-				ms_trim_left.c \
+				builtins/ms_export.c \
 				main.c 
 				
 

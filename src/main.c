@@ -28,8 +28,8 @@ t_token token_next(t_lexer *l);
 typedef struct s_ast t_ast;
 typedef struct s_pipe t_pipe;
 typedef struct s_cmd t_cmd;
-typedef struct s_redir t_redir;
-typedef struct s_redir_item t_redir_item;
+
+
 
 #if 1
 
@@ -39,13 +39,13 @@ struct s_pipe
 	t_ast *right;
 };
 
+
 struct s_cmd
 {
 	char	**argv;
 	size_t 	cap;
 	size_t	len;
 	int		ms_close;
-	t_redir *redir;
 };
 
 
@@ -72,13 +72,15 @@ void	add_item(t_cmd *cmd, char *item)
 	{
 		cmd->cap *= 2;
 		cmd->argv = ft_realloc(cmd->argv, sizeof(char *) * cmd->cap);
+		if (!cmd->argv)
+			return ;
 	}
 	cmd->argv[cmd->len] = item;
 	cmd->len += 1;
 }
 extern char **environ;
 
-t_ast *command(t_lexer *lexer, t_token *token);
+t_ast *command(t_lexer *lexer);
 
 /*
 	COMMAND: echo hello $USER1 $USER2 > file | cat -e file | grep h
@@ -126,37 +128,35 @@ t_ast *pipe_node(t_ast *left, t_ast *right)
 }
 
 
-t_ast *command(t_lexer *lexer, t_token *token)
+t_ast *command(t_lexer *lexer)
 {
 	t_ast *node;
 
 	node = cmd_node();
-	while (token->type == WORD)
+	while (ms_peek(lexer) == WORD)
 	{
-		add_item(&node->cmd, token->lexeme);
-		*token = token_next(lexer);
+		add_item(&node->cmd, token_next(lexer).lexeme);
 	}
 	add_item(&node->cmd, NULL);
 	return node;
 }
 
-t_ast *pipeline(t_lexer *lexer, t_token *token)
+t_ast *pipeline(t_lexer *lexer)
 {
-	if (token->type == PIPE)
+	if (ms_peek(lexer) == PIPE)
 	{
 		ms_error("minishell: syntax error near unexpected token `|\'\n");
 		return (NULL);
 	}
-	t_ast *left = command(lexer, token); // TODO: could pass left ast root of tree
+	t_ast *left = command(lexer); // TODO: could pass left ast root of tree
 	t_ast *node;
 
-	if (token->type == PIPE)
+	if (ms_peek(lexer) == PIPE)
 	{
-		*token = token_next(lexer);
-		node = pipe_node(left, pipeline(lexer, token));
+		token_next(lexer);
+		node = pipe_node(left, pipeline(lexer));
 		return (node);
 	}
-
 	return (left);
 }
 
@@ -170,7 +170,11 @@ int	ms_exec_pipe(t_ast *node, int *fd)
 	t_ast *l = node->pipe.left;
 	t_ast *r = node->pipe.right;
 
-	pipe(pp);
+	if (pipe(pp) == -1)
+	{
+		ms_error("minishell: %s\n", strerror(errno));
+		return (-1);
+	}
 
 
 
@@ -199,10 +203,49 @@ int	ms_exec_pipe(t_ast *node, int *fd)
 	close(pp[MS_STDOUT]);
 	return count;
 }
+t_env env;
+
+int	exec_builtin_cmd(t_cmd *cmd)
+{
+	(void) cmd;
+	const char *str = cmd->argv[0];
+	const size_t len = ft_strlen(str);
+
+	if (ft_memcmp(str, "cd", len) == 0)
+	{
+		ms_cd(&env, cmd->argv[1]);
+	}
+	if (ft_memcmp(str, "env", len) == 0)
+	{
+		ms_env(env);
+	}
+	if (ft_memcmp(str, "pwd", len) == 0)
+	{
+		ms_pwd();
+	}
+	if (ft_memcmp(str, "echo", len) == 0)
+	{
+		ms_echo(cmd->argv + 1);
+	}
+	if (ft_memcmp(str, "export", len) == 0)
+	{
+		ms_export(&env, cmd->argv + 1);
+	}
+	if (ft_memcmp(str, "unset", len) == 0)
+	{
+		ms_unset(&env, cmd->argv + 1);
+	}
+	return 0;
+}
+
 
 int	ms_exec_cmd(t_ast *node, int *fd)
 {
 	t_cmd cmd = node->cmd;
+
+	// TODO: fix built-in via pipeline
+
+	return exec_builtin_cmd(&cmd);
 
 	if (fork() == 0)
 	{
@@ -235,13 +278,19 @@ int	ms_exec(t_ast *ast, int *fd)
 		count = ms_exec_cmd(ast, fd);
 	return count;
 }
-
-int	main()
+#if 0
+int	main(int argc, char **argv, char **envp)
 {
-// 	int	fd[2] = {
-// 		MS_STDIN,
-// 		MS_STDOUT,
-// 	};
+	(void) argc;
+	(void) argv;
+	(void) envp;
+
+	int	fd[2] = {
+		MS_STDIN,
+		MS_STDOUT,
+	};
+
+	env = env_dup(envp);
 
 	while (1)
 	{
@@ -249,19 +298,62 @@ int	main()
 		add_history(line);
 		t_lexer lexer = ms_lexer_init(line);
 
-		enum e_type type = ms_peek(&lexer);
-		printf("[TOKEN]: %s\n", words[type]);
+		t_ast *ast = pipeline(&lexer);
 
-// 		t_token token = token_next(&lexer);
-// 		t_ast *ast = pipeline(&lexer, &token);
-
-// 		int count = ms_exec(ast, fd);
-// 		for (int i = 0; i < count; i++)
-// 			wait(NULL);
+		int count = ms_exec(ast, fd);
+		for (int i = 0; i < count; i++)
+			wait(NULL);
 	}
 
 	return 0;
 }
+
+#endif
+
+// TODO: fix cd
+int main(int argc, char **argv, char **envp)
+{
+	(void) argc;
+	(void) argv;
+
+	char	*line;
+	//t_env	env;
+	t_lexer	lexer;
+
+	if (ms_interactive_mode())
+		return (1);
+	if (ms_catch_signal())
+		return (1);
+	env = env_dup(envp);
+
+
+	int	fd[2] = {
+		MS_STDIN,
+		MS_STDOUT,
+	};
+	// prompt
+	while (1)
+	{
+		line = readline("$> ");
+		if (!line)
+			return 0;
+		add_history(line);
+		lexer = ms_lexer_init(line);
+		t_ast *ast = pipeline(&lexer);
+
+		int count = ms_exec(ast, fd);
+		for (int i = 0; i < count; i++)
+			wait(NULL);
+
+
+
+		free(line); // readline allocates memory
+	}
+	rl_clear_history(); // clear all memory for history
+	return (0);
+}
+
+#endif
 
 
 t_lexer ms_lexer_init(char *line)
@@ -282,7 +374,7 @@ enum e_type ms_peek(t_lexer *l)
 
 	l->pos = ms_trim_left(l);
 	i = 0;
-	if (l->pos > l->pos) return END;
+	if (l->pos >= l->len) return END;
 	if (l->line[l->pos] == '<' && l->line[l->pos + 1] == '<') return DLESS;
 	if (l->line[l->pos] == '>' && l->line[l->pos + 1] == '<') return DGREAT;
 	while (i < len)
@@ -299,7 +391,6 @@ enum e_type ms_peek(t_lexer *l)
 t_token token_next(t_lexer *l)
 {
     size_t  len = 0;
-// 	size_t	start;
     t_token token = {0};
     
     l->pos = ms_trim_left(l);
@@ -307,6 +398,20 @@ t_token token_next(t_lexer *l)
     if (l->pos > l->len) return token;
 
 	// TODO: all tokens expect WORD could remove lexeme
+    if (l->line[l->pos] == '<' && l->line[l->pos + 1] == '<')
+    {
+        token.type = DLESS;
+        token.lexeme = ft_substr(&l->line[l->pos], 0, 2);
+        l->pos += 2;
+        return token;
+    }
+    if (l->line[l->pos] == '>' && l->line[l->pos + 1] == '>')
+    {
+        token.type = DGREAT;
+        token.lexeme = ft_substr(&l->line[l->pos], 0, 2);
+        l->pos += 2;
+        return token;
+    }
 
     if (l->line[l->pos] == '|')
     {
@@ -315,25 +420,11 @@ t_token token_next(t_lexer *l)
         l->pos += 1;
         return token;
     }
-    if (l->line[l->pos] == '<' && l->line[l->pos + 1] == '<')
-    {
-        token.type = DLESS;
-        token.lexeme = ft_substr(&l->line[l->pos], 0, 2);
-        l->pos += 2;
-        return token;
-    }
     if (l->line[l->pos] == '<')
     {
         token.type = LESS;
         token.lexeme = ft_substr(&l->line[l->pos], 0, 1);
         l->pos += 1;
-        return token;
-    }
-    if (l->line[l->pos] == '>' && l->line[l->pos + 1] == '>')
-    {
-        token.type = DGREAT;
-        token.lexeme = ft_substr(&l->line[l->pos], 0, 2);
-        l->pos += 2;
         return token;
     }
     if (l->line[l->pos] == '>')
@@ -383,7 +474,6 @@ int	ms_consume(t_lexer *l, int (*check)(int))
 	return len;
 }
 
-#endif
 
 
 
@@ -503,7 +593,6 @@ int	exec_pipe(t_ast *root, int cls, int *fd)
 
 
 
-#if 1
 int main(int argc, char **argv, char **envp)
 {
 	(void) argc;
@@ -524,8 +613,6 @@ int main(int argc, char **argv, char **envp)
 		MS_STDIN,
 		MS_STDOUT,
 	};
-	int	cls = -1;
-
 	// prompt
 	while (1)
 	{
@@ -535,86 +622,13 @@ int main(int argc, char **argv, char **envp)
 		add_history(line);
 		lexer = ms_lexer_init(line);
 
-		t_ast *root = parse(&lexer);
-
-		post_order(root);
-
-		int count = eval(root, cls, fd);
-
-		for (int i = 0; i < count; i++)
-			wait(NULL);
 
 
 		free(line); // readline allocates memory
 	}
 	rl_clear_history(); // clear all memory for history
-	return 0;
-}
-#endif
-
-
-void	post_order(t_ast *root)
-{
-	if (root == NULL)
-		return ;
-	post_order(root->left);
-	post_order(root->right);
-	t_token token = root->token;
-	PRINT(token.type, token.lexeme);
-}
-
-
-void	pre_order(t_ast *root)
-{
-	if (root == NULL)
-		return ;
-	t_token token = root->token;
-	PRINT(token.type, token.lexeme);
-	pre_order(root->left);
-	pre_order(root->right);
-}
-
-t_ast *pipeline(t_lexer *lexer, t_token *token)
-{
-	t_ast *node = ast_node(*token);
-	*token = token_next(lexer);
-
-	while (token->type == PIPE)
-	{
-		if (token->type == PIPE)
-		{
-			t_ast *l = ast_node(*token);
-			*token = token_next(lexer);
-			t_ast *r = ast_node(*token);
-
-			l->left = node;
-			l->right = r;
-			node = l;
-		}
-		*token = token_next(lexer);
-	}
-	return node;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-t_ast *parse(t_lexer *lexer)
-{
-	t_token token = token_next(lexer);
-	t_ast *root = pipeline(lexer, &token);
-	
-
-	return root;
+	return (0);
 }
 
 #endif
+

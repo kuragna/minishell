@@ -1,9 +1,6 @@
-#include "../../include/minishell.h"
+#include "../../include/ms_builtin.h"
 
-
-// TODO: multiple args without quotes must print space between them
-// TODO: expand dollar sign
-void	ms_echo(char **args)
+int	ms_echo(char **args)
 {
 	int		flag;
 	size_t i = 0;
@@ -16,16 +13,18 @@ void	ms_echo(char **args)
 		i += 1;
 	}
 
-	if (**args == '\'')
+	// not safe
+	if (args[0] && **args == '\'')
 		space = 0;
 
 	while (args[i] != NULL)
 	{
-		printf("%s", args[i]);
+		ft_printf("[%s]", args[i]);
 		if (space && args[i + 1] != NULL)
-			printf(" ");
+			ft_printf(" ");
 		i += 1;
 	}
 	if (flag)
-		printf("\n");
+		ft_printf("\n");
+	return (0);
 }

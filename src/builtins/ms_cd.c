@@ -8,7 +8,7 @@ int	ms_cd(t_env *env, char *path)
 	// TODO: replace go by path
 	go = path;
 	len = ft_strlen(path);
-	if (*path == '\0')
+	if (!path)
 	{
 		go = ms_getenv(env, "HOME=");
 		if (go == NULL)
@@ -20,7 +20,7 @@ int	ms_cd(t_env *env, char *path)
 		if (go == NULL)
 			ms_error("cd: OLDPWD not set\n");
 	}
-	if ((*path == '~' && *(path + 1) == '\0') || (*path == '~' && *(path + 1) == '/'))
+	else if ((*path == '~' && *(path + 1) == '\0') || (*path == '~' && *(path + 1) == '/'))
 	{
 		path += 1;
 		go = ms_getenv(env, "HOME=");
@@ -34,43 +34,11 @@ int	ms_cd(t_env *env, char *path)
 	}
 	if (!env)
 		return 1;
+	char	*a = ft_strjoin("OLDPWD=", go);
+	char	*b = ft_strjoin("PWD=", getcwd(NULL, 0));
 	go = ms_getenv(env, "PWD=");
-	ms_export(env, ft_strjoin("OLDPWD=", go));
-	ms_export(env, ft_strjoin("PWD=", getcwd(NULL, 0)));
+	ms_export(env, &a);
+	ms_export(env, &b);
 	return 0;
 }
-
-#if 0
-
-
-int	main(int argc, char **argv, char **envp)
-{
-	atexit(ms_leaks);
-	(void) argc;
-	(void) argv;
-	(void) envp;
-	
-	t_env env = env_dup(envp);
-
-	ms_cd(&env, "/"); // go to root
-	ms_pwd();
-	ms_cd(&env, "~"); // go home
-	ms_pwd();
-	ms_cd(&env, "-"); // go back to root
-	ms_pwd();
-	ms_cd(&env, "--"); // go back to home
-	ms_pwd();
-	ms_cd(&env, "../"); // go to previes dir
-	ms_pwd();
-	ms_cd(&env, ""); // go home
-	ms_pwd();
-	//ms_env(env);
-	return 0;
-}
-#endif //
-
-
-
-
-
 

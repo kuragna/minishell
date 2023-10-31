@@ -7,56 +7,27 @@
  * 
  * */
 
+void	add_env(t_env *env, char *var);
+
 t_env env_dup(char **envp)
 {
 	size_t	i;
+	char	*str;
 	t_env	env;
 
 	i = 0;
-
 	env.length = 0;
-	env.capacity = env_size(envp);
+	env.capacity = 16;
 	env.vars = malloc(sizeof(char *) * env.capacity); // check error
-
 	while (envp[i] != NULL)
 	{
-		env.vars[i] = ft_strdup(envp[i]);
+		str = ft_strdup(envp[i]);
+		env_add(&env, str);
 		i += 1;
 	}
-	env.length += i;
 	return env;
 }
 
-size_t	env_size(char **envp)
-{
-	size_t	i;
-
-	i = 0;
-	while (envp[i] != NULL)
-	{
-		i += 1;
-	}
-	return i;
-}
-
-void	env_realloc(t_env **env)
-{
-	size_t	i;
-	char	**new;
-
-	(*env)->capacity *= 2;
-	new = malloc(sizeof(char *) * (*env)->capacity);
-
-	i = 0;
-	while (i < (*env)->length)
-	{
-		new[i] = (*env)->vars[i];
-		i += 1;
-	}
-	// here we just free parent pointer without children
-	free((*env)->vars);
-	(*env)->vars = new;
-}
 
 void	ft_swap(char **a, char **b)
 {
@@ -64,17 +35,16 @@ void	ft_swap(char **a, char **b)
 	*a = *b;
 	*b = c;
 }
-void	env_add(t_env **env, char *var)
+
+void	env_add(t_env *env, char *var)
 {
-	t_env *e;
-	if ((*env)->capacity == (*env)->length)
+	if (env->capacity == env->length)
 	{
-		env_realloc(env);
+		env->capacity *= 2;
+		env->vars = ft_realloc(env->vars, sizeof(char *) * env->capacity);
 	}
-	e = *env;
-	e->vars[e->length] = var;
-	ft_swap(&e->vars[e->length], &e->vars[e->length - 1]);
-	(*env)->length += 1;
+	env->vars[env->length] = var;
+	env->length += 1;
 }
 
 void	env_sort(t_env *env)
@@ -116,3 +86,37 @@ void	ms_env(t_env env)
 		i += 1;
 	}
 }
+
+
+
+#if 0
+
+void	find_leaks(void)
+{
+	system("leaks -q minishell");
+}
+
+int	main(int argc, char **argv, char **envp)
+{
+
+	atexit(find_leaks);
+	(void) argc;
+	(void) argv;
+	(void) envp;
+
+
+	t_env env = env_dup(envp);
+
+	printf("CAP: %ld\n", env.capacity);
+	printf("LEN: %ld\n", env.length);
+
+
+
+
+	(void)env;
+
+
+	printf("from env\n");
+	return 0;
+}
+#endif
