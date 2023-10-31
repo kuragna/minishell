@@ -1,88 +1,19 @@
 #include "../include/minishell.h"
 
+
 void	ms_leaks(void)
 {
 	system("leaks -q minishell");
 }
-
-/* ================ parsing ================= */
-/* TODO: < redirect input
- * TODO: > redirect output
- * TODO: << 
- * TODO: >> redirect output in append mode
- * TODO: | pipe
- * TODO: $ environment variable
- * TODO: cmd
- * TODO: cmd args */
-/* ================ parsing ================= */
-
-/* ================ builtin ================= */
-/* TODO: echo with -n
- * DONE: cd "relative or absolute path"
- * TODO: export
- * TODO: unset
- * TODO: env
- * DONE: pwd
- * DONE: exit */
-/* ================ builtin ================= */
-/* ================ interactive mode ================= */
-/* TODO: ctrl-c: kill child process
- * DONE: ctrl-c: displays a new prompt
- * DONE: ctrl-D: exit
- * TODO: ctrl-\ does nothin */
-/* ================ interactive mode ================= */
-
 
 // [<] = open(filename, O_RDONLY);
 // [>] = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0644)
 // [>>] = open(filename, O_WRONLY | O_CREAT | O_APPEND, 0644)
 
 char	*words[] = { "END", "PIPE", "LESS", "GREAT", "DLESS", "DGREAT", "WORD"};
+char	*nodes[] = { "NODE_PIPE", "NODE_CMD", "NODE_REDIR"};
 
-
-int	ms_error(const char *fmt, ...)
-{
-	va_list ap;
-	char	*str;
-
-	va_start(ap, fmt);
-
-	while (*fmt)
-	{
-		if (*fmt == '%')
-		{
-			fmt += 1;
-			if (*fmt == 's')
-			{
-				str = va_arg(ap, char *);
-				ft_putstr_fd(str, MS_STDERR);
-				fmt += 1;
-			}
-		}
-		write(MS_STDERR, fmt, 1);
-		fmt += 1;
-	}
-	va_end(ap);
-	return 1;
-}
-
-enum e_type
-{
-	END, // end of input
-	PIPE, // pipe
-	LESS, // redirect input
-	GREAT, // redirect output
-	DLESS, // redirect input with delimitar
-	DGREAT, // redirect outut in append mode
-	WORD, // command name and filename
-};
-typedef struct
-{
-	char *line;
-	size_t len;
-	size_t	pos;
-} t_lexer;
-
+#define INFO(type, str) printf("[LINE]: %d | [%s]: %s\n", __LINE__, str, words[type])
 
 typedef struct s_token
 {
@@ -92,59 +23,275 @@ typedef struct s_token
 } t_token;
 
 
-
+t_token token_next(t_lexer *l);
 
 typedef struct s_ast t_ast;
+typedef struct s_pipe t_pipe;
+typedef struct s_cmd t_cmd;
+typedef struct s_redir t_redir;
+typedef struct s_redir_item t_redir_item;
 
-struct s_ast
+#if 1
+
+struct s_pipe
 {
-	t_token token;
 	t_ast *left;
 	t_ast *right;
 };
 
-t_ast *parser(t_lexer *lexer);
-void	pre_order(t_ast *root);
-void	post_order(t_ast *root);
+struct s_cmd
+{
+	char	**argv;
+	size_t 	cap;
+	size_t	len;
+	int		ms_close;
+	t_redir *redir;
+};
 
 
-t_ast *ast_node(t_token token)
+enum e_node_type
+{
+	NODE_PIPE,
+	NODE_CMD,
+	NODE_REDIR,
+};
+
+struct s_ast
+{
+	enum e_node_type type;
+	union {
+		t_pipe pipe;
+		t_cmd cmd;
+	};
+};
+
+
+void	add_item(t_cmd *cmd, char *item)
+{
+	if (cmd->cap == cmd->len)
+	{
+		cmd->cap *= 2;
+		cmd->argv = ft_realloc(cmd->argv, sizeof(char *) * cmd->cap);
+	}
+	cmd->argv[cmd->len] = item;
+	cmd->len += 1;
+}
+extern char **environ;
+
+t_ast *command(t_lexer *lexer, t_token *token);
+
+/*
+	COMMAND: echo hello $USER1 $USER2 > file | cat -e file | grep h
+
+		            	  __ PIPELINE __
+                     ___/                \____
+                   /                           \
+            __ PIPELINE __                   COMMAND
+	      /                \                    |
+       COMMAND           COMMAND               ARGS
+      /        \             |                  | 
+   ARGS       REDIR        ARGS               0: grep
+     |          |            |                1: h
+   0: echo      >         0: cat
+   1: $USER1 	|	  	  1: -e
+   2: $USER2 file         2: file		
+*/
+
+
+t_ast *cmd_node()
 {
 	t_ast *node = malloc(sizeof(*node));
 	if (!node)
-		return NULL;
-	node->left = NULL;
-	node->token = token;
-	node->right = NULL;
+		return (NULL);
+	node->type = NODE_CMD;
+	node->cmd.cap = 2;
+	node->cmd.len = 0;
+	node->cmd.ms_close = -1;
+	node->cmd.argv = malloc(sizeof(char *) * node->cmd.cap);
+	if (!node->cmd.argv)
+		return (NULL);
+	return (node);
+}
+t_ast *pipe_node(t_ast *left, t_ast *right)
+{
+	t_ast *node;
+	
+	node = malloc(sizeof(*node));
+	if (!node)
+		return (NULL);
+	node->type = NODE_PIPE;
+	node->pipe.left = left;
+	node->pipe.right = right;
+	return (node);
+}
+
+
+t_ast *command(t_lexer *lexer, t_token *token)
+{
+	t_ast *node;
+
+	node = cmd_node();
+	while (token->type == WORD)
+	{
+		add_item(&node->cmd, token->lexeme);
+		*token = token_next(lexer);
+	}
+	add_item(&node->cmd, NULL);
 	return node;
 }
 
-
-
-int ms_trim_left(t_lexer *l)
+t_ast *pipeline(t_lexer *lexer, t_token *token)
 {
-	while (l->pos < l->len && ft_isspace(l->line[l->pos]))
+	if (token->type == PIPE)
 	{
-		l->pos += 1;
+		ms_error("minishell: syntax error near unexpected token `|\'\n");
+		return (NULL);
 	}
-	return l->pos;
+	t_ast *left = command(lexer, token); // TODO: could pass left ast root of tree
+	t_ast *node;
+
+	if (token->type == PIPE)
+	{
+		*token = token_next(lexer);
+		node = pipe_node(left, pipeline(lexer, token));
+		return (node);
+	}
+
+	return (left);
 }
 
-int ms_ismetachar(int c)
+int	ms_exec(t_ast *node, int *fd);
+
+int	ms_exec_pipe(t_ast *node, int *fd)
 {
-    if (ft_isspace(c) || c == '|' || c == '>' || c == '<')
-        return 1;
-    return 0;
+	int	count = 0;
+	int	pp[2];
+
+	t_ast *l = node->pipe.left;
+	t_ast *r = node->pipe.right;
+
+	pipe(pp);
+
+
+
+	int	lfd[2] = {
+		fd[MS_STDIN],
+		fd[MS_STDOUT],
+	};
+
+	lfd[MS_STDOUT] = pp[MS_STDOUT];
+	l->cmd.ms_close = pp[MS_STDIN];
+
+	count += ms_exec(l, lfd);
+
+	int	rfd[2] = {
+		fd[MS_STDIN],
+		fd[MS_STDOUT],
+	};
+
+
+	rfd[MS_STDIN] = pp[MS_STDIN];
+	r->cmd.ms_close = pp[MS_STDOUT];
+
+	count += ms_exec(r, rfd);
+
+	close(pp[MS_STDIN]);
+	close(pp[MS_STDOUT]);
+	return count;
 }
 
-t_lexer ms_lexer_init(char *line, size_t len)
+int	ms_exec_cmd(t_ast *node, int *fd)
+{
+	t_cmd cmd = node->cmd;
+
+	if (fork() == 0)
+	{
+		dup2(fd[MS_STDIN], MS_STDIN);
+		dup2(fd[MS_STDOUT], MS_STDOUT);
+		close(cmd.ms_close);
+
+		char	*path = cmd.argv[0];
+		ms_cmd_path(&path);
+		
+		if (execve(path, cmd.argv, environ) == -1)
+		{
+			ms_error("minishell: %s: command not found\n", cmd.argv[0]);
+			exit(127);
+		}
+	}
+	return (1);
+}
+
+int	ms_exec(t_ast *ast, int *fd)
+{
+	int	count;
+
+	if (ast == NULL)
+		return -1;
+
+	if (ast->type == NODE_PIPE)
+		count = ms_exec_pipe(ast, fd);
+	if (ast->type == NODE_CMD)
+		count = ms_exec_cmd(ast, fd);
+	return count;
+}
+
+int	main()
+{
+// 	int	fd[2] = {
+// 		MS_STDIN,
+// 		MS_STDOUT,
+// 	};
+
+	while (1)
+	{
+		char	*line = readline("$> ");
+		add_history(line);
+		t_lexer lexer = ms_lexer_init(line);
+
+		enum e_type type = ms_peek(&lexer);
+		printf("[TOKEN]: %s\n", words[type]);
+
+// 		t_token token = token_next(&lexer);
+// 		t_ast *ast = pipeline(&lexer, &token);
+
+// 		int count = ms_exec(ast, fd);
+// 		for (int i = 0; i < count; i++)
+// 			wait(NULL);
+	}
+
+	return 0;
+}
+
+
+t_lexer ms_lexer_init(char *line)
 {
 	t_lexer lexer;
 
 	lexer.line = line;
-	lexer.len = len;
+	lexer.len = ft_strlen(line);
 	lexer.pos = 0;
 	return lexer;
+}
+
+enum e_type ms_peek(t_lexer *l)
+{
+	const char *tokens = "|<>";
+	const size_t len = ft_strlen(tokens);
+	size_t i;
+
+	l->pos = ms_trim_left(l);
+	i = 0;
+	if (l->pos > l->pos) return END;
+	if (l->line[l->pos] == '<' && l->line[l->pos + 1] == '<') return DLESS;
+	if (l->line[l->pos] == '>' && l->line[l->pos + 1] == '<') return DGREAT;
+	while (i < len)
+	{
+		if (l->line[l->pos] == tokens[i])
+			return i + PIPE;
+		i += 1;
+	}
+	return WORD;
 }
 
 
@@ -152,11 +299,14 @@ t_lexer ms_lexer_init(char *line, size_t len)
 t_token token_next(t_lexer *l)
 {
     size_t  len = 0;
+// 	size_t	start;
     t_token token = {0};
     
     l->pos = ms_trim_left(l);
 
     if (l->pos > l->len) return token;
+
+	// TODO: all tokens expect WORD could remove lexeme
 
     if (l->line[l->pos] == '|')
     {
@@ -192,27 +342,56 @@ t_token token_next(t_lexer *l)
         token.lexeme = ft_substr(&l->line[l->pos], 0, 1);
         l->pos += 1;
         return token;
-    }    
+    }
+	// DOLLAR SIGN
+	if (l->line[l->pos] == '\'' || l->line[l->pos] == '\"')
+	{
+		l->pos += 1;
+		len = ms_consume(l, ms_isquote);
+		token.len = len; // TODO: we dont need it
+		token.type = WORD;
+		token.lexeme = ft_substr(&l->line[l->pos], 0, len);
+		l->pos += len + 1;
+		return token;
+	}
     if (l->pos < l->len)
     {
-        size_t start = l->pos;
-        while (start < l->len && !ms_ismetachar(l->line[start]))
-        {
-            start += 1;
-            len += 1;
-        }
+		len = ms_consume(l, ms_ismetachar);
 		token.len = len;
         token.type = WORD;
         token.lexeme = ft_substr(&l->line[l->pos], 0, len);
         l->pos += len;
     }
-
     return token;
 }
 
+int	ms_isquote(int c)
+{
+	return c == '\'' || c == '\"';
+}
+
+int	ms_consume(t_lexer *l, int (*check)(int))
+{
+	size_t start = l->pos;
+	size_t len = 0;
+
+	while (start < l->len && !check(l->line[start]))
+	{
+		start += 1;
+		len += 1;
+	}
+	return len;
+}
+
+#endif
 
 
 
+
+
+
+
+#if 0
 
 
 
@@ -228,13 +407,9 @@ int	exec_cmd(t_ast *cmd, int cls, int *fd)
 
 	if (pid == 0)
 	{
-// 		fprintf(stderr, "\n\n[CMD]: %s [STDIN: %d, STDOUT: %d]\n\n", er, fd[MS_STDIN], fd[MS_STDOUT]);
-
 		dup2(fd[MS_STDIN], MS_STDIN);
 		dup2(fd[MS_STDOUT], MS_STDOUT);
 		close(cls);
-
-
 
 		char	*argv[] = {
 			cmmd,
@@ -255,7 +430,8 @@ int	exec_pipe(t_ast *root, int cls, int *fd);
 
 int	eval(t_ast *root, int cls, int *fd)
 {
-	int	count = 0;
+	int	count;
+
 	if (root->token.type == PIPE) // call a function to handle pipe
 	{
 		count = exec_pipe(root, cls, fd);
@@ -268,9 +444,6 @@ int	eval(t_ast *root, int cls, int *fd)
 }
 
 
-#define INFO() printf("[LINE]: %d, [FUNCTION]: %s\n", __LINE__, __FUNCTION__)
-
-int	test = 0;
 
 int	exec_pipe(t_ast *root, int cls, int *fd)
 {
@@ -278,6 +451,8 @@ int	exec_pipe(t_ast *root, int cls, int *fd)
 	int	pp[2];
 
 
+
+	fprintf(stderr, "fd[MS_STDIN]: %d\nfd[MS_STDOUT]: %d\n", fd[MS_STDIN], fd[MS_STDOUT]);
 	pipe(pp);
 
 
@@ -349,7 +524,7 @@ int main(int argc, char **argv, char **envp)
 		MS_STDIN,
 		MS_STDOUT,
 	};
-	int	cls = 1;
+	int	cls = -1;
 
 	// prompt
 	while (1)
@@ -358,14 +533,11 @@ int main(int argc, char **argv, char **envp)
 		if (!line)
 			return 0;
 		add_history(line);
-		lexer = ms_lexer_init(line, ft_strlen(line));
+		lexer = ms_lexer_init(line);
 
-		t_ast *root = parser(&lexer);
+		t_ast *root = parse(&lexer);
 
-	
-		//post_order(root);
-
-
+		post_order(root);
 
 		int count = eval(root, cls, fd);
 
@@ -405,29 +577,44 @@ void	pre_order(t_ast *root)
 t_ast *pipeline(t_lexer *lexer, t_token *token)
 {
 	t_ast *node = ast_node(*token);
-    *token = token_next(lexer);
+	*token = token_next(lexer);
 
-    while (token->type == PIPE)
-    {
-        if (token->type == PIPE)
-        {
+	while (token->type == PIPE)
+	{
+		if (token->type == PIPE)
+		{
 			t_ast *l = ast_node(*token);
 			*token = token_next(lexer);
 			t_ast *r = ast_node(*token);
 
-            l->left = node;
-            l->right = r;
-            node = l;
-        }
-        *token = token_next(lexer);
-    }
-
-    return node;
+			l->left = node;
+			l->right = r;
+			node = l;
+		}
+		*token = token_next(lexer);
+	}
+	return node;
 }
 
-t_ast *parser(t_lexer *lexer)
+
+
+
+
+
+
+
+
+
+
+
+
+t_ast *parse(t_lexer *lexer)
 {
 	t_token token = token_next(lexer);
 	t_ast *root = pipeline(lexer, &token);
+	
+
 	return root;
 }
+
+#endif

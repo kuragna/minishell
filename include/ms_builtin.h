@@ -14,7 +14,8 @@ typedef struct s_env
 
 
 void    ms_env(t_env env);
-void	ms_echo(char *text);
+// void	ms_echo(char *text);
+void	ms_echo(char **args);
 int		ms_pwd(void);
 int		ms_cd(t_env *env, char *path);
 int     ms_unset(t_env *env, char *name);
