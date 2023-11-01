@@ -164,6 +164,36 @@ void double_quote_mode(t_token *token, char *line, size_t *start, size_t *end)
 		*start = *end + 1;
 }
 
+
+char *create_metachar_string(char *line)
+{
+	size_t i;
+	char *temp;
+	int flag;
+
+	flag = 0;
+	i = 0;
+	if (line[i+1] && line[i] == line[i + 1] && (line[i+1] == '>' || line[i+1] == '<'))
+	{
+		temp = malloc(3);
+		flag = 1;
+	}
+	else
+		temp = malloc(2);
+	if (flag == 1)
+	{
+		temp[0] = line[0];
+		temp[1] = line[1];
+		temp[2] = '\0';
+	}
+	else
+	{
+		temp[0] = line[0];
+		temp[1] = '\0';
+	}
+	return (temp);
+}
+
 //TODO: shell never exists, should just print the error and give back the prompt
 t_token *split_line(char *line)
 {
@@ -205,12 +235,14 @@ t_token *split_line(char *line)
 			if (end - start > 0)
 			{
 				char *string = ft_substr(line, start, end - start);
-				printf("string = %s\n", string);
+				string = ft_strtrim(string, " ");
 				ft_lstadd_back(&token->list, ft_lstnew(string));
 			}
-			char *temp = malloc(2);
-			temp[0] = line[end];
-			temp[1] = '\0';
+			char *temp = create_metachar_string(line + end);
+			if (ft_strlen(temp) > 1)
+				end++;/*char *temp = malloc(2);*/
+			/*temp[0] = line[end];*/
+			/*temp[1] = '\0';*/
 			ft_lstadd_back(&token->list, ft_lstnew(temp));
 			if (line[end] != '\0')
 				start = end + 1;
