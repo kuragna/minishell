@@ -79,9 +79,8 @@ int ft_isprint_no_quotes(char c)
 	return (c > 31 && c < 127 && c != SINGLE_QUOTE && c != DOUBLE_QUOTE);
 }
 
-char *ft_clean_string(char *string, t_token *token)
+char *ft_clean_string(char *string)
 {
-	(void)token;
 	char *new_content;
 	size_t	i;
 	size_t	j;
@@ -96,7 +95,6 @@ char *ft_clean_string(char *string, t_token *token)
 		return NULL;
 	if (ft_strchr(string, '\'') || ft_strchr(string, '\"'))
 	{
-		printf("here\n");
 		while (string[i] && string[i] != '\0')
 		{
 			if (string[i] == SINGLE_QUOTE)
@@ -142,8 +140,7 @@ void single_quote_mode(t_token *token, char *line, size_t *start, size_t *end)
 	while (line[*end] && line[*end] != SPACE)
 		(*end)++;
 	string = ft_substr(line, *start, *end - *start);
-	//string = ft_strtrim (string, "\'");
-	string = ft_clean_string(string, token);
+	string = ft_clean_string(string);
 	ft_lstadd_back(&token->list, ft_lstnew(string));
 	if (line[*end] != '\0')
 		*start = *end + 1;
@@ -164,9 +161,7 @@ void double_quote_mode(t_token *token, char *line, size_t *start, size_t *end)
 	while (line[*end] && line[*end] != SPACE)
 		(*end)++;
 	string = ft_substr(line, *start, *end - *start);
-	printf("str = %s\n", string);
-	//string = ft_strtrim (string, "\"");
-	string = ft_clean_string(string, token);
+	string = ft_clean_string(string);
 	ft_lstadd_back(&token->list, ft_lstnew(string));
 	if (line[*end] != '\0')
 		*start = *end + 1;
@@ -233,7 +228,7 @@ t_token *split_line(char *line)
 			{
 				char *string = ft_substr(line, start, end - start);
 				string = ft_strtrim(string, " ");
-				string = ft_clean_string(string, token);
+				string = ft_clean_string(string);
 				ft_lstadd_back(&token->list, ft_lstnew(string));
 			}
 			char *temp = create_metachar_string(line + end);
@@ -246,6 +241,7 @@ t_token *split_line(char *line)
 		else if (end == len)
 		{
 			char *string = ft_substr(line, start, end - start);
+			string = ft_clean_string(string);
 			if (ft_strlen(string) == 0)	
 				return (token);
 			ft_lstadd_back(&token->list, ft_lstnew(string));
