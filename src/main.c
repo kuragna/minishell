@@ -113,7 +113,7 @@ typedef struct s_cmd
 */
 int	ms_is_metachar(int c)
 {
-	if (c == ' ' || c == '\t' || c == '|' || c == '<' || c == '>')
+	if (c == '\t' || c == '|' || c == '<' || c == '>')
 		return 1;
 	return 0;
 }

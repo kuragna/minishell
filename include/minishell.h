@@ -71,7 +71,7 @@ void	ms_error(const int size, ...); // exmple: minishell: djsk: command not foun
 void	ms_leaks(void);
 void	ms_exec(char *cmd, char **args);
 void	ms_exit(char *line);
-
+int		ms_is_metachar(int c);
 /* ================= General ================= */
 
 

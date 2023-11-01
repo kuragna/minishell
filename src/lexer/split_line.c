@@ -41,10 +41,8 @@
 int check_quotes(char *str)
 {
 	size_t i;
-	size_t len;
 
 	i = 0;
-	len = ft_strlen(str);
 	while (str[i] && str[i] != '\0')
 	{
 		if (str[i] == SINGLE_QUOTE)
@@ -69,31 +67,6 @@ int check_quotes(char *str)
 			i++;
 	}
 	return (1);
-}
-
-
-int delimiters_present(char *text)
-{
-	int	i;
-	int j;
-	//char *delimiters[5] = {"|", ">", "<", ">>", NULL};
-	char delimiters[5] = {'|', '>', '<', '\0'}; //do not forget >>
-
-	i = 0;
-	j = 0;
-	while (i < 5)
-	{
-		j = 0;
-		while (text && text[j])
-		{
-			printf("text[%d] = %c | delimiter[%d] = %c\n", j, text[j], i, delimiters[i]);
-			if (text[j] == delimiters[i])
-				return (i);
-			j++;
-		}
-		i++;	
-	}
-	return -1;
 }
 
 int ft_isprint_no_quotes_spaces(char c)
@@ -154,14 +127,12 @@ char *ft_clean_string(char *string, t_token *token)
 //DONE: add check for when SINGLE_QUOTE OR DOUBLE_QUOTE aren't closed
 //DONE: end of string when in normal mode doesn't get tokenized => make this cleaner
 //TODO: add conditions for when delimiter is found in line
-int single_quote_mode(t_token *token, char *line, size_t *start, size_t *end)
+void single_quote_mode(t_token *token, char *line, size_t *start, size_t *end)
 {
 	char	*string;
 
 	string = NULL;
 	(*end)++;
-	if (!ft_strchr(line + *end, '\''))
-		return (ft_putstr_fd("Error: not closing quotes\n", 2), 1);
 	while (line[*end] && line[*end] != SINGLE_QUOTE)
 		(*end)++;
 	while (line[*end] && line[*end] != SPACE)
@@ -172,17 +143,14 @@ int single_quote_mode(t_token *token, char *line, size_t *start, size_t *end)
 	ft_lstadd_back(&token->list, ft_lstnew(string));
 	if (line[*end] != '\0')
 		*start = *end + 1;
-	return (0);
 }
 
-int double_quote_mode(t_token *token, char *line, size_t *start, size_t *end)
+void double_quote_mode(t_token *token, char *line, size_t *start, size_t *end)
 {
 	char	*string;
 
 	string = NULL;
 	(*end)++;
-	if (!ft_strchr(line + *end, '\"'))
-		return (ft_putstr_fd("Error: not closing quotes\n", 2), 1);
 	while (line[*end] && line[*end] != DOUBLE_QUOTE)
 		(*end)++;
 	while (line[*end] && line[*end] != SPACE)
@@ -194,7 +162,6 @@ int double_quote_mode(t_token *token, char *line, size_t *start, size_t *end)
 	ft_lstadd_back(&token->list, ft_lstnew(string));
 	if (line[*end] != '\0')
 		*start = *end + 1;
-	return (0);
 }
 
 //TODO: shell never exists, should just print the error and give back the prompt
@@ -219,25 +186,40 @@ t_token *split_line(char *line)
 		while (ft_isspace(line[start]))
 			start++;
 		if (line[end] && line[end] == SINGLE_QUOTE)
-		{
-			if (single_quote_mode(token, line, &start, &end))
-				exit(EXIT_FAILURE);
-		}
+			single_quote_mode(token, line, &start, &end);
 		else if (line[end] == DOUBLE_QUOTE)
+			 double_quote_mode(token, line, &start, &end);
+		/*else if (line[end] == SPACE)*/
+		/*{*/
+		/*if (end - start > 0)*/
+		/*{*/
+		/*char *string = ft_substr(line, start, end - start);*/
+		/*printf("space| string = %s\n", string);*/
+		/*ft_lstadd_back(&token->list, ft_lstnew(string));*/
+		/*}*/
+		/*if (line[end] != '\0')*/
+		/*start = end + 1;*/
+		/*}*/
+		else if (ms_is_metachar(line[end]) == 1)
 		{
-			if (double_quote_mode(token, line, &start, &end))
-				exit(EXIT_FAILURE);
-		}
-		else if (line[end] == SPACE)
-		{
-			char *string = ft_substr(line, start, end - start);
-			ft_lstadd_back(&token->list, ft_lstnew(string));
+			if (end - start > 0)
+			{
+				char *string = ft_substr(line, start, end - start);
+				printf("string = %s\n", string);
+				ft_lstadd_back(&token->list, ft_lstnew(string));
+			}
+			char *temp = malloc(2);
+			temp[0] = line[end];
+			temp[1] = '\0';
+			ft_lstadd_back(&token->list, ft_lstnew(temp));
 			if (line[end] != '\0')
 				start = end + 1;
 		}
 		else if (end == len)
 		{
 			char *string = ft_substr(line, start, end - start);
+			if (ft_strlen(string) == 0)	
+				return (token);
 			ft_lstadd_back(&token->list, ft_lstnew(string));
 		}
 		end++;
