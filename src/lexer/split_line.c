@@ -130,11 +130,15 @@ char *ft_clean_string(char *string, t_token *token)
 void single_quote_mode(t_token *token, char *line, size_t *start, size_t *end)
 {
 	char	*string;
+	size_t	move;
 
 	string = NULL;
+	move = *end;
 	(*end)++;
 	while (line[*end] && line[*end] != SINGLE_QUOTE)
 		(*end)++;
+	if (move + 1 == *end)
+		return;
 	while (line[*end] && line[*end] != SPACE)
 		(*end)++;
 	string = ft_substr(line, *start, *end - *start);
@@ -148,11 +152,15 @@ void single_quote_mode(t_token *token, char *line, size_t *start, size_t *end)
 void double_quote_mode(t_token *token, char *line, size_t *start, size_t *end)
 {
 	char	*string;
+	size_t 	move;
 
 	string = NULL;
+	move = *end;
 	(*end)++;
 	while (line[*end] && line[*end] != DOUBLE_QUOTE)
 		(*end)++;
+	if (move + 1 == *end)
+		return;
 	while (line[*end] && line[*end] != SPACE)
 		(*end)++;
 	string = ft_substr(line, *start, *end - *start);
@@ -219,30 +227,18 @@ t_token *split_line(char *line)
 			single_quote_mode(token, line, &start, &end);
 		else if (line[end] == DOUBLE_QUOTE)
 			 double_quote_mode(token, line, &start, &end);
-		/*else if (line[end] == SPACE)*/
-		/*{*/
-		/*if (end - start > 0)*/
-		/*{*/
-		/*char *string = ft_substr(line, start, end - start);*/
-		/*printf("space| string = %s\n", string);*/
-		/*ft_lstadd_back(&token->list, ft_lstnew(string));*/
-		/*}*/
-		/*if (line[end] != '\0')*/
-		/*start = end + 1;*/
-		/*}*/
 		else if (ms_is_metachar(line[end]) == 1)
 		{
 			if (end - start > 0)
 			{
 				char *string = ft_substr(line, start, end - start);
 				string = ft_strtrim(string, " ");
+				string = ft_clean_string(string, token);
 				ft_lstadd_back(&token->list, ft_lstnew(string));
 			}
 			char *temp = create_metachar_string(line + end);
 			if (ft_strlen(temp) > 1)
-				end++;/*char *temp = malloc(2);*/
-			/*temp[0] = line[end];*/
-			/*temp[1] = '\0';*/
+				end++;
 			ft_lstadd_back(&token->list, ft_lstnew(temp));
 			if (line[end] != '\0')
 				start = end + 1;
