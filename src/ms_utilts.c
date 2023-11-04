@@ -1,21 +1,25 @@
 #include "../include/minishell.h"
 
-
+// TODO: try to save PATHS in global variable
+// TODO: replace getenv by ms_getenv
 char	**ms_get_paths(void)
 {
 	const char	*path = getenv("PATH");
 	char	**paths;
 
 	paths = ft_split(path, ':'); // error
-	return paths;
+	return (paths);
 }
 
 
 char	*ms_path_suffix(char *path, char *cmd)
 {
-	char	*slash = ft_strjoin(path, "/");
-	char	*p_path = ft_strjoin(slash, cmd);
-	return p_path;
+	char	*slash;
+
+	slash = ft_strjoin(path, "/");
+	path = ft_strjoin(slash, cmd);
+	free(slash);
+	return (path);
 }
 
 int	ms_cmd_path(char **cmd)
@@ -40,9 +44,7 @@ int	ms_cmd_path(char **cmd)
 		}
 		i += 1;
 	}
-	if (paths[i] == NULL)
-		return 0;
-	return 1;
+	return (paths[i] != NULL);
 }
 
 #if 1
@@ -54,7 +56,7 @@ int	ms_interactive_mode(void)
 	// TODO: make sure error format as follow [minishell: res: err]
 	if (!isatty(MS_STDIN))
 	{
-		return ms_error("minishell: %s: %s\n", strerror(errno)); 
+		return ms_error("minishell: %s\n", strerror(errno)); 
 	}
 	if (tcgetattr(MS_STDIN, &attr) == -1)
 	{

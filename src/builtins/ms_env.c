@@ -18,10 +18,10 @@ t_env env_dup(char **envp)
 	i = 0;
 	env.length = 0;
 	env.capacity = 16;
-	env.vars = malloc(sizeof(char *) * env.capacity); // check error
+	env.vars = malloc(sizeof(env.vars) * env.capacity); // TODO: change signature of this function
 	while (envp[i] != NULL)
 	{
-		str = ft_strdup(envp[i]);
+		str = ft_strdup(envp[i]); // TODO: check for NULL
 		env_add(&env, str);
 		i += 1;
 	}
@@ -41,7 +41,7 @@ void	env_add(t_env *env, char *var)
 	if (env->capacity == env->length)
 	{
 		env->capacity *= 2;
-		env->vars = ft_realloc(env->vars, sizeof(char *) * env->capacity);
+		env->vars = ft_realloc(env->vars, sizeof(env->vars) * env->capacity);
 	}
 	env->vars[env->length] = var;
 	env->length += 1;
@@ -73,7 +73,8 @@ void	env_sort(t_env *env)
 	}
 }
 
-void	ms_env(t_env env)
+// TODO: change env to ms_envp
+int	ms_env(t_env env)
 {
 	size_t	i;
 
@@ -85,6 +86,7 @@ void	ms_env(t_env env)
 			ft_printf("%s\n", env.vars[i]);
 		i += 1;
 	}
+	return (0);
 }
 
 

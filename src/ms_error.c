@@ -6,7 +6,6 @@ int	ms_error(const char *fmt, ...)
 	char	*str;
 
 	va_start(ap, fmt);
-
 	while (*fmt)
 	{
 		if (*fmt == '%')
@@ -23,5 +22,5 @@ int	ms_error(const char *fmt, ...)
 		fmt += 1;
 	}
 	va_end(ap);
-	return 1;
+	return (1);
 }

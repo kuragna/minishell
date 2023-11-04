@@ -6,7 +6,7 @@
 /*   By: aabourri <aabourri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/17 19:04:35 by aabourri          #+#    #+#             */
-/*   Updated: 2023/10/31 16:00:09 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/11/04 14:20:45 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,39 +25,40 @@
 # include <fcntl.h>
 
 # include <sys/stat.h>
+# include <sys/wait.h>
 # include <dirent.h>
 # include <termios.h>
 
 # include "./ms_mem.h"
 # include "../libft/libft.h"
 # include "../include/ms_builtin.h"
+# include "../include/ms_parse.h"
+
+#define SYNT_ERR "syntax error near unexpected token"
+#define PRINT_LINE(s1, s2) printf("LINE: %d -> [%s]: %s\n", __LINE__, s1, s2)
+
+
+#ifdef DEBUG
+	#define malloc(size) ms_malloc(size, __FILE__, __LINE__)
+#endif
 
 
 #define MS_STDIN 	0
 #define MS_STDOUT 	1
 #define MS_STDERR 	2
 
-enum e_type
-{
-	END, // end of input
-	PIPE, // pipe
-	LESS, // redirect input
-	GREAT, // redirect output
-	DLESS, // redirect input with delimitar
-	DGREAT, // redirect outut in append mode
-	WORD, // command name and filename
-};
 
-typedef struct
-{
-	char *line;
-	size_t len;
-	size_t	pos;
-} t_lexer;
+void	cmd_print(t_cmd *cmq);
+void	redir_print(struct s_redirs *p);
+void	ms_ast_print(t_ast *ast);
 
 
 void	rl_clear_history(void);
 void	rl_replace_line (const char *text, int clear_undo);
+
+void	*ms_malloc(size_t size, char *file, int line);
+
+char	**ms_envcpy(const t_env *env);
 
 
 void	ms_sig_handler(int sig);
@@ -67,17 +68,8 @@ int	    ms_catch_signal();
 int		ms_error(const char *fmt, ...);
 void	ms_leaks(void);
 
-
 int	    ms_cmd_path(char **cmd);
 int	    ms_interactive_mode(void);
-
-int		ms_ismetachar(int c);
-int		ms_trim_left(t_lexer *l);
-t_lexer ms_lexer_init(char *line);
-int		ms_isquote(int c);
-int		ms_consume(t_lexer *l, int (*f)(int));
-enum e_type ms_peek(t_lexer *l);
-
 
 
 

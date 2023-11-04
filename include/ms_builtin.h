@@ -14,13 +14,13 @@ typedef struct s_env
 } t_env;
 
 
-void    ms_env(t_env env);
+int		ms_env(t_env env);
 int		ms_echo(char **args);
 int		ms_pwd(void);
 int		ms_cd(t_env *env, char *path);
 int     ms_unset(t_env *env, char **args);
 int     ms_export(t_env *env, char **vars);
-void    ms_exit(char *line);
+void    ms_exit();
 
 
 
