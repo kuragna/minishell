@@ -15,20 +15,39 @@
 
 
 /* --------Structures Overview--------*/
-typedef struct s_token t_token;
-typedef struct s_lexer t_lexer;
-
+typedef struct s_token	t_token;
+typedef struct s_lexer	t_lexer;
+typedef struct s_word	t_word;
+typedef struct s_cmd	t_cmd;
+typedef struct s_type	t_type;
 
 /* --------Structures Detailed--------*/
+/*typedef struct s_word{*/
+/*t_cmd *cmd;*/
+/*t_file *file;*/
+/*int flag;*/
+/*}				t_word;*/
+
+/*typedef struct s_cmd{*/
+/*char *base;*/
+/*char **args;*/
+
+/*}				t_cmd;*/
+
+/*typedef struct s_type{*/
+/*t_word *word;*/
+/*t_meta delimiter;*/
+/*}				t_type;*/
+
 typedef struct s_token {
-//	t_type token_type;
-	t_list *list;
+	char	*token_type;
+	t_list	*list;
 }				t_token;
 
 typedef struct s_lexer {
 
 	char	*line;
-	char	*result;
+	char	*content;
 	char	*temp;
 	int		flag;
 	size_t	len;
@@ -36,13 +55,9 @@ typedef struct s_lexer {
 	size_t 	pos;
 }				t_lexer;
 
-// '''''test''''test
-//              ^
-// pos
-
 
 /* -------------Functions-------------*/
-t_token *split_line(char *line);
+t_token *split_line(t_lexer *lex);
 //int		single_quote_mode(t_token *token, char *line, size_t *start, size_t *end);
 //int		double_quote_mode(t_token *token, char *line, size_t *start, size_t *end);
 

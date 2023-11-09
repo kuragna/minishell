@@ -33,8 +33,9 @@ SRCS		   = main.c\
 				builtins/ms_echo.c\
 				builtins/ms_pwd.c\
 				lexer/split_line.c\
+				lexer/tokenize_categories.c\
+				#lexer/split_line2.c\
 				#lexer/quote_error_test.c\
-				#lexer/split_line_v2.c\
 
 SRCS			:= $(addprefix src/, $(SRCS))
 

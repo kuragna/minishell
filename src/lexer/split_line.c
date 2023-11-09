@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   split_line.c                                       :+:      :+:    :+:   */
+/*   split_line2.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: glacroix <glacroix@student.42madrid>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -9,29 +9,6 @@
 /*   Updated: 2023/10/26 16:44:50 by glacroix         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-#include "../../include/minishell.h"
-
-/**
- * Delimiters are | >> > < " '
- * first split with delimiters
- * then single quotes and double quotes
- * then spaces
- */
-
-/**creating a modified split to split a line by all delimiters
- * 1) we move along the line looking for spaces once we encounter a space we take the starting position and the i - 1 pos and create a substring and then listaddback
- * 2) if we encounter a quote (be it a single or double quote) we enter in quote mode:
- * 			we are looking for the next identical quote to create our token however once we encounter it, we do not close the word until we encounter a space
- * 			then same thing => substring => listaddback
- * 3) at the end we will have a list of tokens, some will be words, some will be delimiters but we don't know this yet
- * 4) here we will go through our list of tokens and mark the tokens that are delimiters as delim_tokens
- * 5) do the expansions if needed
- * 6) we will look at the list and now determine what are the word types: cmd, args or file
- * 7) apply the function tolower to all cmd nodes through lstmap to be able execute commands in caps
- * 8) I think that's it :) ..................for now,..mmmm
- * -----------------------------------------------------------------------------------
- * */
 
 #include "../../include/minishell.h"
 
@@ -123,48 +100,45 @@ char *ft_clean_string(char *string)
 
 //INTERESTING = if you free string, you also free the nodes of the list
 //DONE: add check for when SINGLE_QUOTE OR DOUBLE_QUOTE aren't closed
-//DONE: end of string when in normal mode doesn't get tokenized => make this cleaner
+//DONE: lex->pos of string when in normal mode doesn't get tokenized => make this cleaner
 //TODO: add conditions for when delimiter is found in line
-void single_quote_mode(t_token *token, char *line, size_t *start, size_t *end)
+void single_quote_mode(t_token *token, t_lexer *lex)
 {
-	char	*string;
-	size_t	move;
+	size_t	quote_pos;
 
-	string = NULL;
-	move = *end;
-	(*end)++;
-	while (line[*end] && line[*end] != SINGLE_QUOTE)
-		(*end)++;
-	if (move + 1 == *end)
+	quote_pos = lex->pos;
+	lex->pos++;
+	while (lex->line[lex->pos] && lex->line[lex->pos] != SINGLE_QUOTE)
+		lex->pos++;
+	if (quote_pos + 1 == lex->pos)
 		return;
-	while (line[*end] && line[*end] != SPACE)
-		(*end)++;
-	string = ft_substr(line, *start, *end - *start);
-	string = ft_clean_string(string);
-	ft_lstadd_back(&token->list, ft_lstnew(string));
-	if (line[*end] != '\0')
-		*start = *end + 1;
+	while (lex->line[lex->pos] && lex->line[lex->pos] != SPACE)
+		lex->pos++;
+	lex->content = ft_substr(lex->line, lex->start, lex->pos - lex->start);
+	lex->content = ft_clean_string(lex->content);
+	ft_lstadd_back(&token->list, ft_lstnew(lex->content));
+	if (lex->line[lex->pos] != '\0')
+		lex->start = lex->pos + 1;
 }
 
-void double_quote_mode(t_token *token, char *line, size_t *start, size_t *end)
+void double_quote_mode(t_token *token, t_lexer *lex)
 {
-	char	*string;
-	size_t 	move;
-
-	string = NULL;
-	move = *end;
-	(*end)++;
-	while (line[*end] && line[*end] != DOUBLE_QUOTE)
-		(*end)++;
-	if (move + 1 == *end)
+	size_t 	quote_pos;
+	
+	quote_pos = lex->pos;
+	lex->pos++;
+	while (lex->line[lex->pos] && lex->line[lex->pos] != DOUBLE_QUOTE)
+		lex->pos++;
+	if (quote_pos + 1 == lex->pos)
 		return;
-	while (line[*end] && line[*end] != SPACE)
-		(*end)++;
-	string = ft_substr(line, *start, *end - *start);
-	string = ft_clean_string(string);
-	ft_lstadd_back(&token->list, ft_lstnew(string));
-	if (line[*end] != '\0')
-		*start = *end + 1;
+	while (lex->line[lex->pos] && lex->line[lex->pos] != SPACE)
+		lex->pos++;
+	lex->content = ft_substr(lex->line, lex->start, lex->pos - lex->start);
+	lex->content = ft_clean_string(lex->content);
+	ft_lstadd_back(&token->list, ft_lstnew(lex->content));
+	if (lex->line[lex->pos] != '\0')
+		lex->start = lex->pos + 1;
+
 }
 
 
@@ -198,75 +172,72 @@ char *create_metachar_string(char *line)
 }
 
 //TODO: shell never exists, should just print the error and give back the prompt
-t_token *split_line(char *line)
+t_token *split_line(t_lexer *lex)
 {
 	t_token	*token;
-	size_t	start;
-	size_t	end;
-	size_t	len;
-			
-
 	token = NULL;
-	start = 0;
-	end = 0;
+	
 	token = malloc(sizeof(t_token));
 	ft_memset(token, 0, sizeof(*token));
-	len = ft_strlen(line);
-	if (!check_quotes(line))
+	lex->len = ft_strlen(lex->line);
+	if (!check_quotes(lex->line))
 		return (ft_putstr_fd("Quotes are not enclosed\n", 2), NULL);
-	while (end <= len)
+	while (lex->pos <= lex->len)
 	{
-		while (ft_isspace(line[start]))
-			start++;
-		if (line[end] && line[end] == SINGLE_QUOTE)
-			single_quote_mode(token, line, &start, &end);
-		else if (line[end] == DOUBLE_QUOTE)
-			 double_quote_mode(token, line, &start, &end);
-		else if (ms_is_metachar(line[end]) == 1)
+		while (ft_isspace(lex->line[lex->start]))
+			lex->start++;
+		if (lex->line[lex->pos] && lex->line[lex->pos] == SINGLE_QUOTE)
+			single_quote_mode(token, lex);
+		else if (lex->line[lex->pos] == DOUBLE_QUOTE)
+			 double_quote_mode(token, lex);
+		else if (ms_is_metachar(lex->line[lex->pos]) == 1)
 		{
-			if (end - start > 0)
+			if (lex->pos - lex->start > 0)
 			{
-				char *string = ft_substr(line, start, end - start);
-				string = ft_strtrim(string, " ");
-				string = ft_clean_string(string);
-				ft_lstadd_back(&token->list, ft_lstnew(string));
+				lex->content = ft_substr(lex->line, lex->start, lex->pos - lex->start);
+				lex->content = ft_strtrim(lex->content, " ");
+				lex->content = ft_clean_string(lex->content);
+				ft_lstadd_back(&token->list, ft_lstnew(lex->content));
 			}
-			char *temp = create_metachar_string(line + end);
-			if (ft_strlen(temp) > 1)
-				end++;
-			ft_lstadd_back(&token->list, ft_lstnew(temp));
-			if (line[end] != '\0')
-				start = end + 1;
+			lex->temp = create_metachar_string(lex->line + lex->pos);
+			if (ft_strlen(lex->temp) > 1)
+				lex->pos++;
+			ft_lstadd_back(&token->list, ft_lstnew(lex->temp));
+			if (lex->line[lex->pos] != '\0')
+				lex->start = lex->pos + 1;
 		}
-		else if (end == len)
+		else if (lex->pos == lex->len)
 		{
-			char *string = ft_substr(line, start, end - start);
-			string = ft_clean_string(string);
-			if (ft_strlen(string) == 0)	
+			lex->content = ft_substr(lex->line, lex->start, lex->pos - lex->start);
+			lex->content = ft_clean_string(lex->content);
+			if (ft_strlen(lex->content) == 0)	
 				return (token);
-			ft_lstadd_back(&token->list, ft_lstnew(string));
+			ft_lstadd_back(&token->list, ft_lstnew(lex->content));
 		}
-		end++;
+		lex->pos++;
 	}
 	return (token);
 }
 
 
-//"Ahmed is a beast''"'''test
-
-#if 1
+void ft_leaks()
+{
+	system("leaks -q minishell");
+}
+#if 0 
 
 int main()
 {
-	char	*str;
-
-
+	/*atexit(ft_leaks);*/
+	t_lexer	lex;
+	t_token *token;
 	while (1)
 	{
-		str = readline("$> ");
-		ms_exit(str);
-		add_history(str);
-		t_token *token = split_line(str);
+		ft_memset(&lex, 0, sizeof(lex));
+		lex.line = readline("$> ");
+		ms_exit(lex.line);
+		add_history(lex.line);
+		token = split_line(&lex);
 		while (token && token->list != NULL)
 		{
 			printf("\ncontent = [%s]\n", (char *)token->list->content);
@@ -274,313 +245,6 @@ int main()
 		}
 	}
 	return (0);
-	//printf("%d\n", delimiters_present(str));
 }
 
 #endif
-
-/*
-">>" asd
-
->">" asd
-/bin/rm -f ">"
-
->> '$USER'
-cat $USER
-/bin/rm -f '$USER'
-
->> '$USER'
-cat '$USER'
-/bin/rm -f '$USER'
-
-"echo "
-
-"echo -nnnnn"
-
-"ECho" -n -nnn"" "-"nnnnn
-
-"ECHO" "-n"
-
-ECHO '''''-''n'
-
-echo '' -n
-
-echo "" "" "" -n -n -n -n
-
-cat << $USER
-why
-not
-$USER
-
-export T=">>"
-$T lol
-
-cat << "$USER"
-why
-not
-$USER
-
-cat << "$US"E"R"
-because
-we
-love
-bash
-$USER
-
->> $HOME
-
->> "$H"OM"E"
-cat OME
-/bin/rm -f OME
-
->> "$USER'$USER'"
-cat "$USER'$USER'"
-/bin/rm -f "$USER'$USER'"
-
->> "$USER"
-cat $USER
-/bin/rm -f $USER
-
-cd /Users/$USER/Desktop/
-pwd
-
-cd /Users/"$USER"/Desktop/
-pwd
-
-cd /Users/"$U"S"ER"/Desktop/
-
-export T=n
-echo "-"$T$T
-
-export T=ech
-echo $To
-
-export T=ech
-echo $T"o"
-
-export T=ech
-echo $T"o "
-
-export T=ech
-echo $T"o -n"
-
-export T=ech
-echo $T"o -n"
-
-export T=ech
-echo $T'o'
-
-export T="-n test1 -n test 2"
-echo $T
-
-export T=ech
-echo $T'o '
-
-"ECHO"
-
-'echo'
-
-'PWD'
-
-"PWD"
-
-echo "-nnnnn "
-
-ECHO -nn
-
-ECHO -n -n
-
-ECHO "-"""n""n""n""n""n""nnnnnn-n
-
-ECHO "-"""n""n""n""n""n""nnnnnn -n
-
-export T=nnnnnnnn
-echo "-""$T"nnnnnnnnnnnnn -nnnnnnnn"$T" '-'"$T"
-
-export T=nnnnnnnn
-echo "-""$T"nnnnnnnnnnnnn -nnnnnnnn"$T" '-''$T'
-
-export T=nnnnnnnn
-echo "-"'$T'nnnnnnnnnnnnn -nnnnnnnn'$T' '-'"$T "
-
-export T=nnnnnnnn
-echo "-"'$T'nnnnnnnnnnnnn -nnnnnnnn$T '-''$T '
-
-export T=e E=c S=h L=o
-$T$E$S$L
-
-export T=e E=c S=h L=o L=ok
-$T$E$S$L
-
-export T=e E=c S=h L=o
-$T$E$S$L -n
-
-export T=E E=c S=h L=o
-$T$E$S$L -n
-
-export T=E E=c S=h L=o
-$T$E$S$L -nn
-
-export T=e E=c S=h L=o
-$T$E$S$L -nn
-
-export T=e E=c S=h L=o
-$T$E"c"$L -nn
-
-export T=e E=c S=h L=o
-$T$E"C"$L -nn
-
-export T=e E=c S=h L=o
-$T$E"C"$L "" -""n
-
-LS
-
-Ls
-
-lS
-
-ls
-
-PWD
-
-pWD
-
-pwd
-
-pwD
-
-ENV
-
-CAT
-
-EXPORT
-
-export T="|"
-echo segfault $T grep segfault
-
-export T='|'
-echo segfault $T grep segfault
-
-export T=">"
-echo segfault $T grep segfault
-
-export T='<'
-echo segfault $T grep segfault
-
-export T="<<"
-echo segfault $T grep segfault
-
-export T='<<'
-echo segfault $T grep segfault
-
-export T="|"
-$T$T$T$T$T$T$T
-
-export T="echo segfault | grep segfault"
-$T
-
-export T=-nnnnnnnn"nnnnnnn "
-echo $T
-
-export T=-"n                    "
-Echo $T
-
-EXIT 123
-
-Exit
-
-UNSET USER
-
-Unset USER
-
-EXPORT T=LA
-echo $T
-
-Export T=LA
-echo $T
-
-"e"'x''p''o''r''t' L=T
-echo $T
-
-e""""""""""""cho
-
-export T='|'
-echo $T echo lala $T echo $T echo ?
-
-export T="<<"
-$T.
-
-OLDPWD
-
-USER
-
-" ls"
-
-" cat"
-
-" echo"
-
-" PWD"
-
-" pwd"
-
-"PWD "
-
-"pwd "
-
-'pwd '
-
-p""''''w''''''""""""''''''''''''''''''''''''''''''''d
-
-'''''''''''''''' echo ok
-
-           ''echo ok
-
-           ""echo ok
-
-           ""echo"" ok
-
-           ""'echo'"" ok
-
-echo "         |       "  | echo maybe
-
-echo "|"  | echo maybe
-
-echo '|'  | echo maybe
-
-echo -nnnnnnnnnnnn
-
-export L=amazing L=ok L=cool
-echo $L
-
-export L=amazing L=ok L=cool
-export L=ok
-echo $L
-
-echo '$'$'$'$'$'
-
-echo '$'$'$'$'$'$'$'
-
-echo "$"$'$'$"$"$"$"$'$'
-
-echo $/ $/ 
-
-echo $U/SER
-
-echo "$/ $/"
-
-echo $/"$/"
-
-echo '$/'
-
-exit 9223372036854775805
-
-exit 123"123"
-
-<| echo ok
-
->| echo sure
-
-cd --
- */
-

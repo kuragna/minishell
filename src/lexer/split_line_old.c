@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   split_line_v2.c                                    :+:      :+:    :+:   */
+/*   split_line.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: glacroix <glacroix@student.42madrid>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/12 21:29:19 by glacroix          #+#    #+#             */
-/*   Updated: 2023/10/24 13:41:54 by glacroix         ###   ########.fr       */
+/*   Updated: 2023/10/26 16:44:50 by glacroix         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,205 +33,245 @@
  * -----------------------------------------------------------------------------------
  * */
 
-//typedef struct s_lexer {
-	//char	*result;
-	//char	*temp;
-	//int		flag;
-	//size_t 	start;
-	//size_t	end;
-//}			t_lexer;
+#include "../../include/minishell.h"
 
+# define SINGLE '\''
+# define DOUBLE '\"'
 
-/*
- * New idea for parsing
- * what we keep:
- * - we are going through the line looking for spaces, onced encountered we take the starting pos and i -1 pos and create a substring and listaddback
- *   if we encounter a quote (single or double) we enter in quote mode:
- *   	we are looking for the next identical quote to create our token
- * DIFF:
- * 		once we encounter the other quote we substring from start to i -1 and redo the loop, we will join all the strings together until we find a space 
-*/
-
-
-void single_quote_mode(t_lexer *lex)
+int check_quotes(char *str)
 {
-	size_t len = 0;
-	size_t start = lex->pos;
+	size_t i;
 
-	while (start < lex->len && lex->line[start] != SINGLE_QUOTE)
+	i = 0;
+	while (str[i] && str[i] != '\0')
 	{
-		start += 1;
-		len += 1;
-	}
-	if (lex->flag == 1)
-	{
-		//free(lex->result);	
-		lex->temp = ft_strdup(lex->result);
-	}
-	lex->result = ft_substr(&lex->line[lex->pos], 0, len);
-	lex->pos += len;
-	printf("lex->result = %s\n", lex->result);
-	if (lex->temp)
-		lex->result = ft_strjoin(lex->temp, lex->result);
-	while (lex->pos < lex->len || lex->line[lex->pos] != SPACE)
-	{
-		if (lex->line[lex->pos] == SINGLE_QUOTE)
+		if (str[i] == SINGLE_QUOTE)
 		{
-			lex->flag = 1;
-			lex->start = lex->pos;
-			lex->line += lex->pos;
-			single_quote_mode(lex);
+			i++;
+			while (str[i] && str[i] != SINGLE_QUOTE)
+				i++;
+			if (str[i] != SINGLE_QUOTE)
+				return (0);
+			i++;
 		}
-		lex->pos++;
+		else if (str[i] == DOUBLE_QUOTE)
+		{
+			i++;
+			while (str[i] && str[i] != DOUBLE_QUOTE)
+				i++;
+			if (str[i] != DOUBLE_QUOTE)
+				return (0);
+			i++;
+		}
+		else
+			i++;
 	}
+	return (1);
 }
 
-//typedef struct
-
-// '"test"'
-// ^    ^
-//
-
-//void double_quote_mode(char *str, t_lexer *lex)
-//{
-
-//}
-//
-//A
-//
-
-
-typedef struct s_string
+int ft_isprint_no_quotes_spaces(char c)
 {
-	char	*str;
-	size_t	length;
-	size_t	capacity;
-} t_string;
-
-
-void	*ft_realloc(void *ptr, size_t size)
-{
-	void	*new;
-
-	new = malloc(size);
-	if (!new)
-		return NULL;
-	ft_memcpy(new, ptr, size);
-	free(ptr);
-	return new;
+	return (c > 32 && c < 127 && c != SINGLE_QUOTE && c != DOUBLE_QUOTE);
 }
-
-void	append(t_string *string, char c)
-{
-	if (string->length == string->capacity)
-	{
-		string->capacity *= 2;
-		string->str = ft_realloc(string->str, string->capacity * sizeof(char));
-	}
-	string->str[string->length] = c;
-	string->length += 1;
-}
-
-t_string string_init()
-{
-	t_string string;
-	
-	string.capacity = 8;
-	string.length = 0;
-	string.str = malloc(string.capacity);
-	return string;
-}
-
-void skip_quotes(t_lexer *lex, char c)
-{
-	if (lex->line[lex->pos] == c && lex->line[lex->pos + 1] == c)
-		lex->pos += 2;
-}
-
-int	main()
-{
-	t_string string = string_init();
-
-	char *line = readline("$> ");
-
-	while (*line)
-	{
-		if (*line != SINGLE_QUOTE || *line != DOUBLE_QUOTE)
-			append(&string, *line);
-		line += 1;
-	}
-	append(&string, '\0');
-
-	printf("[line]: %s\n", string.str);
-
-	return 0;
-}
-
-//void add_char(t_lexer *lex, char c)
-//{
-	//size_t	len_res;
-
-	//len_res = ft_strlen(lex->result);
-	////if (lex->result)
-		////free(lex->result);
-	//lex->result = malloc(1 * (len * 2) + 1);
-
-
-//}
 
 int ft_isprint_no_quotes(char c)
 {
-	if (c > 32 && c < 127 && c != SINGLE_QUOTE && c != DOUBLE_QUOTE)
-		return (1);
-	return (0);
-}	
-
-void normal_mode(t_lexer *lex)
-{
-	while (ft_isprint_no_quotes(lex->line[lex->pos]))
-		lex->pos++;
-	if (lex->line[lex->pos] != SINGLE_QUOTE && lex->line[lex->pos] != DOUBLE_QUOTE && lex->line[lex->pos] == SPACE)
-		lex->result = ft_substr(lex->line, lex->start, lex->pos - lex->start);
+	return (c > 31 && c < 127 && c != SINGLE_QUOTE && c != DOUBLE_QUOTE);
 }
 
-void create_token(t_lexer *lex)
+char *ft_clean_string(char *string)
+{
+	char *new_content;
+	size_t	i;
+	size_t	j;
+	size_t len_string;
+
+
+	i = 0;
+	j = 0;
+	len_string = ft_strlen(string);
+	new_content = malloc(sizeof(char) * len_string + 1);
+	if (!new_content)
+		return NULL;
+	if (ft_strchr(string, '\'') || ft_strchr(string, '\"'))
+	{
+		while (string[i] && string[i] != '\0')
+		{
+			if (string[i] == SINGLE_QUOTE)
+			{
+				i++;
+				while (string[i] && string[i] != SINGLE_QUOTE)
+					new_content[j++] = string[i++];
+				i++;
+			}
+			else if (string[i] == DOUBLE_QUOTE)
+			{
+				i++;
+				while (string[i] && string[i] != DOUBLE_QUOTE)
+					new_content[j++] = string[i++];
+				i++;
+			}
+			else
+				new_content[j++] = string[i++];
+		}
+		new_content[j] = '\0';
+		return (new_content);
+	}
+	return (string);
+}
+
+
+//INTERESTING = if you free string, you also free the nodes of the list
+//DONE: add check for when SINGLE_QUOTE OR DOUBLE_QUOTE aren't closed
+//DONE: end of string when in normal mode doesn't get tokenized => make this cleaner
+//TODO: add conditions for when delimiter is found in line
+void single_quote_mode(t_token *token, char *line, size_t *start, size_t *end)
+{
+	char	*string;
+	size_t	move;
+
+	string = NULL;
+	move = *end;
+	(*end)++;
+	while (line[*end] && line[*end] != SINGLE_QUOTE)
+		(*end)++;
+	if (move + 1 == *end)
+		return;
+	while (line[*end] && line[*end] != SPACE)
+		(*end)++;
+	string = ft_substr(line, *start, *end - *start);
+	string = ft_clean_string(string);
+	ft_lstadd_back(&token->list, ft_lstnew(string));
+	if (line[*end] != '\0')
+		*start = *end + 1;
+}
+
+void double_quote_mode(t_token *token, char *line, size_t *start, size_t *end)
+{
+	char	*string;
+	size_t 	move;
+
+	string = NULL;
+	move = *end;
+	(*end)++;
+	while (line[*end] && line[*end] != DOUBLE_QUOTE)
+		(*end)++;
+	if (move + 1 == *end)
+		return;
+	while (line[*end] && line[*end] != SPACE)
+		(*end)++;
+	string = ft_substr(line, *start, *end - *start);
+	string = ft_clean_string(string);
+	ft_lstadd_back(&token->list, ft_lstnew(string));
+	if (line[*end] != '\0')
+		*start = *end + 1;
+}
+
+
+char *create_metachar_string(char *line)
+{
+	size_t i;
+	char *temp;
+	int flag;
+
+	flag = 0;
+	i = 0;
+	if (line[i+1] && line[i] == line[i + 1] && (line[i+1] == '>' || line[i+1] == '<'))
+	{
+		temp = malloc(3);
+		flag = 1;
+	}
+	else
+		temp = malloc(2);
+	if (flag == 1)
+	{
+		temp[0] = line[0];
+		temp[1] = line[1];
+		temp[2] = '\0';
+	}
+	else
+	{
+		temp[0] = line[0];
+		temp[1] = '\0';
+	}
+	return (temp);
+}
+
+//TODO: shell never exists, should just print the error and give back the prompt
+t_token *split_line(char *line)
 {
 	t_token	*token;
+	size_t	start;
+	size_t	end;
+	size_t	len;
+			
 
 	token = NULL;
+	start = 0;
+	end = 0;
 	token = malloc(sizeof(t_token));
 	ft_memset(token, 0, sizeof(*token));
-
-	while (lex->pos < lex->len)
+	len = ft_strlen(line);
+	if (!check_quotes(line))
+		return (ft_putstr_fd("Quotes are not enclosed\n", 2), NULL);
+	while (end <= len)
 	{
-		if (lex->line[lex->pos] == SINGLE_QUOTE)
-			single_quote_mode(lex);
-		else
-			normal_mode(lex);
-			
-		//else if (str[lex->pos] == DOUBLE_QUOTE)
-			//double_quote_mode(str, lex);
-		lex->pos++;
-	}	
+		while (ft_isspace(line[start]))
+			start++;
+		if (line[end] && line[end] == SINGLE_QUOTE)
+			single_quote_mode(token, line, &start, &end);
+		else if (line[end] == DOUBLE_QUOTE)
+			 double_quote_mode(token, line, &start, &end);
+		else if (ms_is_metachar(line[end]) == 1)
+		{
+			if (end - start > 0)
+			{
+				char *string = ft_substr(line, start, end - start);
+				string = ft_strtrim(string, " ");
+				string = ft_clean_string(string);
+				ft_lstadd_back(&token->list, ft_lstnew(string));
+			}
+			char *temp = create_metachar_string(line + end);
+			if (ft_strlen(temp) > 1)
+				end++;
+			ft_lstadd_back(&token->list, ft_lstnew(temp));
+			if (line[end] != '\0')
+				start = end + 1;
+		}
+		else if (end == len)
+		{
+			char *string = ft_substr(line, start, end - start);
+			string = ft_clean_string(string);
+			if (ft_strlen(string) == 0)	
+				return (token);
+			ft_lstadd_back(&token->list, ft_lstnew(string));
+		}
+		end++;
+	}
+	return (token);
 }
 
+
+//"Ahmed is a beast''"'''test
 
 #if 0
 
 int main()
 {
 	char	*str;
-	t_lexer	lex;
 
-	ft_memset(&lex, 0, sizeof(t_lexer));
+
 	while (1)
 	{
 		str = readline("$> ");
-		lex.len = ft_strlen(str);
-		lex.line = str;
 		ms_exit(str);
 		add_history(str);
-		create_token(&lex);
+		t_token *token = split_line(str);
+		while (token && token->list != NULL)
+		{
+			printf("\ncontent = [%s]\n", (char *)token->list->content);
+			token->list = token->list->next;
+		}
 	}
 	return (0);
 	//printf("%d\n", delimiters_present(str));
