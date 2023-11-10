@@ -1,5 +1,14 @@
 #include "../include/minishell.h"
 
+void	ms_expected_token(const t_token_type type)
+{
+	// NOTE: to avoid buffer-overflow
+	if (type > DGREAT)
+		return ;
+	const char	*tokens[] = {"newline", "|", "<", ">", "<<", ">>"};
+	ms_error("minishell: %s `%s\'\n", SYTX_ERR, tokens[type]);
+}
+
 int	ms_error(const char *fmt, ...)
 {
 	va_list ap;

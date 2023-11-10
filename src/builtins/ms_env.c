@@ -1,5 +1,6 @@
-#include "../../include/minishell.h"
+//#include "../../include/minishell.h"
 
+#include "../../include/ms_builtin.h"
 /*
  *	'env' command prints variable if has [name=value]
  *	otherwise, just ignore
@@ -7,9 +8,7 @@
  * 
  * */
 
-void	add_env(t_env *env, char *var);
-
-t_env env_dup(char **envp)
+t_env ms_env_dup(char **envp)
 {
 	size_t	i;
 	char	*str;
@@ -18,36 +17,40 @@ t_env env_dup(char **envp)
 	i = 0;
 	env.length = 0;
 	env.capacity = 16;
-	env.vars = malloc(sizeof(env.vars) * env.capacity); // TODO: change signature of this function
+	env.vars = malloc(sizeof(env.vars) * env.capacity);
 	while (envp[i] != NULL)
 	{
-		str = ft_strdup(envp[i]); // TODO: check for NULL
-		env_add(&env, str);
+		str = ft_strdup(envp[i]);
+		if (str)
+			ms_env_push(&env, str);
 		i += 1;
 	}
 	return env;
 }
 
 
-void	ft_swap(char **a, char **b)
+void	ms_swap(char **a, char **b)
 {
 	char *c = *a;
 	*a = *b;
 	*b = c;
 }
 
-void	env_add(t_env *env, char *var)
+int	ms_env_push(t_env *env, char *var)
 {
 	if (env->capacity == env->length)
 	{
 		env->capacity *= 2;
 		env->vars = ft_realloc(env->vars, sizeof(env->vars) * env->capacity);
+		if (!env->vars)
+			return (1);
 	}
 	env->vars[env->length] = var;
 	env->length += 1;
+	return (0);
 }
 
-void	env_sort(t_env *env)
+void	ms_env_sort(t_env env)
 {
 	size_t	len;
 	size_t	i;
@@ -55,17 +58,17 @@ void	env_sort(t_env *env)
 	char	*t;
 
 	i = 0;
-	while (i < env->length)
+	while (i < env.length)
 	{
 		j = 0;
-		len = ft_strlen(env->vars[i]);
-		while (j < env->length)
+		len = ft_strlen(env.vars[i]);
+		while (j < env.length)
 		{
-			if (ft_strncmp(env->vars[i], env->vars[j], len) < 0)
+			if (ft_strncmp(env.vars[i], env.vars[j], len) < 0)
 			{
-				t = env->vars[i];
-				env->vars[i] = env->vars[j];
-				env->vars[j] = t;
+				t = env.vars[i];
+				env.vars[i] = env.vars[j];
+				env.vars[j] = t;
 			}
 			j += 1;
 		}
@@ -73,52 +76,15 @@ void	env_sort(t_env *env)
 	}
 }
 
-// TODO: change env to ms_envp
 int	ms_env(t_env env)
 {
 	size_t	i;
 
 	i = 0;
-	while (i < env.length)
+	while (env.vars[i] != NULL)
 	{
-		// TODO: make sure that var has \0
-		if (ft_strchr(env.vars[i], '='))
-			ft_printf("%s\n", env.vars[i]);
+		ft_printf("%s\n", env.vars[i]);
 		i += 1;
 	}
 	return (0);
 }
-
-
-
-#if 0
-
-void	find_leaks(void)
-{
-	system("leaks -q minishell");
-}
-
-int	main(int argc, char **argv, char **envp)
-{
-
-	atexit(find_leaks);
-	(void) argc;
-	(void) argv;
-	(void) envp;
-
-
-	t_env env = env_dup(envp);
-
-	printf("CAP: %ld\n", env.capacity);
-	printf("LEN: %ld\n", env.length);
-
-
-
-
-	(void)env;
-
-
-	printf("from env\n");
-	return 0;
-}
-#endif

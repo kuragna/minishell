@@ -2,12 +2,19 @@
 #define MS_MEM
 
 #include <stdlib.h>
+#include "../libft/libft.h"
+
+// typedef struct s_mem
+// {
+// 	t_list *lst;
+// 	size_t	len;
+// } t_mem;
 
 typedef struct s_mem
 {
 	void	**ptr;
-	size_t	lenght;
 	size_t	capacity;
+	size_t	length;
 } t_mem;
 
 t_mem	ms_mem_init(void);

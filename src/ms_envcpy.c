@@ -1,5 +1,6 @@
 #include "../include/minishell.h"
 
+// TODO: ?
 char	**ms_envcpy(const t_env *env)
 {
 	size_t	i;

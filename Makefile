@@ -6,7 +6,7 @@
 #    By: aabourri <aabourri@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/10/09 14:16:51 by glacroix          #+#    #+#              #
-#    Updated: 2023/11/04 13:55:36 by aabourri         ###   ########.fr        #
+#    Updated: 2023/11/09 19:15:45 by aabourri         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -27,24 +27,27 @@ NAME	   = minishell
 
 #SRC & OBJS Details
 # **************************************************************************** #
-SRCS		=	builtins/ms_env.c \
+SRCS		=	ms_malloc.c \
+				ms_ast_destroy.c \
 				ms_signal.c \
+				ms_cmd_utilts.c \
 				ms_utilts.c \
-				ms_is_token.c \
 				ms_error.c \
-				ms_trim_left.c \
+				ms_ast_print.c \
+				ms_io_handle.c \
+				ms_lexer.c \
+				ms_parser.c \
+				ms_exec.c \
+				main.c \
+				builtins/ms_env.c \
+				ms_envcpy.c \
 				builtins/ms_env_utilts.c \
 				builtins/ms_exit.c \
 				builtins/ms_unset.c \
 				builtins/ms_echo.c \
 				builtins/ms_pwd.c \
 				builtins/ms_cd.c \
-				builtins/ms_export.c \
-				ms_ast_print.c \
-				ms_malloc.c \
-				ms_envcpy.c \
-				ms_lexer.c \
-				main.c 
+				builtins/ms_export.c
 				
 
 
@@ -59,33 +62,27 @@ RL			= /Users/${USER}/.brew/opt/readline/
 #Execution
 # **************************************************************************** #
 CC		   = gcc
-CFLAGS	   = -Wall -Werror -Wextra -g3 -fsanitize=address
+CFLAGS	   = -Wall -Werror -Wextra -g3 #-fsanitize=address
 LDFLAGS    = -L$(LDLIBFT) -L$(addsuffix lib, $(RL)) 
 LDFLAGS    += -I$(addsuffix include, $(RL)) -lft -lreadline
 RM		   = rm -rf 
 
 
-DEBUG 	   =
-
-
 #SRC Execution
 # **************************************************************************** #
 $(NAME): libft objs $(OBJ)
-	@$(CC) -o $@ $(CFLAGS) $(LDFLAGS) $(OBJ) $(DEBUG)
+	@$(CC) -o $@ $(CFLAGS) $(LDFLAGS) $(OBJ)
 	@echo $(MAGENTA) "\n         Minishell Compiled!       \n" $(RESET)
 
 #Makefile Cmds
 # **************************************************************************** #
 all: $(NAME)
 
-debug:
-
-
 libft: 
 	@make -C ./libft
 
 objs/%.o: %.c
-	@$(CC) -c $(CFLAGS) $(DEBUG) $< -o $@
+	@$(CC) -c $(CFLAGS) $< -o $@
 
 objs: 
 	@mkdir -p objs/src
