@@ -16,7 +16,7 @@ static	int	ms_check_opt(char *opt)
 	return (1);
 }
 
-int	ms_echo(char **args)
+int	ms_echo(char **args, int *fd)
 {
 	int		flag;
 	size_t	i;
@@ -28,14 +28,17 @@ int	ms_echo(char **args)
 		i += 1;
 		flag = 0;
 	}
+	fprintf(stderr, "STDOUT: %d\n", fd[MS_STDOUT]);
 	while (args && args[i] != NULL)
 	{
-		ft_printf("%s", args[i]);
+		ft_putstr_fd(args[i], fd[MS_STDOUT]);
 		if (args[i + 1])
-			ft_printf(" ");
+			ft_putstr_fd(" ", fd[MS_STDOUT]);
 		i += 1;
 	}
 	if (flag)
-		ft_printf("\n");
+		ft_putstr_fd("\n", fd[MS_STDOUT]);
+	if (fd[MS_STDOUT] > 1)
+		close(fd[MS_STDOUT]);
 	return (0);
 }

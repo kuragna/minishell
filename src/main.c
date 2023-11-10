@@ -23,7 +23,6 @@ extern char **environ;
 char	**ms_envp;
 t_env env;
 
-#if 1
 
 
 void	ms_wait(int count)
@@ -39,48 +38,71 @@ void	ms_wait(int count)
 	}
 }
 
+void	ms_prompt(t_env *env)
+{
+	const int	fd[2] = {MS_STDIN, MS_STDOUT};
+	int	count;
+	char	*line;
+	t_ast	*ast;
+	t_lexer	lexer;
+
+	(void)env;
+
+
+	while (1)
+	{
+		line = readline("$> ");
+		if (!line)
+			break ;
+		lexer = ms_lexer_init(line);
+		if (ms_peek(&lexer) == NEWLINE)
+			continue;
+		add_history(line);
+		ast = ms_parse_pipe(&lexer);
+		if (ast)
+		{
+			count = ms_exec(ast, (int*)fd);
+			ms_wait(count);
+		}
+		ms_ast_destroy(ast);
+		free(line);
+
+	}
+}
+
 // TODO: fix redirs with pipeline
 // TODO: fix || for pipeline
 
+#if 1
 int	main(int argc, char **argv, char **envp)
 {
 	atexit(ms_leaks);
-	t_ast *ast;
-	int	count;
-	int	fd[2] = { MS_STDIN, MS_STDOUT};
 
 	if (ms_interactive_mode())
 		return (1);
 	if (ms_catch_signal())
 		return (1);
 
-// 	env = ms_env_dup(envp);
+	env = ms_env_dup(envp);
+	ms_prompt(&env);
+	rl_clear_history();
 
-	while (1)
-	{
-		char	*line = readline("$> ");
-		if (!line)
-			break ;
-		t_lexer lexer = ms_lexer_init(line);
-		add_history(line);
-		if (ms_peek(&lexer) == NEWLINE)
-			continue;
 
-		fd[MS_STDIN] = MS_STDIN;
-		fd[MS_STDOUT] = MS_STDOUT;
-		
-		ast = ms_parse_pipe(&lexer);
-		if (ast)
-		{
-			count = ms_exec(ast, fd);
-			ms_wait(count);
-		}
-		ms_ast_destroy(ast);
-		free(line);
-	}
 	return (0);
 	(void)argc;
 	(void)argv;
 	(void)envp;
 }
 #endif
+
+
+
+
+
+
+
+
+
+
+
+

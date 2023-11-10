@@ -14,7 +14,7 @@ int	ms_export_(t_env *env, char *var)
 	}
 	end = ft_strchr(var, '=');
 	len = end - var;
-	i = ms_get_idx(env, var, len);
+	i = ms_get_idx(env, var);
 	var = ft_strdup(var);
 	if (i != -1)
 	{

@@ -6,32 +6,32 @@
 
 
 ///TODO: make it safe, because we have buffer-overflow
-struct fd_track
+struct s_fd_table
 {
-	int	fd[1024];
+	int	fds[1024];
 	size_t len;
 };
 
-struct fd_track track = {0};
+struct s_fd_table table = {0};
 
-void	ms_close(struct fd_track *ptr)
+void	ms_close(struct s_fd_table *table)
 {
 	size_t i;
 
 	i = 0;
-	while (i < ptr->len)
+	while (i < table->len)
 	{
-		close(ptr->fd[i]);
+		close(table->fds[i]);
 		i += 1;
 	}
-	ptr->len = 0;
+	table->len = 0;
 }
 
 extern t_env env;
 extern char	**ms_envp;
 extern char	**environ; // just for test
 
-int	exec_builtin_cmd(const t_args *args)
+int	exec_builtin_cmd(const t_args *args, int *fd)
 {
 	const char		*str = args->argv[0];
 	const size_t	len = ft_strlen(str) + 1;
@@ -52,7 +52,7 @@ int	exec_builtin_cmd(const t_args *args)
 	}
 	if (ft_memcmp(str, "echo", len) == 0)
 	{
-		status = ms_echo(args->argv + 1);
+		status = ms_echo(args->argv + 1, fd);
 	}
 	if (ft_memcmp(str, "export", len) == 0)
 	{
@@ -70,7 +70,8 @@ int	exec_builtin_cmd(const t_args *args)
 }
 
 
-// TODO: fix built-in via pipeline
+// TODO: built-in via pipeline
+// TODO: built-in via redirs
 #if 1
 int	ms_exec_cmd(t_ast *node, int *fd)
 {
@@ -82,13 +83,13 @@ int	ms_exec_cmd(t_ast *node, int *fd)
 
 	if (!node->cmd.args.argv[0])
 		return (-1);
-	if (!exec_builtin_cmd(&cmd.args))
-		return 0;
+	if (!exec_builtin_cmd(&cmd.args, fd))
+		return (0);
 	else if (fork() == 0)
 	{
 		dup2(fd[MS_STDIN], MS_STDIN);
 		dup2(fd[MS_STDOUT], MS_STDOUT);
-		ms_close(&track);
+		ms_close(&table);
 
 		path = cmd.args.argv[0];
 		ms_cmd_path(&path);
@@ -138,8 +139,8 @@ int	ms_exec_pipe(t_ast *node, int *fd)
 		ms_error("minishell: %s\n", strerror(errno));
 		return (-1);
 	}
-	track.fd[track.len++] = pp[MS_STDIN];
-	track.fd[track.len++] = pp[MS_STDOUT];
+	table.fds[table.len++] = pp[MS_STDIN];
+	table.fds[table.len++] = pp[MS_STDOUT];
 	fd_[MS_STDIN] = fd[MS_STDIN];
 	fd_[MS_STDOUT] = pp[MS_STDOUT];
 	count += ms_exec((t_ast *)nodes[LEFT], fd_);
@@ -147,6 +148,6 @@ int	ms_exec_pipe(t_ast *node, int *fd)
 	fd_[MS_STDOUT] = fd[MS_STDOUT];
 	count += ms_exec((t_ast *)nodes[RIGHT], fd_);
 	// close all file descriptors in parent process
-	ms_close(&track);
+	ms_close(&table);
 	return (count);
 }

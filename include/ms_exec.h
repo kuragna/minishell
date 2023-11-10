@@ -10,7 +10,7 @@
 #define	MS_STDOUT	1
 
 
-int	exec_builtin_cmd(const t_args *args);
+int	exec_builtin_cmd(const t_args *args, int *fd);
 int	ms_exec_cmd(t_ast *node, int *fd);
 int	ms_io_handle(struct s_redirs *ptr, int *fd);
 int	ms_cmd_path(char **cmd);

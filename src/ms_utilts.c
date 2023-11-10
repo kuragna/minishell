@@ -15,3 +15,23 @@ int	ms_is_token(int c)
 		return (1);
 	return (0);
 }
+
+int	ms_interactive_mode(void)
+{
+	struct termios attr;
+
+	if (!isatty(MS_STDIN))
+	{
+		return (1);
+	}
+	if (tcgetattr(MS_STDIN, &attr) == -1)
+	{
+		return (1);
+	}
+	attr.c_lflag &= ~(ECHOCTL);
+	if (tcsetattr(MS_STDIN, TCSANOW, &attr) == -1)
+	{
+		return (1);
+	}
+	return (0);
+}

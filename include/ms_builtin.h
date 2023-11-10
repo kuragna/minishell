@@ -5,7 +5,10 @@
 #include "../libft/libft.h"
 #include "../include/ms_malloc.h"
 
-// TODO: use another struct
+#define MS_STDOUT	1
+
+
+// TODO: try to use hashtable
 
 typedef struct s_env
 {
@@ -16,7 +19,7 @@ typedef struct s_env
 
 
 int		ms_env(t_env env);
-int		ms_echo(char **args);
+int		ms_echo(char **args, int *fd);
 int		ms_pwd(void);
 int		ms_cd(t_env *env, char *path);
 int     ms_unset(t_env *env, char **args);
@@ -28,7 +31,7 @@ void    ms_exit();
 int		ms_export_(t_env *env, char *var);
 int     ms_start(int c);
 int     ms_symbol(char *str, int c);
-int		ms_get_idx(t_env *env, const char *name, size_t len);
+int		ms_get_idx(t_env *env, const char *name);
 char	*ms_getenv(t_env *env, char *name);
 
 t_env   ms_env_dup(char **envp);
