@@ -1,11 +1,13 @@
 #include "../include/minishell.h"
 
+struct s_fd_table table = {0};
+
 void	ms_leaks(void)
 {
 	system("leaks -q minishell");
 }
 
-char	*nodes[] = { "NODE_PIPE", "NODE_CMD"};
+char	*nodes[] = { "NODE_PIPE", "NODE_CMD", "NODE_AND", "NODE_OR"};
 char	*words[] = {
 	"NEWLINE",
 	"PIPE", 
@@ -13,6 +15,8 @@ char	*words[] = {
 	"GREAT",
 	"DLESS",
 	"DGREAT",
+	"AND",
+	"OR",
 	"DOLLAR",
 	"QUOTE",
 	"DQUOTE",
@@ -21,7 +25,28 @@ char	*words[] = {
 
 extern char **environ;
 char	**ms_envp;
-t_env env;
+
+t_array env;
+t_array	ms_array_init()
+{
+	t_array	array;
+
+	array.cap = 2;
+	array.len = 0;
+	array.items = malloc(sizeof(array.items) * array.cap);
+	return (array);
+}
+
+void	ms_array_push(t_array *arr, void *item)
+{
+	if (arr->cap == arr->len)
+	{
+		arr->cap *= 2;
+		arr->items = ft_realloc(arr->items, sizeof(arr->items) * arr->cap);
+	}
+	arr->items[arr->len] = item;
+	arr->len += 1;
+}
 
 
 
@@ -38,15 +63,19 @@ void	ms_wait(int count)
 	}
 }
 
-void	ms_prompt(t_env *env)
+
+
+void	ms_prompt(t_array *env)
 {
-	const int	fd[2] = {MS_STDIN, MS_STDOUT};
+	int	fd[2];
 	int	count;
 	char	*line;
 	t_ast	*ast;
 	t_lexer	lexer;
 
 	(void)env;
+	(void)fd;
+	(void)count;
 
 
 	while (1)
@@ -55,16 +84,23 @@ void	ms_prompt(t_env *env)
 		if (!line)
 			break ;
 		lexer = ms_lexer_init(line);
-		if (ms_peek(&lexer) == NEWLINE)
-			continue;
+		fd[MS_STDIN] = MS_STDIN;
+		fd[MS_STDOUT] = MS_STDOUT;
+
+		//ast = ms_parse_pipe(&lexer);//ms_parse_and_or(&lexer);
+		ast = ms_parse_and_or(&lexer);
 		add_history(line);
-		ast = ms_parse_pipe(&lexer);
 		if (ast)
 		{
+			printf("[ROOT]: %s\n", nodes[ast->type]);
+			printf("[LAST]: %s\n", words[ms_peek(&lexer)]);
+			
+			//ms_ast_print(ast);
 			count = ms_exec(ast, (int*)fd);
 			ms_wait(count);
 		}
-		ms_ast_destroy(ast);
+		ms_close(&table);
+		//ms_ast_destroy(ast);
 		free(line);
 
 	}
@@ -76,7 +112,7 @@ void	ms_prompt(t_env *env)
 #if 1
 int	main(int argc, char **argv, char **envp)
 {
-	atexit(ms_leaks);
+	//atexit(ms_leaks);
 
 	if (ms_interactive_mode())
 		return (1);
