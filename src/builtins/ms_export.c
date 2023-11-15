@@ -2,7 +2,7 @@
 
 // TODO: extract VALUE from single quotes and double quotes
 
-int	ms_export_(t_env *env, char *var)
+int	ms_export_(t_array *env, char *var)
 {
 	char	*end;
 	int		i;
@@ -18,40 +18,40 @@ int	ms_export_(t_env *env, char *var)
 	var = ft_strdup(var);
 	if (i != -1)
 	{
-		free(env->vars[i]);
-		env->vars[i] = var;
+		free(env->items[i]);
+		env->items[i] = var;
 		return (0);
 	}
-	ms_env_push(env, var);
+	ms_array_append(env, var);
 	return (0);
 	
 }
 
 
-static void	ms_export_print(t_env env)
+static void	ms_export_print(t_array env)
 {
 	size_t	i;
 
 	i = 0;
 	ms_env_sort(env);
-	while (i < env.length)
+	while (i < env.len)
 	{
-		if (env.vars[i][0])
-			printf("declare -x %s\n", env.vars[i]);
+		if (env.items[i][0])
+			printf("declare -x %s\n", env.items[i]);
 		i += 1;
 	}
 }
 
-int	ms_export(t_env *env, char **vars)
+int	ms_export(t_array *env, char **items)
 {
 	size_t i;
 
 	i = 0;
-	if (*vars == NULL)
+	if (*items == NULL)
 		ms_export_print(*env);
-	while (vars[i])
+	while (items[i])
 	{
-		ms_export_(env, vars[i]);
+		ms_export_(env, items[i]);
 		i += 1;
 	}
 	return (0);

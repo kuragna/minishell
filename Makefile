@@ -6,7 +6,7 @@
 #    By: aabourri <aabourri@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/10/09 14:16:51 by glacroix          #+#    #+#              #
-#    Updated: 2023/11/10 18:51:51 by aabourri         ###   ########.fr        #
+#    Updated: 2023/11/15 16:16:36 by aabourri         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -37,7 +37,9 @@ SRCS		=	ms_malloc.c \
 				ms_io_handle.c \
 				ms_lexer.c \
 				ms_parser.c \
+				ms_parser_utilts.c \
 				ms_exec.c \
+				split_line.c \
 				main.c \
 				builtins/ms_env.c \
 				ms_envcpy.c \

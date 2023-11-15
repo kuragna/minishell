@@ -1,25 +1,26 @@
-#include "../../include/minishell.h"
+#include "../../include/ms_builtin.h"
+
 #include <assert.h>
 
-static int	ms_set_pwd(t_env *env, char *name, int pos)
+static int	ms_set_pwd(t_array *env, char *name, int pos)
 {
 	if (!name)
 		return (1);
 	if (pos == -1)
 		return (ms_error("cd: %s not set\n"));
-	free(env->vars[pos]);
-	env->vars[pos] = name;
+	free(env->items[pos]);
+	env->items[pos] = name;
 	return (0);
 }
 
 // TODO: simplify this function
 
-int	ms_cd(t_env *env, char *path)
+int	ms_cd(t_array *env, char *path)
 {
 	char *go;
 	size_t	len;
 
-	if (!env->vars)
+	if (!env->items)
 		return (1);
 	go = path;
 	len = ft_strlen(path);

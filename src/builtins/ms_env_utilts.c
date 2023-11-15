@@ -1,4 +1,4 @@
-#include "../../include/minishell.h"
+#include "../../include/ms_builtin.h"
 
 #include <stdlib.h>
 
@@ -19,23 +19,23 @@ int	ms_symbol(char *str, int c)
 	return (1);
 }
 
-int	ms_get_idx(t_env *env, const char *var)
+int	ms_get_idx(t_array *env, const char *var)
 {
 	size_t	len;
 	size_t	i;
 
 	i = 0;
 	len = ft_strlen(var);
-	while (i < env->length)
+	while (i < env->len)
 	{
-		if (ft_strncmp(env->vars[i], var, len) == 0)
+		if (ft_strncmp(env->items[i], var, len) == 0)
 			return (i);
 		i += 1;
 	}
 	return (-1);
 }
 
-char	*ms_getenv(t_env *env, char *name)
+char	*ms_getenv(t_array *env, char *name)
 {
 	char	*var;
 	int		pos;
@@ -45,7 +45,7 @@ char	*ms_getenv(t_env *env, char *name)
 	pos = ms_get_idx(env, name);
 	if (pos == -1)
 		return (NULL);
-	var =  ft_strchr(env->vars[pos], '=');
+	var =  ft_strchr(env->items[pos], '=');
 	if (var == NULL)
 		return (NULL);
 	return (var + 1);

@@ -3,9 +3,19 @@
 void	ms_expected_token(const t_token_type type)
 {
 	// NOTE: to avoid buffer-overflow
-	if (type > DGREAT)
+	// TODO: fix only '&'
+	if (type > OR)
 		return ;
-	const char	*tokens[] = {"newline", "|", "<", ">", "<<", ">>"};
+	const char	*tokens[] = {
+		"newline",
+		"|",
+		"<",
+		">",
+		"<<",
+		">>",
+		"&&",
+		"||",
+	};
 	ms_error("minishell: %s `%s\'\n", SYTX_ERR, tokens[type]);
 }
 

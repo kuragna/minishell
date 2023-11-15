@@ -11,7 +11,7 @@ int ms_trim_left(t_lexer *l)
 
 int	ms_is_token(int c)
 {
-	if (ft_isspace(c) || c == '|' || c == '>' || c == '<')
+	if (ft_isspace(c) || c == '|' || c == '>' || c == '<' || c == '&')
 		return (1);
 	return (0);
 }

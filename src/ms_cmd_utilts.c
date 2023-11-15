@@ -40,8 +40,10 @@ int	ms_cmd_path(char **cmd)
 			*cmd = cmd_path;
 			break ;
 		}
+		free(cmd_path);
 		i += 1;
 	}
+	ft_free(paths);
 	return (paths[i] != NULL);
 }
 

@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include "../include/ms_malloc.h"
+#include "../libft/libft.h"
 
 typedef struct s_lexer t_lexer;
 typedef struct s_token t_token;
@@ -10,16 +11,18 @@ typedef struct s_token t_token;
 
 typedef enum e_token_type
 {
-	NEWLINE,	/* end of input */
-	PIPE,		/* Pipe input/output between process */
-	LESS,		/* Redirect input */
-	GREAT,		/* Redirect output */
-	DLESS, 		/* Redirect input with delimitar */
-	DGREAT,		/* Redirect outut in append mode */
-	DOLLAR,		/* Expand value from $VAR */
-	QUOTE,		/* Expand value from 'single quote' */
-	DQUOTE,		/* Expand value from 'dounle quote' */
-	WORD,		/* Commands, Args and File names */
+	NEWLINE,	// 0 /* end of input */
+	PIPE,		// 1 /* Pipe input/output between process */
+	LESS,		// 2 /* Redirect input */
+	GREAT,		// 3 /* Redirect output */
+	DLESS, 		// 4 /* Redirect input with delimitar */
+	DGREAT,		// 5 /* Redirect outut in append mode */
+	AND,		// 6
+	OR,			// 7
+	DOLLAR,		// 8 /* Expand value from $VAR */
+	QUOTE,		// 9 /* Expand value from 'single quote' */
+	DQUOTE,		// 10 /* Expand value from 'dounle quote' */
+	WORD,		// 11 /* Commands, Args and File names */
 } t_token_type;
 
 struct s_token
@@ -34,6 +37,7 @@ struct s_lexer
 {
 	char *line;
 	size_t len;
+	size_t	start;
 	size_t	pos;
 };
 
@@ -45,8 +49,12 @@ int				ms_is_token(int c);
 int				ms_trim_left(t_lexer *l);
 int				ms_is_quote(int c);
 int				ms_consume(t_lexer *l, int (*f)(int));
+char			*quote(t_lexer *lex, char quote);
+
 void			ms_expected_token(const t_token_type type);
 void			*ms_malloc(size_t size, char *file, int line);
+int				ms_error(const char *fmt, ...);
+int check_quotes(char *str);
 
 
 

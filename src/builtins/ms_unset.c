@@ -1,6 +1,6 @@
 #include "../../include/minishell.h"
 
-int	ms_unset(t_env *env, char **args)
+int	ms_unset(t_array *env, char **args)
 {
 	size_t	i;
 	int		pos;
@@ -15,8 +15,8 @@ int	ms_unset(t_env *env, char **args)
 		pos = ms_get_idx(env, name);
 		if (pos != -1)
 		{
-			free(env->vars[pos]);
-			env->vars[pos] = ft_strdup("");
+			free(env->items[pos]);
+			env->items[pos] = ft_strdup("");
 		}
 		i += 1;
 	}

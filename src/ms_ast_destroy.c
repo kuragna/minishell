@@ -1,4 +1,6 @@
-#include "../include/minishell.h"
+//#include "../include/minishell.h"
+
+#include "../include/ms_parser.h"
 
 static void	ms_pipe_destroy(t_ast *ast)
 {
@@ -32,21 +34,15 @@ static void	ms_cmd_destroy(t_cmd *cmd)
 
 	i = 0;
 	ms_redirs_destroy(cmd->redirs.items, cmd->redirs.len);
-	while (i < cmd->args.len)
-	{
-		free(cmd->args.argv[i]);
-		cmd->args.argv[i] = NULL;
-		i += 1;
-	}
-	free(cmd->args.argv);
-	cmd->args.argv = NULL;
+	ft_free(cmd->args.items);
 }
 
 
 void	ms_ast_destroy(t_ast *ast)
 {
-	if (ast == NULL)
+	if (!ast)
 		return ;
+	// add 'AND' and 'OR' tokens
 	if (ast->type == NODE_PIPE)
 		ms_pipe_destroy(ast);
 	if (ast->type == NODE_CMD)
