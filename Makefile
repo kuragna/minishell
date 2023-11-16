@@ -6,7 +6,7 @@
 #    By: glacroix <glacroix@student.42madrid.com    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/10/09 14:16:51 by glacroix          #+#    #+#              #
-#    Updated: 2023/10/26 16:45:05 by glacroix         ###   ########.fr        #
+#    Updated: 2023/11/14 20:23:45 by glacroix         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -33,8 +33,10 @@ SRCS		   = main.c\
 				builtins/ms_echo.c\
 				builtins/ms_pwd.c\
 				lexer/split_line.c\
-				lexer/tokenize_categories.c\
+				#lexer/split_line_new.c\
+				lexer/split_line_final.c\
 				#lexer/split_line2.c\
+				lexer/tokenize_categories.c\
 				#lexer/quote_error_test.c\
 
 SRCS			:= $(addprefix src/, $(SRCS))

@@ -1,0 +1,10 @@
+INFILE
+Makefile
+errors.log
+include
+libft
+minishell
+objs
+pwd_test.c
+src
+|

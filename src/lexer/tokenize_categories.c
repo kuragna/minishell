@@ -1,4 +1,4 @@
-#include "../../include/minishell.h"Huu
+#include "../../include/minishell.h"
 
 void token_categorization(t_token **token)
 {
@@ -22,7 +22,7 @@ void token_categorization(t_token **token)
 	temp = *token;
 }
 
-#if 1 
+#if 0 
 
 int main()
 {

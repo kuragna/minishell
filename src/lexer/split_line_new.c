@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   split_line.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: glacroix <glacroix@student.42madrid.com    +#+  +:+       +#+        */
+/*   By: glacroix <glacroix@student.42madrid>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/12 21:29:19 by glacroix          #+#    #+#             */
-/*   Updated: 2023/11/14 20:32:39 by glacroix         ###   ########.fr       */
+/*   Updated: 2023/11/14 19:37:34 by glacroix         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@ struct s_lex
 	size_t	len;
 	size_t	start;
 	size_t	pos;
+	char	*content;
 };
 
 
@@ -112,7 +113,7 @@ char *ft_clean_string(char *string)
 //DONE: add check for when SINGLE_QUOTE OR DOUBLE_QUOTE aren't closed
 //DONE: lex->pos of string when in normal mode doesn't get tokenized => make this cleaner
 //TODO: add conditions for when delimiter is found in line
-void single_quote_mode(t_token *token, t_lexer *lex)
+char *single_quote_mode_new(struct s_lex *lex)
 {
 	size_t	quote_pos;
 
@@ -121,53 +122,58 @@ void single_quote_mode(t_token *token, t_lexer *lex)
 	while (lex->line[lex->pos] && lex->line[lex->pos] != SINGLE_QUOTE)
 		lex->pos++;
 	if (quote_pos + 1 == lex->pos)
-		return;
+		return NULL;
 	while (lex->line[lex->pos] && lex->line[lex->pos] != SPACE)
 		lex->pos++;
 	lex->content = ft_substr(lex->line, lex->start, lex->pos - lex->start);
 	lex->content = ft_clean_string(lex->content);
-	ft_lstadd_back(&token->list, ft_lstnew(lex->content));
 	if (lex->line[lex->pos] != '\0')
 		lex->start = lex->pos + 1;
+	return (lex->content);
 }
 
-void double_quote_mode(t_token *token, t_lexer *lex)
+char *double_quote_mode_new(struct s_lex *lex)
 {
 	size_t 	quote_pos;
-	
-	quote_pos = lex->pos;
-	lex->pos++;
-	while (lex->pos < lex->len && lex->line[lex->pos] != DOUBLE_QUOTE)
-		lex->pos++;
-	if (quote_pos + 1 == lex->pos)
-		return;
-	while (lex->pos < lex->len && lex->line[lex->pos] != SPACE)
-		lex->pos++;
-	lex->content = ft_substr(lex->line, lex->start, lex->pos - lex->start);
-	lex->content = ft_clean_string(lex->content);
-	ft_lstadd_back(&token->list, ft_lstnew(lex->content));
-	if (lex->line[lex->pos] != '\0')
-		lex->start = lex->pos + 1;
-
-}
-
-char	*dquote(struct s_lex *lex)
-{
-	size_t 	quote_pos;
-	char	*str;
 	
 	quote_pos = lex->pos;
 	lex->pos++;
 	while (lex->line[lex->pos] && lex->line[lex->pos] != DOUBLE_QUOTE)
 		lex->pos++;
-	/*if (quote_pos + 1 == lex->pos)
-		return NULL;*/
+	if (quote_pos + 1 == lex->pos)
+		return NULL;
 	while (lex->line[lex->pos] && lex->line[lex->pos] != SPACE)
 		lex->pos++;
-	str = ft_substr(lex->line, lex->start, lex->pos - lex->start);
-	str = ft_clean_string(str);
+	lex->content = ft_substr(lex->line, lex->start, lex->pos - lex->start);
+	lex->content = ft_clean_string(lex->content);
 	if (lex->line[lex->pos] != '\0')
 		lex->start = lex->pos + 1;
+	return (lex->content);
+}
+
+char	*quote(struct s_lex *lex)
+{
+	char	*str;
+
+	str = NULL;
+
+	if (!check_quotes(lex->line))
+		return (ft_putstr_fd("Quotes are not enclosed\n", 2), NULL);
+	if (lex->line[lex->pos] == SINGLE_QUOTE || lex->line[lex->pos] == DOUBLE_QUOTE)
+	{
+		if (lex->line[lex->pos] == SINGLE_QUOTE)
+		{
+			str = single_quote_mode_new(lex);
+			printf("SINGLE: %s\n", str);	
+		}
+		else
+		{
+			str = double_quote_mode_new(lex);
+			printf("DOUBLE: %s\n", str);	
+		}
+	}
+	if (!str)
+		str = quote(lex);
 	return (str);
 }
 
@@ -202,59 +208,59 @@ char *create_metachar_string(char *line)
 }
 
 //TODO: shell never exists, should just print the error and give back the prompt
-t_token *split_line(t_lexer *lex)
-{
-	t_token	*token;
-	token = NULL;
+//t_token *split_line(t_lexer *lex)
+//{
+	//t_token	*token;
+	//token = NULL;
 	
-	token = malloc(sizeof(t_token));
-	ft_memset(token, 0, sizeof(*token));
-	lex->len = ft_strlen(lex->line);
-	if (!check_quotes(lex->line))
-		return (ft_putstr_fd("Quotes are not enclosed\n", 2), NULL);
-	while (lex->pos <= lex->len)
-	{
-		while (ft_isspace(lex->line[lex->start]))
-			lex->start++;
-		if (lex->line[lex->pos] && lex->line[lex->pos] == SINGLE_QUOTE)
-			single_quote_mode(token, lex);
-		else if (lex->line[lex->pos] == DOUBLE_QUOTE)
-			 double_quote_mode(token, lex);
-		else if (ms_is_metachar(lex->line[lex->pos]) == 1)
-		{
-			if (lex->pos - lex->start > 0)
-			{
-				lex->content = ft_substr(lex->line, lex->start, lex->pos - lex->start);
-				lex->content = ft_strtrim(lex->content, " ");
-				lex->content = ft_clean_string(lex->content);
-				ft_lstadd_back(&token->list, ft_lstnew(lex->content));
-			}
-			lex->temp = create_metachar_string(lex->line + lex->pos);
-			if (ft_strlen(lex->temp) > 1)
-				lex->pos++;
-			ft_lstadd_back(&token->list, ft_lstnew(lex->temp));
-			if (lex->line[lex->pos] != '\0')
-				lex->start = lex->pos + 1;
-		}
-		else if (lex->pos == lex->len)
-		{
-			lex->content = ft_substr(lex->line, lex->start, lex->pos - lex->start);
-			lex->content = ft_clean_string(lex->content);
-			if (ft_strlen(lex->content) == 0)	
-				return (token);
-			ft_lstadd_back(&token->list, ft_lstnew(lex->content));
-		}
-		lex->pos++;
-	}
-	return (token);
-}
+	//token = malloc(sizeof(t_token));
+	//ft_memset(token, 0, sizeof(*token));
+	//lex->len = ft_strlen(lex->line);
+	//if (!check_quotes(lex->line))
+		//return (ft_putstr_fd("Quotes are not enclosed\n", 2), NULL);
+	//while (lex->pos <= lex->len)
+	//{
+		//while (ft_isspace(lex->line[lex->start]))
+			//lex->start++;
+		//if (lex->line[lex->pos] && lex->line[lex->pos] == SINGLE_QUOTE)
+			//single_quote_mode(token, lex);
+		//else if (lex->line[lex->pos] == DOUBLE_QUOTE)
+			 //double_quote_mode(token, lex);
+		//else if (ms_is_metachar(lex->line[lex->pos]) == 1)
+		//{
+			//if (lex->pos - lex->start > 0)
+			//{
+				//lex->content = ft_substr(lex->line, lex->start, lex->pos - lex->start);
+				//lex->content = ft_strtrim(lex->content, " ");
+				//lex->content = ft_clean_string(lex->content);
+				//ft_lstadd_back(&token->list, ft_lstnew(lex->content));
+			//}
+			//lex->temp = create_metachar_string(lex->line + lex->pos);
+			//if (ft_strlen(lex->temp) > 1)
+				//lex->pos++;
+			//ft_lstadd_back(&token->list, ft_lstnew(lex->temp));
+			//if (lex->line[lex->pos] != '\0')
+				//lex->start = lex->pos + 1;
+		//}
+		//else if (lex->pos == lex->len)
+		//{
+			//lex->content = ft_substr(lex->line, lex->start, lex->pos - lex->start);
+			//lex->content = ft_clean_string(lex->content);
+			//if (ft_strlen(lex->content) == 0)	
+				//return (token);
+			//ft_lstadd_back(&token->list, ft_lstnew(lex->content));
+		//}
+		//lex->pos++;
+	//}
+	//return (token);
+//}
 
 
 void ft_leaks()
 {
 	system("leaks -q minishell");
 }
-#if 01
+#if 0
 
 int main()
 {
@@ -268,7 +274,7 @@ int main()
 		ms_exit(lex.line);
 		add_history(lex.line);
 		token = split_line(&lex);
-		while (token && token->list != NULL)
+		while (token && token->list != null)
 		{
 			printf("\ncontent = [%s]\n", (char *)token->list->content);
 			token->list = token->list->next;
@@ -280,7 +286,7 @@ int main()
 #endif
 
 
-int main2()
+int main()
 {
 	/*atexit(ft_leaks);*/
 	struct s_lex lex;
@@ -291,7 +297,9 @@ int main2()
 		lex.len = ft_strlen(lex.line);
 		lex.pos = 0;
 		lex.start = 0;
-		printf("[%s]\n", dquote(&lex));
+		printf("MAIN: [%s]\n", quote(&lex));
+		printf("MAIN: pos = %ld\n", lex.pos);
+		printf("MAIN: start = %ld\n", lex.start);
 		//ms_exit(lex.line);
 		add_history(lex.line);
 	}
