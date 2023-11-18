@@ -102,6 +102,10 @@ int	ms_exec_cmd(t_ast *node, int *fd)
 	{
 		dup2(fd[MS_STDIN], MS_STDIN);
 		dup2(fd[MS_STDOUT], MS_STDOUT);
+
+		PERR("stdin: %d | stdout: %d\n", fd[MS_STDIN], fd[MS_STDOUT]);
+
+
 		ms_close(&table);
 		path = cmd.args.items[0];
 		ms_cmd_path(&path);
@@ -172,18 +176,8 @@ int	ms_exec_or(t_ast *ast, int *fd)
 	}
 	count += ms_exec(right, fd);
 
-
-
-
-
-
 	return (count);
 }
-
-
-
-
-
 
 int	ms_exec_pipe(t_ast *node, int *fd)
 {

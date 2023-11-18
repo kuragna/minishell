@@ -47,14 +47,12 @@ t_token			ms_token_next(t_lexer *l);
 t_token_type	ms_peek(t_lexer *l);
 int				ms_is_token(int c);
 int				ms_trim_left(t_lexer *l);
-int				ms_is_quote(int c);
-int				ms_consume(t_lexer *l, int (*f)(int));
-char			*quote(t_lexer *lex, char quote);
 
 void			ms_expected_token(const t_token_type type);
 void			*ms_malloc(size_t size, char *file, int line);
 int				ms_error(const char *fmt, ...);
-int check_quotes(char *str);
+int 			ms_check_quotes(char *str);
+char			*ms_get_lexeme(t_lexer *l);
 
 
 

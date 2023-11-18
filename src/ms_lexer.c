@@ -1,6 +1,10 @@
 #include "../include/ms_lexer.h"
 #include "../libft/libft.h" // For substr
 #include <stdio.h>
+#include "../include/minishell.h"
+
+extern char	*words[];
+
 
 t_lexer ms_lexer_init(char *line)
 {
@@ -22,11 +26,6 @@ t_token_type ms_peek(t_lexer *l)
 	l->pos = ms_trim_left(l);
 	if (l->pos >= l->len)
 		return (NEWLINE);
-	if (ft_strchr(l->line, '\'') || ft_strchr(l->line, '\"'))
-	{
-		if (check_quotes(l->line))
-			return (NEWLINE);
-	}
 	if (l->line[l->pos] == '<' && l->line[l->pos + 1] == '<')
 		return (DLESS);
 	if (l->line[l->pos] == '>' && l->line[l->pos + 1] == '>')
@@ -46,83 +45,61 @@ t_token_type ms_peek(t_lexer *l)
 	return (WORD);
 }
 
-t_token ms_token_next(t_lexer *l)
-{
-	int	flag = 1;
-	size_t	i = 0;
-    t_token token;
-	const char *tokens = "|<>&";
-	const size_t	size = ft_strlen(tokens);
 
-	ft_bzero(&token, sizeof(token));
-    l->pos = ms_trim_left(l);
-    if (l->pos >= l->len) return token;
-	if (l->line[l->pos] == '|' && l->line[l->pos + 1] == '|')
+t_token	ms_token_next(t_lexer *l)
+{
+	t_token token;
+	size_t	i;
+	const char	*tokens = "|<>&";
+	const size_t len = ft_strlen(tokens);
+
+	i = 0;
+	l->pos = ms_trim_left(l);
+	ft_memset(&token, 0, sizeof(token));
+	if (l->pos >= l->len) return token;
+	if (ms_is_token(l->line[l->pos]))
 	{
-		l->pos += 2;
-		return (token);
-	}
-	if (l->line[l->pos] == '&' && l->line[l->pos + 1] == '&')
-	{
-		l->pos += 2;
-		return (token);
-	}
-	while (i < size)
-	{
-		if (l->line[l->pos] == tokens[i])
+		while (i < len)
 		{
-			l->pos += 1;
-			flag = 0;
-			i = 0;
+			if (l->line[l->pos] == tokens[i])
+			{
+				i = 0;
+				l->pos += 1;
+			}
+			else
+				i += 1;
 		}
-		i += 1;
-	}
-	if (l->line[l->pos] == '$')
-	{
-		token.len = ms_consume(l, ms_is_token);
-		token.type = DOLLAR;
-		token.lexeme = ft_substr(&l->line[l->pos], 0, token.len);
-		l->pos += token.len;
 		return token;
 	}
-	if (ft_strchr(&l->line[l->pos], '\"'))
-	{
-		token.lexeme = quote(l, '\"');
-		token.type = WORD;
-		return token;
-	}
-	if (ft_strchr(&l->line[l->pos], '\''))
-	{
-		token.type = WORD;
-		token.lexeme = quote(l, '\'');
-		return token;
-	}
-    if (l->pos < l->len && flag)
-    {
-		token.len = ms_consume(l, ms_is_token);
-        token.type = WORD;
-        token.lexeme = ft_substr(&l->line[l->pos], 0, token.len);
-        l->pos += token.len;
-    }
-    return token;
+	token.type = WORD;
+	token.lexeme = ms_get_lexeme(l);
+	return (token);
 }
 
-int	ms_is_quote(int c)
+#if 0
+
+int	main()
 {
-	return c == '\'' || c == '\"';
-}
-
-int	ms_consume(t_lexer *l, int (*check)(int))
-{
-	size_t	start;
-	size_t	len;
-
-	len = 0;
-	start = l->pos;
-	while (start < l->len && !check(l->line[start]))
+	while (1)
 	{
-		start += 1;
-		len += 1;
+		char	*line = readline("$> ");
+		if (!line)
+			break ;
+		if (ms_check_quotes(line))
+			continue;
+		add_history(line);
+		t_lexer lexer = ms_lexer_init(line);
+		t_token_type type = ms_peek(&lexer);
+
+		while (type != NEWLINE)
+		{
+			char	*lexeme = ms_token_next(&lexer).lexeme;
+			printf("[TOKEN]: %s | [LEXEME]: %s\n", words[type], lexeme);
+			type = ms_peek(&lexer);
+		}
+		printf("[LAST]: %s\n", words[ms_peek(&lexer)]);
 	}
-	return len;
+	return 0;
 }
+
+#endif

@@ -1,5 +1,7 @@
 #include "../include/minishell.h"
 
+// TODO: make sure that memory dont use it after free
+
 char	**ms_get_paths(void)
 {
 	const char	*path = getenv("PATH");
@@ -40,10 +42,8 @@ int	ms_cmd_path(char **cmd)
 			*cmd = cmd_path;
 			break ;
 		}
-		free(cmd_path);
 		i += 1;
 	}
-	ft_free(paths);
 	return (paths[i] != NULL);
 }
 

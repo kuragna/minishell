@@ -73,6 +73,11 @@ void	ms_wait(int count)
 	}
 }
 
+// TODO:
+// 		case -> ''ls'' | 'head'
+// 		case -> ''ls'' | ''head''
+//
+
 void	ms_prompt(t_array *env)
 {
 	int	fd[2];
@@ -91,14 +96,18 @@ void	ms_prompt(t_array *env)
 		if (!line)
 			break ;
 		lexer = ms_lexer_init(line);
-		if (ms_peek(&lexer) == NEWLINE)
+		if (ms_peek(&lexer) == NEWLINE || ms_check_quotes(line))
 			continue ;
+
+		add_history(line);
+
+
 		fd[MS_STDIN] = MS_STDIN;
 		fd[MS_STDOUT] = MS_STDOUT;
 
 		ast = ms_parse_and_or(&lexer);
+		//ast = ms_parse_pipe(&lexer);
 
-		add_history(line);
 
 		if (ast)
 		{
@@ -106,7 +115,7 @@ void	ms_prompt(t_array *env)
 			printf("[LAST]: %s\n", words[ms_peek(&lexer)]);
 			
 			//ms_ast_print(ast);
-			PERR("\n\n");
+			//PERR("\n\n");
 			count = ms_exec(ast, fd);
 			ms_wait(count);
 		}
@@ -116,14 +125,15 @@ void	ms_prompt(t_array *env)
 	}
 }
 
+#if 1
 int	main(int argc, char **argv, char **envp)
 {
 	//atexit(ms_leaks);
 
 	if (ms_interactive_mode())
 		return (1);
-// 	if (ms_catch_signal())
-// 		return (1);
+	if (ms_catch_signal())
+		return (1);
 	
 	env = ms_env_dup(envp);
 	ms_prompt(&env);
@@ -135,6 +145,7 @@ int	main(int argc, char **argv, char **envp)
 	(void)argv;
 	(void)envp;
 }
+#endif
 
 
 

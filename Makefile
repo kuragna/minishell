@@ -6,7 +6,7 @@
 #    By: aabourri <aabourri@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/10/09 14:16:51 by glacroix          #+#    #+#              #
-#    Updated: 2023/11/15 16:16:36 by aabourri         ###   ########.fr        #
+#    Updated: 2023/11/18 16:23:55 by aabourri         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -39,7 +39,6 @@ SRCS		=	ms_malloc.c \
 				ms_parser.c \
 				ms_parser_utilts.c \
 				ms_exec.c \
-				split_line.c \
 				main.c \
 				builtins/ms_env.c \
 				ms_envcpy.c \
@@ -49,7 +48,9 @@ SRCS		=	ms_malloc.c \
 				builtins/ms_echo.c \
 				builtins/ms_pwd.c \
 				builtins/ms_cd.c \
-				builtins/ms_export.c
+				builtins/ms_export.c \
+				ms_quote_handle.c \
+				#split_line.c
 				
 
 
@@ -64,7 +65,7 @@ RL			= /Users/${USER}/.brew/opt/readline/
 #Execution
 # **************************************************************************** #
 CC		   = gcc
-CFLAGS	   = -Wall -Werror -Wextra -g3 #-fsanitize=address
+CFLAGS	   = -Wall -Werror -Wextra -g3 -fsanitize=address
 LDFLAGS    = -L$(LDLIBFT) -L$(addsuffix lib, $(RL)) 
 LDFLAGS    += -I$(addsuffix include, $(RL)) -lft -lreadline
 RM		   = rm -rf 
