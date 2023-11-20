@@ -1,4 +1,16 @@
-#include "../../include/minishell.h"
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ms_export.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/11/18 19:21:49 by aabourri          #+#    #+#             */
+/*   Updated: 2023/11/18 19:22:46 by aabourri         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "../../include/ms_builtin.h"
 
 // TODO: extract VALUE from single quotes and double quotes
 
@@ -10,7 +22,7 @@ int	ms_export_(t_array *env, char *var)
 
 	if (!ms_start(*var) || !ms_symbol(var + 1, '='))
 	{
-		return ms_error("export: `%s\': not a valid identifier\n", var);
+		return (ms_error("export: `%s\': not a valid identifier\n", var));
 	}
 	end = ft_strchr(var, '=');
 	len = end - var;
@@ -24,9 +36,7 @@ int	ms_export_(t_array *env, char *var)
 	}
 	ms_array_append(env, var);
 	return (0);
-	
 }
-
 
 static void	ms_export_print(t_array env)
 {
@@ -44,7 +54,7 @@ static void	ms_export_print(t_array env)
 
 int	ms_export(t_array *env, char **items)
 {
-	size_t i;
+	size_t	i;
 
 	i = 0;
 	if (*items == NULL)

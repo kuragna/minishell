@@ -1,11 +1,22 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ms_env_utilts.c                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/11/18 19:18:13 by aabourri          #+#    #+#             */
+/*   Updated: 2023/11/20 18:42:58 by aabourri         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../../include/ms_builtin.h"
 
 #include <stdlib.h>
 
-
 int	ms_start(int c)
 {
-	return ft_isalpha(c) || c == '_';
+	return (ft_isalpha(c) || c == '_');
 }
 
 int	ms_symbol(char *str, int c)
@@ -13,7 +24,7 @@ int	ms_symbol(char *str, int c)
 	while (*str && *str != c)
 	{
 		if (!(ft_isalnum(*str) || *str == '_'))
-			return (0);	
+			return (0);
 		str += 1;
 	}
 	return (1);
@@ -45,7 +56,7 @@ char	*ms_getenv(t_array *env, char *name)
 	pos = ms_get_idx(env, name);
 	if (pos == -1)
 		return (NULL);
-	var =  ft_strchr(env->items[pos], '=');
+	var = ft_strchr(env->items[pos], '=');
 	if (var == NULL)
 		return (NULL);
 	return (var + 1);

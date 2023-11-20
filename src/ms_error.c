@@ -1,11 +1,19 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ms_error.c                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/11/18 20:01:24 by aabourri          #+#    #+#             */
+/*   Updated: 2023/11/18 20:02:30 by aabourri         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../include/minishell.h"
 
-void	ms_expected_token(const t_token_type type)
+void	*ms_expected_token(const t_token_type type)
 {
-	// NOTE: to avoid buffer-overflow
-	// TODO: fix only '&'
-	if (type > OR)
-		return ;
 	const char	*tokens[] = {
 		"newline",
 		"|",
@@ -16,12 +24,16 @@ void	ms_expected_token(const t_token_type type)
 		"&&",
 		"||",
 	};
+
+	if (type > OR)
+		return (NULL);
 	ms_error("minishell: %s `%s\'\n", SYTX_ERR, tokens[type]);
+	return (NULL);
 }
 
 int	ms_error(const char *fmt, ...)
 {
-	va_list ap;
+	va_list	ap;
 	char	*str;
 
 	va_start(ap, fmt);

@@ -1,6 +1,16 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ms_io_handle.c                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/11/18 20:00:32 by aabourri          #+#    #+#             */
+/*   Updated: 2023/11/20 18:18:16 by aabourri         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "../include/minishell.h"
-#include <assert.h>
 
 int	ms_open(const char *path, int oflag, int mode)
 {
@@ -16,49 +26,52 @@ int	ms_open(const char *path, int oflag, int mode)
 	return (fd);
 }
 
-int	ms_here_doc(const char *dlmtr)
-{
-	char	*line;
-	int	pp[2];
-
-	if (pipe(pp) == -1)
-	{
-		ms_error("minishell: %s\n", strerror(errno));
-		return (-1);
-	}
-	while (1)
-	{
-		line = readline("> ");
-		if (ft_strncmp(line, dlmtr, ft_strlen(line)) == 0)
-			break ;
-		ft_putendl_fd(line, pp[MS_STDOUT]);
-	}
-	close(pp[MS_STDOUT]);
-	return pp[MS_STDIN];
-}
-
 // int	ms_here_doc(const char *dlmtr)
 // {
 // 	char	*line;
-// 	int		fd;
+// 	int		pp[2];
 
-// 	fd = ms_open("here-doc", O_WRONLY | O_CREAT | O_TRUNC, 0644);
-// 	if (fd == -1)
+// 	if (pipe(pp) == -1)
+// 	{
+// 		ms_error("minishell: %s\n", strerror(errno));
 // 		return (-1);
+// 	}
 // 	while (1)
 // 	{
 // 		line = readline("> ");
-// 		if (!line)
+// 		if (ft_strncmp(line, dlmtr, ft_strlen(line)) == 0)
 // 			break ;
-// 		if (*line && ft_strncmp(line, dlmtr, ft_strlen(line)) == 0)
-// 			break ;
-// 		ft_putendl_fd(line, fd);
-// 		free(line);
+// 		ft_putendl_fd(line, pp[MS_STDOUT]);
 // 	}
-// 	close(fd);
-// 	fd = ms_open("here-doc", O_RDONLY, 0);
-// 	if (fd == -1)
-// 		return (-1);
-// 	unlink("here-doc");
-// 	return (fd);
+// 	close(pp[MS_STDOUT]);
+// 	return (pp[MS_STDIN]);
 // }
+//
+
+// TODO: fix << with command not found
+
+int	ms_here_doc(const char *dlmtr)
+{
+	char	*line;
+	int		fd;
+
+	fd = ms_open("here-doc", O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	if (fd == -1)
+		return (-1);
+	while (1)
+	{
+		line = readline("> ");
+		if (!line)
+			break ;
+		if (*line && ft_strncmp(line, dlmtr, ft_strlen(line)) == 0)
+			break ;
+		ft_putendl_fd(line, fd);
+		free(line);
+	}
+	close(fd);
+	fd = ms_open("here-doc", O_RDONLY, 0);
+	if (fd == -1)
+		return (-1);
+	unlink("here-doc");
+	return (fd);
+}

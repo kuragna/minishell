@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ms_echo.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/11/18 19:15:29 by aabourri          #+#    #+#             */
+/*   Updated: 2023/11/18 19:15:29 by aabourri         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../../include/ms_builtin.h"
 
 #include <stdio.h>
@@ -15,6 +27,7 @@ static	int	ms_check_opt(char *opt)
 	}
 	return (1);
 }
+// TODO: use printf for stdin/out change them in child process
 
 int	ms_echo(char **args, int *fd)
 {
@@ -28,7 +41,6 @@ int	ms_echo(char **args, int *fd)
 		i += 1;
 		flag = 0;
 	}
-	fprintf(stderr, "STDOUT: %d\n", fd[MS_STDOUT]);
 	while (args && args[i] != NULL)
 	{
 		ft_putstr_fd(args[i], fd[MS_STDOUT]);

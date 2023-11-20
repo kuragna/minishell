@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ms_signal.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/11/18 19:33:09 by aabourri          #+#    #+#             */
+/*   Updated: 2023/11/18 19:34:15 by aabourri         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../include/minishell.h"
 
 void	ms_sig_handler(int sig)
@@ -15,22 +27,22 @@ void	ms_sig_handler(int sig)
 	rl_redisplay();
 }
 
-int	ms_catch_signal()
+int	ms_catch_signal(void)
 {
-	int	err;
-	struct sigaction sa;
+	int					err;
+	struct sigaction	sa;
 
 	sa.sa_handler = ms_sig_handler;
 	sa.sa_flags = SA_RESTART;
-	err = sigaction(SIGINT, &sa, NULL); // ctrl-c
+	err = sigaction(SIGINT, &sa, NULL);
 	if (err == -1)
 	{
-		return ms_error("minishell: %s: %s\n", strerror(errno));
+		return (ms_error("minishell: %s: %s\n", strerror(errno)));
 	}
-	err = sigaction(SIGQUIT, &sa, NULL); // ctrl-/
+	err = sigaction(SIGQUIT, &sa, NULL);
 	if (err == -1)
 	{
-		return ms_error("minishell: %s: %s\n", strerror(errno));
+		return (ms_error("minishell: %s: %s\n", strerror(errno)));
 	}
 	return (0);
 }

@@ -1,17 +1,20 @@
-//#include "../../include/minishell.h"
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ms_env.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/11/18 19:15:57 by aabourri          #+#    #+#             */
+/*   Updated: 2023/11/18 19:17:39 by aabourri         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "../../include/ms_builtin.h"
 
-/*
- *	'env' command prints variable if has [name=value]
- *	otherwise, just ignore
- *	Maybe good idea to add a flag to check if variable has both name and value or not
- * 
- * */
-
-t_array ms_env_dup(char **envp)
+t_array	ms_env_dup(char **envp)
 {
-	t_array array;
+	t_array	array;
 	size_t	i;
 	char	*str;
 
@@ -27,10 +30,11 @@ t_array ms_env_dup(char **envp)
 	return (array);
 }
 
-
 void	ms_swap(char **a, char **b)
 {
-	char *c = *a;
+	char	*c;
+
+	c = *a;
 	*a = *b;
 	*b = c;
 }
@@ -82,7 +86,7 @@ int	ms_env(t_array env)
 	i = 0;
 	while (env.items[i] != NULL)
 	{
-		ft_printf("%s\n", env.items[i]);
+		printf("%s\n", env.items[i]);
 		i += 1;
 	}
 	return (0);

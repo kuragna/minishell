@@ -18,8 +18,6 @@ char	*words[] = {
 	"AND",
 	"OR",
 	"DOLLAR",
-	"QUOTE",
-	"DQUOTE",
 	"WORD"
 };
 
@@ -28,26 +26,7 @@ char	**ms_envp;
 
 
 t_array env;
-t_array	ms_array_init()
-{
-	t_array	array;
 
-	array.cap = 2;
-	array.len = 0;
-	array.items = malloc(sizeof(array.items) * array.cap);
-	return (array);
-}
-
-void	ms_array_append(t_array *arr, char *item)
-{
-	if (arr->cap == arr->len)
-	{
-		arr->cap *= 2;
-		arr->items = ft_realloc(arr->items, sizeof(arr->items) * arr->cap);
-	}
-	arr->items[arr->len] = item;
-	arr->len += 1;
-}
 
 void	ms_table_add(struct s_fd_table *table, int fd)
 {
@@ -56,8 +35,6 @@ void	ms_table_add(struct s_fd_table *table, int fd)
 	if (fd > 2)
 		table->fds[table->len++] = fd;
 }
-
-
 
 void	ms_wait(int count)
 {
@@ -68,15 +45,10 @@ void	ms_wait(int count)
 	while (i < count)
 	{
 		wait(&stat_log);
-		printf("[EXIT_STATUS]: %d\n", WEXITSTATUS(stat_log));
+// 		printf("[EXIT_STATUS]: %d\n", WEXITSTATUS(stat_log));
 		i += 1;
 	}
 }
-
-// TODO:
-// 		case -> ''ls'' | 'head'
-// 		case -> ''ls'' | ''head''
-//
 
 void	ms_prompt(t_array *env)
 {
@@ -90,14 +62,33 @@ void	ms_prompt(t_array *env)
 	(void)fd;
 	(void)count;
 
+
 	while (1)
 	{
 		line = readline("$> ");
 		if (!line)
 			break ;
 		lexer = ms_lexer_init(line);
+		lexer.env = env;
 		if (ms_peek(&lexer) == NEWLINE || ms_check_quotes(line))
 			continue ;
+
+// 		t_token token = ms_token_next(&lexer);
+// 		printf("[TOKEN]: %s | [LEXEME]: %s\n", words[token.type], token.lexeme);
+// 		printf("pos -> `%s`\n", &lexer.line[lexer.pos]);
+
+
+// 		t_token_type type = ms_peek(&lexer);
+// 		char	*lexeme = ms_token_next(&lexer).lexeme;
+// 		printf("[TOKEN]: %s | [LEXEME]: %s\n", words[type], lexeme);
+// 		printf("pos -> `%s`\n", &lexer.line[lexer.pos]);
+
+		add_history(line);
+
+		//continue;
+
+
+
 
 		add_history(line);
 
@@ -111,8 +102,8 @@ void	ms_prompt(t_array *env)
 
 		if (ast)
 		{
-			printf("[ROOT]: %s\n", nodes[ast->type]);
-			printf("[LAST]: %s\n", words[ms_peek(&lexer)]);
+// 			printf("[ROOT]: %s\n", nodes[ast->type]);
+// 			printf("[LAST]: %s\n", words[ms_peek(&lexer)]);
 			
 			//ms_ast_print(ast);
 			//PERR("\n\n");
@@ -134,6 +125,7 @@ int	main(int argc, char **argv, char **envp)
 		return (1);
 	if (ms_catch_signal())
 		return (1);
+	
 	
 	env = ms_env_dup(envp);
 	ms_prompt(&env);

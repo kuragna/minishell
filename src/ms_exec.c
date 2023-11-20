@@ -103,7 +103,7 @@ int	ms_exec_cmd(t_ast *node, int *fd)
 		dup2(fd[MS_STDIN], MS_STDIN);
 		dup2(fd[MS_STDOUT], MS_STDOUT);
 
-		PERR("stdin: %d | stdout: %d\n", fd[MS_STDIN], fd[MS_STDOUT]);
+// 		PERR("stdin: %d | stdout: %d\n", fd[MS_STDIN], fd[MS_STDOUT]);
 
 
 		ms_close(&table);

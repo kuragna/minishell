@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ms_cd.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/11/18 19:12:41 by aabourri          #+#    #+#             */
+/*   Updated: 2023/11/18 19:13:49 by aabourri         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../../include/ms_builtin.h"
 
 #include <assert.h>
@@ -17,7 +29,7 @@ static int	ms_set_pwd(t_array *env, char *name, int pos)
 
 int	ms_cd(t_array *env, char *path)
 {
-	char *go;
+	char	*go;
 	size_t	len;
 
 	if (!env->items)
@@ -28,7 +40,7 @@ int	ms_cd(t_array *env, char *path)
 	{
 		go = ms_getenv(env, "HOME");
 		if (!go)
-			return ms_error ("cd: HOME not set\n");
+			return (ms_error ("cd: HOME not set\n"));
 	}
 	else if (ft_strncmp(path, "-", len) == 0 || ft_strncmp(path, "--", len) == 0)
 	{

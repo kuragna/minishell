@@ -1,13 +1,25 @@
-#ifndef MS_EXEC
-#define MS_EXEC
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ms_exec.h                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/11/18 18:43:33 by aabourri          #+#    #+#             */
+/*   Updated: 2023/11/18 18:43:33 by aabourri         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-#include <errno.h>
-#include <string.h>
+#ifndef MS_EXEC_H
+# define MS_EXEC_H
 
-#include "./ms_parser.h"
+# include <errno.h>
+# include <string.h>
 
-#define MS_STDIN	0
-#define	MS_STDOUT	1
+# include "./ms_parser.h"
+
+# define MS_STDIN	0
+# define MS_STDOUT	1
 
 // TODO: make sure that doesnt have buffer-overflow
 struct s_fd_table
@@ -30,5 +42,4 @@ int	ms_exec(t_ast *ast, int *fd);
 int	ms_here_doc(const char *path);
 int	ms_open(const char *path, int oflag, int mode);
 
-#endif //MS_EXEC
-
+#endif //MS_EXEC_H
