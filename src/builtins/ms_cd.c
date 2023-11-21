@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:12:41 by aabourri          #+#    #+#             */
-/*   Updated: 2023/11/18 19:13:49 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/11/21 15:36:38 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@ static int	ms_set_pwd(t_array *env, char *name, int pos)
 }
 
 // TODO: simplify this function
+// TODO: print pwd after cd -
 
 int	ms_cd(t_array *env, char *path)
 {
@@ -47,13 +48,6 @@ int	ms_cd(t_array *env, char *path)
 		go = ms_getenv(env, "OLDPWD");
 		if (!go)
 			return (ms_error("cd: OLDPWD not set\n"));
-	}
-	else if (ft_strncmp(path, "~", 1) == 0 || ft_strncmp(path, "~/", 2) == 0)
-	{
-		go = ms_getenv(env, "HOME");
-		go = ft_strjoin(go, path + 1);
-		if (!go)
-			return (ms_error("cd: HOME not set\n"));
 	}
 	if (chdir(go) == -1)
 		return (ms_error("cd: %s: %s\n", path, strerror(errno)));

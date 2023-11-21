@@ -49,6 +49,7 @@ void	ms_wait(int count)
 		i += 1;
 	}
 }
+// TODO: fix an execute command as value of variable
 
 void	ms_prompt(t_array *env)
 {
@@ -73,20 +74,18 @@ void	ms_prompt(t_array *env)
 		if (ms_peek(&lexer) == NEWLINE || ms_check_quotes(line))
 			continue ;
 
-// 		t_token token = ms_token_next(&lexer);
-// 		printf("[TOKEN]: %s | [LEXEME]: %s\n", words[token.type], token.lexeme);
-// 		printf("pos -> `%s`\n", &lexer.line[lexer.pos]);
-
-
-// 		t_token_type type = ms_peek(&lexer);
-// 		char	*lexeme = ms_token_next(&lexer).lexeme;
-// 		printf("[TOKEN]: %s | [LEXEME]: %s\n", words[type], lexeme);
-// 		printf("pos -> `%s`\n", &lexer.line[lexer.pos]);
+		t_token_type type = ms_peek(&lexer);
+		while (type != NEWLINE)
+		{
+			char	*lexeme = ms_token_next(&lexer).lexeme;
+			printf("[TOKEN]: %s | [LEXEME]: %s\n", words[type], lexeme);
+			type = ms_peek(&lexer);
+		}
 
 		add_history(line);
+		//PERR("line: %s\n", line);
 
-		//continue;
-
+		continue ;
 
 
 
@@ -123,8 +122,8 @@ int	main(int argc, char **argv, char **envp)
 
 	if (ms_interactive_mode())
 		return (1);
-	if (ms_catch_signal())
-		return (1);
+// 	if (ms_catch_signal())
+// 		return (1);
 	
 	
 	env = ms_env_dup(envp);
@@ -138,6 +137,7 @@ int	main(int argc, char **argv, char **envp)
 	(void)envp;
 }
 #endif
+
 
 
 

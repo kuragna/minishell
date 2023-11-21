@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:18:13 by aabourri          #+#    #+#             */
-/*   Updated: 2023/11/20 18:42:58 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/11/21 16:14:56 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,8 @@ char	*ms_getenv(t_array *env, char *name)
 	char	*var;
 	int		pos;
 
+	if (!*name)
+		return (name);
 	if (env == NULL)
 		return (NULL);
 	pos = ms_get_idx(env, name);
