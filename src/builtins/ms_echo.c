@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:15:29 by aabourri          #+#    #+#             */
-/*   Updated: 2023/11/18 19:15:29 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/11/22 20:11:33 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,19 +14,31 @@
 
 #include <stdio.h>
 
-static	int	ms_check_opt(char *opt)
+int	ms_check_opt(char **argv)
 {
-	if (*opt == '-')
-		opt += 1;
-	while (*opt)
+	char	*arg;
+	size_t	i;
+
+	if (!*argv || argv[0][0] != '-')
+		return (0);
+	i = 0;
+	while (argv[i])
 	{
-		if (*opt == 'n')
-			opt += 1;
-		else
-			return (0);
+		arg = argv[i];
+		if (*arg == '-')
+			arg += 1;
+		while (*arg && *arg == 'n')
+			arg += 1;
+		if (*arg != '\0')
+			return (i);
+		i += 1;
 	}
-	return (1);
+	return (i);
 }
+
+
+
+
 // TODO: use printf for stdin/out change them in child process
 
 int	ms_echo(char **args, int *fd)
@@ -35,12 +47,13 @@ int	ms_echo(char **args, int *fd)
 	size_t	i;
 
 	i = 0;
-	flag = 1;
-	if (*args && ms_check_opt(*args))
-	{
-		i += 1;
-		flag = 0;
-	}
+	flag = ms_check_opt(args);
+
+	fprintf(stderr, "flag: %d\n", flag);
+
+
+
+	i = flag;
 	while (args && args[i] != NULL)
 	{
 		ft_putstr_fd(args[i], fd[MS_STDOUT]);
@@ -48,7 +61,7 @@ int	ms_echo(char **args, int *fd)
 			ft_putstr_fd(" ", fd[MS_STDOUT]);
 		i += 1;
 	}
-	if (flag)
+	if (!flag)
 		ft_putstr_fd("\n", fd[MS_STDOUT]);
 	if (fd[MS_STDOUT] > 1)
 		close(fd[MS_STDOUT]);
