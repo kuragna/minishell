@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:26:58 by aabourri          #+#    #+#             */
-/*   Updated: 2023/11/22 18:14:24 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/11/25 18:16:23 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,8 +44,6 @@ t_array	ms_array_init()
 
 void	ms_array_append(t_array *arr, char *item)
 {
-// 	printf("CAP: %ld\n", arr->cap);
-// 	printf("LEN: %ld\n", arr->len);
 	if (arr->cap == arr->len)
 	{
 		arr->cap *= 2;

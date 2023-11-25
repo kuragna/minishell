@@ -97,23 +97,24 @@ void	ms_prompt()
 			count = ms_exec(ast, fd);
 			ms_wait(count);
 		}
-// 		ms_ast_destroy(ast);
-// 		ms_close(&table);
-// 		free(lexer.line);
+		ms_ast_destroy(ast);
+		ms_close(&table);
+		free(lexer.line);
 	}
 }
 
 
 #if 1
 // DONE: fix export
+// DONE: fix $LS2
 // DONE: update shell level
 // TODO: fix export VAR
 // TODO: fix ms_get_idx and ms_getenv
 // TODO: fix builtin via pipeline
-// TODO: fix $LS2
+// TODO: change realloc but make sure function copies sizeof() * len
 int	main(int argc, char **argv, char **envp)
 {
-	//atexit(ms_leaks);
+	atexit(ms_leaks);
 
 	if (ms_interactive_mode())
 		return (1);

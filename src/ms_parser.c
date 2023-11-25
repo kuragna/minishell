@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:37:42 by aabourri          #+#    #+#             */
-/*   Updated: 2023/11/23 14:49:47 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/11/25 18:25:32 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -178,6 +178,6 @@ char	*ms_get_word(t_lexer *lexer)
 
 	type = ms_peek(lexer);
 	word = ms_token_next(lexer).lexeme;
-	PERR("[LEXEME]: %s, [TYPE]: %s\n", word, words[type]);
+	//PERR("[LEXEME]: %s, [TYPE]: %s\n", word, words[type]);
 	return (word);
 }

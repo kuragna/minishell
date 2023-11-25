@@ -3,7 +3,7 @@
 
 #include <stdlib.h>
 
-#if 0
+#if 1
 	#define malloc(size) ms_malloc(size, __FILE__, __LINE__)
 #endif
 

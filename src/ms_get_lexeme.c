@@ -6,7 +6,7 @@
 /*   By: aabourri <aabourri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:34:39 by aabourri          #+#    #+#             */
-/*   Updated: 2023/11/25 16:06:33 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/11/25 19:07:24 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,6 +113,8 @@ static void	ms_quote_consume(t_lexer *l, struct s_string *word, char c)
 // DONE: tokens as string literal
 // DONE: fix $HOME$$HOME
 // DONE: make sure that command as variable executed
+// DONE: tilde without between tokens
+// DONE: fix $LS $HOME
 // TODO: handle $[non-usalpha][rest of characters]
 
 void	ms_tilde(t_lexer *l, struct s_string *word)
@@ -120,7 +122,7 @@ void	ms_tilde(t_lexer *l, struct s_string *word)
 	const char 	c = l->line[l->pos + 1];
 	const char	*home = ms_getenv(l->env, "HOME");
 
-	if (!(c == ' ' || c == '/' || c == '\0'))
+	if (!(ms_is_token(c) || c == '/' || c == '\0'))
 		return ;
 	l->pos += 1;
 	// TODO: we dont need it any more
@@ -129,7 +131,6 @@ void	ms_tilde(t_lexer *l, struct s_string *word)
 	ms_str_append(word, home);
 }
 
-// TODO: fix $LS $HOME
 
 char	*ms_get_lexeme(t_lexer *l)
 {
@@ -143,15 +144,19 @@ char	*ms_get_lexeme(t_lexer *l)
 	{
 		l->pos = ms_trim_left(l);
 		if (l->line[l->pos] == '~')
+		{
 			ms_tilde(l, &word);
+		}
 		if (l->line[l->pos] == '$' && ms_start(l->line[l->pos + 1]))
 		{
 			ms_expansion(l, &word);
 			ms_str_append(&word, &l->line[l->pos]);
-			//free(l->line);
 			ms_char_append(&word, '\0');
-			*l = ms_lexer_init(word.data);
-
+			free(l->line);
+			// TODO: ms_lexer_init doesnt overwrite pre content
+			l->pos = 0;
+			l->line = word.data;
+			l->len = ft_strlen(word.data);
 			return ms_token_next(l).lexeme;
 		}
 		else if (ms_is_quote(l->line[l->pos]))
