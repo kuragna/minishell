@@ -6,7 +6,7 @@
 #    By: aabourri <aabourri@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/10/09 14:16:51 by glacroix          #+#    #+#              #
-#    Updated: 2023/11/18 16:23:55 by aabourri         ###   ########.fr        #
+#    Updated: 2023/11/25 16:01:54 by aabourri         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -27,10 +27,13 @@ NAME	   = minishell
 
 #SRC & OBJS Details
 # **************************************************************************** #
+
 SRCS		=	ms_malloc.c \
 				ms_ast_destroy.c \
 				ms_signal.c \
 				ms_cmd_utilts.c \
+				builtins/ms_env.c \
+				builtins/ms_env_utilts.c \
 				ms_utilts.c \
 				ms_error.c \
 				ms_ast_print.c \
@@ -40,22 +43,18 @@ SRCS		=	ms_malloc.c \
 				ms_parser_utilts.c \
 				ms_exec.c \
 				main.c \
-				builtins/ms_env.c \
 				ms_envcpy.c \
-				builtins/ms_env_utilts.c \
+				ms_get_lexeme.c \
 				builtins/ms_exit.c \
 				builtins/ms_unset.c \
 				builtins/ms_echo.c \
 				builtins/ms_pwd.c \
 				builtins/ms_cd.c \
-				builtins/ms_export.c \
-				ms_quote_handle.c \
-				#split_line.c
-				
-
+				builtins/ms_export.c 
 
 OBJ			= $(SRCS:%.c=objs/%.o)
 SRCS		:= $(addprefix src/, $(SRCS))
+
 
 #Routes
 # **************************************************************************** #

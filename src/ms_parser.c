@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:37:42 by aabourri          #+#    #+#             */
-/*   Updated: 2023/11/18 20:16:58 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/11/23 14:49:47 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,6 @@
 #include <assert.h>
 
 extern char		*words[];
-extern t_array	env;
 
 int	ms_parse_args(t_cmd *cmd, t_lexer *lexer)
 {
@@ -179,6 +178,6 @@ char	*ms_get_word(t_lexer *lexer)
 
 	type = ms_peek(lexer);
 	word = ms_token_next(lexer).lexeme;
-// 	PERR("[LEXEME]: %s, [TYPE]: %s\n", word, words[type]);
+	PERR("[LEXEME]: %s, [TYPE]: %s\n", word, words[type]);
 	return (word);
 }

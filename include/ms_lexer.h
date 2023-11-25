@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 18:33:07 by aabourri          #+#    #+#             */
-/*   Updated: 2023/11/21 19:45:50 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/11/25 15:14:41 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,13 @@ typedef struct s_array
 	size_t	len;
 }	t_array;
 
+struct s_string
+{
+	char	*data;
+	size_t	cap;
+	size_t	len;
+};
+
 struct s_lexer
 {
 	char	*line;
@@ -66,7 +73,7 @@ int				ms_check_quotes(const char *str);
 void			*ms_malloc(size_t size, char *file, int line);
 void			*ms_expected_token(const t_token_type type);
 char			*ms_get_lexeme(t_lexer *l);
-char			*ms_getenv(t_array *env, char *name);
+char			*ms_getenv(t_array *env, const char *name);
 int				ms_start(int c);
 
 #endif //MS_LEXER_H

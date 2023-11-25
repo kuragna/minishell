@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:15:57 by aabourri          #+#    #+#             */
-/*   Updated: 2023/11/18 19:17:39 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/11/25 15:17:45 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,8 @@ t_array	ms_env_dup(char **envp)
 
 	i = 0;
 	array = ms_array_init();
+// 	if (!envp || !*envp)
+// 		ms_array_append(&array, NULL);
 	while (envp[i] != NULL)
 	{
 		str = ft_strdup(envp[i]);
@@ -38,20 +40,6 @@ void	ms_swap(char **a, char **b)
 	*a = *b;
 	*b = c;
 }
-
-// int	ms_env_push(t_env *env, char *var)
-// {
-// 	if (env->capacity == env->length)
-// 	{
-// 		env->capacity *= 2;
-// 		env->vars = ft_realloc(env->vars, sizeof(env->vars) * env->capacity);
-// 		if (!env->vars)
-// 			return (1);
-// 	}
-// 	env->vars[env->length] = var;
-// 	env->length += 1;
-// 	return (0);
-// }
 
 void	ms_env_sort(t_array env)
 {
@@ -84,9 +72,10 @@ int	ms_env(t_array env)
 	size_t	i;
 
 	i = 0;
-	while (env.items[i] != NULL)
+	while (i < env.len)
 	{
-		printf("%s\n", env.items[i]);
+		if (env.items[i])
+			printf("%s\n", env.items[i]);
 		i += 1;
 	}
 	return (0);

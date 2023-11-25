@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 18:39:21 by aabourri          #+#    #+#             */
-/*   Updated: 2023/11/25 13:39:15 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/11/25 15:13:52 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ int		ms_export_(t_array *env, char *var);
 int		ms_start(int c);
 int		ms_symbol(char *str, int c);
 int		ms_get_idx(t_array *env, const char *name);
-char	*ms_getenv(t_array *env, char *name);
+char	*ms_getenv(t_array *env, const char *name);
 t_array	ms_env_dup(char **envp);
 int		ms_env_push(t_array *env, char *var);
 void	ms_env_sort(t_array env);

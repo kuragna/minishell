@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:21:49 by aabourri          #+#    #+#             */
-/*   Updated: 2023/11/25 14:52:04 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/11/25 15:19:21 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,7 +70,7 @@ int	ms_export_(t_array *env, char *var)
 	substr = ft_substr(var, 0, (size_t)len);
 	pos = ms_get_idx(env, substr);
 	// TODO: why we need strdup here?
-	//var = ft_strdup(var);
+	var = ft_strdup(var);
 	free(substr);
 	if (pos != -1)
 	{

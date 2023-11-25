@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:19:08 by aabourri          #+#    #+#             */
-/*   Updated: 2023/11/18 19:19:26 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/11/25 14:30:50 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,6 @@
 
 void	ms_exit(void)
 {
-	ft_putendl_fd("exit", MS_STDOUT);
+	printf("exit\n");
 	exit(EXIT_SUCCESS);
 }

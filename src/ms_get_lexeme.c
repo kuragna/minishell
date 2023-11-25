@@ -3,22 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   ms_quote_handle.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: aabourri <aabourri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:34:39 by aabourri          #+#    #+#             */
-/*   Updated: 2023/11/21 20:10:20 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/11/25 16:06:33 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/ms_lexer.h"
 #include <stdio.h>
 
-struct s_string
-{
-	char	*data;
-	size_t	cap;
-	size_t	len;
-};
 
 static	int	ms_is_usalnum(int c)
 {
@@ -65,7 +59,7 @@ static void	ms_str_append(struct s_string *str, const char *s)
 }
 
 
-static void	ms_dollar(t_lexer *l, struct s_string *word)
+static void	ms_expansion(t_lexer *l, struct s_string *word)
 {
 	char			c;
 	char			*str;
@@ -75,7 +69,7 @@ static void	ms_dollar(t_lexer *l, struct s_string *word)
 	l->pos += 1;
 	while (l->pos < l->len)
 	{
-		if (ms_is_token(l->line[l->pos]) || !ms_is_usalnum(l->line[l->pos]))
+		if (ms_is_token(l->line[l->pos]) || !ms_start(l->line[l->pos]))
 			break ;
 		c = l->line[l->pos];
 		ms_char_append(&dollar, c);
@@ -84,29 +78,26 @@ static void	ms_dollar(t_lexer *l, struct s_string *word)
 		{
 			ms_char_append(&dollar, '\0');
 			str = ms_getenv(l->env, dollar.data);
-			printf("here\n");
 			ms_str_append(word, str);
 			dollar.len = 0;
 			if (l->line[l->pos] == '$')
 				l->pos += 1;
 		}
 	}
-	printf("pos -> `%s`\n", &l->line[l->pos]);
+	free(dollar.data);
 }
 
 static void	ms_quote_consume(t_lexer *l, struct s_string *word, char c)
 {
+	char	ch;
+
 	while (l->pos < l->len && l->line[l->pos] != c)
 	{
-		if (l->line[l->pos] == '$' && c == '\"')
-		{
-			ms_dollar(l, word);
-		}
-		else
-		{
-			ms_char_append(word, l->line[l->pos]);
-			l->pos += 1;
-		}
+		ch = l->line[l->pos + 1];
+		if (c == '\"' && l->line[l->pos] == '$' && ms_start(ch))
+			ms_expansion(l, word);
+		if (l->line[l->pos] != c)
+			ms_char_append(word, l->line[l->pos++]);
 	}
 	l->pos += 1;
 }
@@ -114,13 +105,15 @@ static void	ms_quote_consume(t_lexer *l, struct s_string *word, char c)
 // DONE: two dollars
 // DONE: handle ~
 // DONE: handle cd "~/"
-// DONE: fix $ HOME
-// TODO: make sure that command as variable executed
-// TODO: change the condition in env
-// TODO: change the name of this file
-// TODO: handle "$""H""O""M""E"
-// TODO: skip last quote -- example  ls "'$HOME'"
-// TODO: tokens as string literal
+// DONE: handle $ HOME
+// DONE: change the name of this file
+// DONE: change the condition in env
+// DONE: handle "$""H""O""M""E"
+// DONE: skip last quote -- example  ls "'$HOME'"
+// DONE: tokens as string literal
+// DONE: fix $HOME$$HOME
+// DONE: make sure that command as variable executed
+// TODO: handle $[non-usalpha][rest of characters]
 
 void	ms_tilde(t_lexer *l, struct s_string *word)
 {
@@ -130,11 +123,13 @@ void	ms_tilde(t_lexer *l, struct s_string *word)
 	if (!(c == ' ' || c == '/' || c == '\0'))
 		return ;
 	l->pos += 1;
-	if (ft_isspace(l->line[l->pos]))
-		l->pos += 1;
+	// TODO: we dont need it any more
+// 	if (ft_isspace(l->line[l->pos]))
+// 		l->pos += 1;
 	ms_str_append(word, home);
 }
-// TODO: fix $$USER
+
+// TODO: fix $LS $HOME
 
 char	*ms_get_lexeme(t_lexer *l)
 {
@@ -148,13 +143,16 @@ char	*ms_get_lexeme(t_lexer *l)
 	{
 		l->pos = ms_trim_left(l);
 		if (l->line[l->pos] == '~')
-		{
 			ms_tilde(l, &word);
-		}
 		if (l->line[l->pos] == '$' && ms_start(l->line[l->pos + 1]))
 		{
-			printf("we are here %s\n", &l->line[l->pos]);
-			ms_dollar(l, &word);
+			ms_expansion(l, &word);
+			ms_str_append(&word, &l->line[l->pos]);
+			//free(l->line);
+			ms_char_append(&word, '\0');
+			*l = ms_lexer_init(word.data);
+
+			return ms_token_next(l).lexeme;
 		}
 		else if (ms_is_quote(l->line[l->pos]))
 		{
@@ -165,11 +163,7 @@ char	*ms_get_lexeme(t_lexer *l)
 		while (l->pos < l->len)
 		{
 			if (ms_is_quote(l->line[l->pos]) || ms_is_token(l->line[l->pos]))
-			{
 				break ;
-			}
-			if (l->line[l->pos] == '$' && ft_isdigit(l->line[l->pos + 1]))
-				l->pos += 2;
 			ms_char_append(&word, l->line[l->pos]);
 			l->pos += 1;
 			if (l->line[l->pos] == '$')
@@ -194,7 +188,7 @@ int	ms_check_quotes(const char *str)
 			i++;
 			while (str[i] && str[i] != quote)
 				i++;
-			if (str[i] != quote)
+			if (!str[i] || str[i] != quote)
 			{
 				ms_error("minishell: unclosed quote: %s\n", &quote);
 				return (1);

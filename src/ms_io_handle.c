@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 20:00:32 by aabourri          #+#    #+#             */
-/*   Updated: 2023/11/20 18:18:16 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/11/23 20:07:10 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,10 @@ int	ms_here_doc(const char *dlmtr)
 		if (!line)
 			break ;
 		if (*line && ft_strncmp(line, dlmtr, ft_strlen(line)) == 0)
+		{
+			free(line);
 			break ;
+		}
 		ft_putendl_fd(line, fd);
 		free(line);
 	}

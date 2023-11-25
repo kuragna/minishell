@@ -1,4 +1,5 @@
 #include "../include/minishell.h"
+#include "../include/ms_builtin.h"
 
 struct s_fd_table table = {0};
 
@@ -21,12 +22,7 @@ char	*words[] = {
 	"WORD"
 };
 
-extern char **environ;
-char	**ms_envp;
-
-
 t_array env;
-
 
 void	ms_table_add(struct s_fd_table *table, int fd)
 {
@@ -45,35 +41,38 @@ void	ms_wait(int count)
 	while (i < count)
 	{
 		wait(&stat_log);
-// 		printf("[EXIT_STATUS]: %d\n", WEXITSTATUS(stat_log));
 		i += 1;
 	}
 }
-// TODO: fix an execute command as value of variable
 
-void	ms_prompt(t_array *env)
+void	ms_prompt()
 {
 	int	fd[2];
 	int	count;
-	char	*line;
 	t_ast	*ast;
 	t_lexer	lexer;
 
-	(void)env;
-	(void)fd;
-	(void)count;
+	(void) env;
+	(void) fd;
+	(void) count;
+	(void) ast;
 
 
 	while (1)
 	{
-		line = readline("$> ");
-		if (!line)
+		lexer.line = readline("$> ");
+		if (!lexer.line)
+		{
+			printf("exit\n");
 			break ;
-		lexer = ms_lexer_init(line);
-		lexer.env = env;
-		if (ms_peek(&lexer) == NEWLINE || ms_check_quotes(line))
+		}
+		lexer = ms_lexer_init(lexer.line);
+		lexer.env = &env;
+		if (!ms_peek(&lexer) || ms_check_quotes(lexer.line))
 			continue ;
+		add_history(lexer.line);
 
+#if 0
 		t_token_type type = ms_peek(&lexer);
 		while (type != NEWLINE)
 		{
@@ -81,41 +80,37 @@ void	ms_prompt(t_array *env)
 			printf("[TOKEN]: %s | [LEXEME]: %s\n", words[type], lexeme);
 			type = ms_peek(&lexer);
 		}
+	
 
-		add_history(line);
-		//PERR("line: %s\n", line);
 
 		continue ;
-
-
-
-		add_history(line);
-
+#endif
 
 		fd[MS_STDIN] = MS_STDIN;
 		fd[MS_STDOUT] = MS_STDOUT;
 
-		ast = ms_parse_and_or(&lexer);
-		//ast = ms_parse_pipe(&lexer);
-
-
+		//ast = ms_parse_and_or(&lexer);
+		ast = ms_parse_pipe(&lexer);
+		ms_array_append(&env, NULL);
 		if (ast)
 		{
-// 			printf("[ROOT]: %s\n", nodes[ast->type]);
-// 			printf("[LAST]: %s\n", words[ms_peek(&lexer)]);
-			
-			//ms_ast_print(ast);
-			//PERR("\n\n");
 			count = ms_exec(ast, fd);
 			ms_wait(count);
 		}
-		ms_ast_destroy(ast);
-		ms_close(&table);
-		free(line);
+// 		ms_ast_destroy(ast);
+// 		ms_close(&table);
+// 		free(lexer.line);
 	}
 }
 
+
 #if 1
+// DONE: fix export
+// DONE: update shell level
+// TODO: fix export VAR
+// TODO: fix ms_get_idx and ms_getenv
+// TODO: fix builtin via pipeline
+// TODO: fix $LS2
 int	main(int argc, char **argv, char **envp)
 {
 	//atexit(ms_leaks);
@@ -125,9 +120,9 @@ int	main(int argc, char **argv, char **envp)
 // 	if (ms_catch_signal())
 // 		return (1);
 	
-	
 	env = ms_env_dup(envp);
-	ms_prompt(&env);
+	ms_update_shlvl(&env);
+	ms_prompt();
 	rl_clear_history();
 
 
@@ -137,16 +132,3 @@ int	main(int argc, char **argv, char **envp)
 	(void)envp;
 }
 #endif
-
-
-
-
-
-
-
-
-
-
-
-
-

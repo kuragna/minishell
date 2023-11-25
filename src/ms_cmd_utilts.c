@@ -44,6 +44,7 @@ int	ms_cmd_path(char **cmd)
 		}
 		i += 1;
 	}
+	// TODO: free paths
 	return (paths[i] != NULL);
 }
 

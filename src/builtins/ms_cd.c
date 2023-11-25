@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:12:41 by aabourri          #+#    #+#             */
-/*   Updated: 2023/11/21 15:36:38 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/11/22 19:04:10 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 
 #include <assert.h>
 
+// TODO: replace this function
 static int	ms_set_pwd(t_array *env, char *name, int pos)
 {
 	if (!name)
@@ -41,16 +42,16 @@ int	ms_cd(t_array *env, char *path)
 	{
 		go = ms_getenv(env, "HOME");
 		if (!go)
-			return (ms_error ("cd: HOME not set\n"));
+			return (ms_error ("minishell: cd: HOME not set\n"));
 	}
 	else if (ft_strncmp(path, "-", len) == 0 || ft_strncmp(path, "--", len) == 0)
 	{
 		go = ms_getenv(env, "OLDPWD");
 		if (!go)
-			return (ms_error("cd: OLDPWD not set\n"));
+			return (ms_error("minishell: cd: OLDPWD not set\n"));
 	}
 	if (chdir(go) == -1)
-		return (ms_error("cd: %s: %s\n", path, strerror(errno)));
+		return (ms_error("minishell: cd: %s: %s\n", path, strerror(errno)));
 	// NOTE: dont remove equal for strjoin
 	go = ms_getenv(env, "PWD");
 	ms_set_pwd(env, ft_strjoin("OLDPWD=", go), ms_get_idx(env, "OLDPWD"));
