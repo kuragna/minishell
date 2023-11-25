@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 18:39:21 by aabourri          #+#    #+#             */
-/*   Updated: 2023/11/18 19:23:38 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/11/25 13:39:15 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,8 @@
 # include "../libft/libft.h"
 # include "../include/ms_malloc.h"
 # include "./minishell.h"
+
+extern t_array env;
 
 # define MS_STDOUT	1
 
@@ -36,5 +38,6 @@ char	*ms_getenv(t_array *env, char *name);
 t_array	ms_env_dup(char **envp);
 int		ms_env_push(t_array *env, char *var);
 void	ms_env_sort(t_array env);
+void	ms_update_shlvl(t_array *env);
 
 #endif // MS_BUILTIN_H
