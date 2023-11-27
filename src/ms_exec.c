@@ -29,23 +29,21 @@ extern char	**ms_envp;
 extern char	**environ; // just for test
 extern t_array env;
 
-int	exec_builtin_cmd(t_array *args, int *fd)
+int	exec_builtin_cmd(t_array args, int *fd)
 {
-
-	(void) fd;
-	(void) args;
-	const char		*str = args->items[0];
+	// TODO: cmd must return back to defualt value
+	const char		*str = ms_str_tolower(*args.items);
 	const size_t	len = ft_strlen(str) + 1;
 	int				status;
 
 	status = 1;
 	if (ft_memcmp(str, "cd", len) == 0)
 	{
-		status = ms_cd(&env, args->items[1]);
+		status = ms_cd(&env, args.items[1]);
 	}
 	if (ft_memcmp(str, "env", len) == 0)
 	{
-		status = ms_env(env);
+		status = ms_env(env, fd);
 	}
 	if (ft_memcmp(str, "pwd", len) == 0)
 	{
@@ -53,22 +51,25 @@ int	exec_builtin_cmd(t_array *args, int *fd)
 	}
 	if (ft_memcmp(str, "echo", len) == 0)
 	{
-		status = ms_echo(args->items + 1, fd);
+		status = ms_echo(args.items + 1, fd);
 	}
 	if (ft_memcmp(str, "export", len) == 0)
 	{
-		status = ms_export(&env, args->items + 1);
+		status = ms_export(&env, args.items + 1);
 	}
 	if (ft_memcmp(str, "unset", len) == 0)
 	{
-		status = ms_unset(&env, args->items + 1);
+		status = ms_unset(&env, args.items + 1);
 	}
 	if (ft_memcmp(str, "exit", len) == 0)
 	{
-		ms_exit();
+		ms_exit(args.items + 1, args.len - 1);
 	}
+	free((char*)str);
 	return status;
 }
+
+
 
 void	ms_test(const char *cmd)
 {
@@ -93,20 +94,30 @@ int	ms_exec_cmd(t_ast *node, int *fd)
 	const t_cmd cmd = node->cmd;
 	char	*path;
 
+	(void) path;
+
+
 	if (ms_io_handle(&node->cmd.redirs, fd))
 		return (0);
 	if (!node->cmd.args.items[0])
 	{
 		return (0);
 	}
-	if (!exec_builtin_cmd((t_array*)&cmd.args, fd))
+// 	if (!exec_builtin_cmd((t_array*)&cmd.args, fd))
+	if (!exec_builtin_cmd(cmd.args, fd))
 		return (0);
 	else if (fork() == 0)
 	{
 		dup2(fd[MS_STDIN], MS_STDIN);
 		dup2(fd[MS_STDOUT], MS_STDOUT);
-
 		ms_close(&table);
+		ms_array_append(&env, NULL);
+
+
+// 		if (*cmd.args.items[0] == '\0')
+// 			exit(0);
+
+
 		path = cmd.args.items[0];
 		ms_cmd_path(&path);
 		// TODO: env.items must end with NULL
