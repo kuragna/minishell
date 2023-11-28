@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:37:42 by aabourri          #+#    #+#             */
-/*   Updated: 2023/11/25 18:25:32 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/11/26 16:53:43 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@ int	ms_parse_files(struct s_redirs *ptr, t_lexer *lexer)
 		ms_token_next(lexer);
 		if (ms_peek(lexer) != WORD)
 		{
-			PERR(":%s:%d\n", __FUNCTION__, __LINE__);
+			//PERR(":%s:%d\n", __FUNCTION__, __LINE__);
 			ms_expected_token(ms_peek(lexer));
 			return (1);
 		}
@@ -77,13 +77,13 @@ t_ast	*ms_parse_redir(t_lexer *lexer)
 			break ;
 		if (ms_parse_files(&node->cmd.redirs, lexer))
 		{
-			PERR(":%s:%d\n", __FUNCTION__, __LINE__);
+			//PERR(":%s:%d\n", __FUNCTION__, __LINE__);
 			//ms_ast_destroy(node);
 			return (NULL);
 		}
 		if (ms_parse_args(&node->cmd, lexer))
 		{
-			PERR(":%s:%d\n", __FUNCTION__, __LINE__);
+			//PERR(":%s:%d\n", __FUNCTION__, __LINE__);
 			//ms_ast_destroy(node);
 			return (NULL);
 		}
@@ -158,6 +158,7 @@ t_ast	*ms_parse_cmd(t_lexer *lexer)
 
 void	ms_redir_add(t_redirs *ptr, char *path, t_token_type type)
 {
+	const size_t	size = sizeof(*ptr->items);
 	t_redir	item;
 
 	item.path = path;
@@ -165,7 +166,8 @@ void	ms_redir_add(t_redirs *ptr, char *path, t_token_type type)
 	if (ptr->cap == ptr->len)
 	{
 		ptr->cap *= 2;
-		ptr->items = ft_realloc(ptr->items, sizeof(*ptr->items) * ptr->cap);
+// 		ptr->items = ft_realloc(ptr->items, sizeof(*ptr->items) * ptr->cap);
+		ptr->items = ft_realloc(ptr->items, ptr->len * size, ptr->cap * size);
 	}
 	ptr->items[ptr->len] = item;
 	ptr->len += 1;

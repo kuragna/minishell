@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:26:58 by aabourri          #+#    #+#             */
-/*   Updated: 2023/11/25 18:16:23 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/11/26 16:42:20 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,10 +44,13 @@ t_array	ms_array_init()
 
 void	ms_array_append(t_array *arr, char *item)
 {
+	const size_t	size = sizeof(arr->items);
+
 	if (arr->cap == arr->len)
 	{
 		arr->cap *= 2;
-		arr->items = ft_realloc(arr->items, sizeof(arr->items) * arr->cap);
+		arr->items = ft_realloc(arr->items, arr->len * size, arr->cap * size);
+// 		arr->items = ft_realloc(arr->items, sizeof(arr->items) * arr->cap);
 	}
 	arr->items[arr->len] = item;
 	arr->len += 1;
