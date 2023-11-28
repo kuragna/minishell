@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 20:01:24 by aabourri          #+#    #+#             */
-/*   Updated: 2023/11/18 20:02:30 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/11/28 15:20:11 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,6 @@ void	*ms_expected_token(const t_token_type type)
 int	ms_error(const char *fmt, ...)
 {
 	va_list	ap;
-	char	*str;
 
 	va_start(ap, fmt);
 	while (*fmt)
@@ -44,8 +43,12 @@ int	ms_error(const char *fmt, ...)
 			fmt += 1;
 			if (*fmt == 's')
 			{
-				str = va_arg(ap, char *);
-				ft_putstr_fd(str, MS_STDERR);
+				ft_putstr_fd(va_arg(ap, char *), MS_STDERR);
+				fmt += 1;
+			}
+			else if (*fmt == 'c')
+			{
+				ft_putchar_fd(va_arg(ap, int), MS_STDERR);
 				fmt += 1;
 			}
 		}

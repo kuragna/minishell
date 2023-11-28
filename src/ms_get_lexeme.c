@@ -6,7 +6,7 @@
 /*   By: aabourri <aabourri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:34:39 by aabourri          #+#    #+#             */
-/*   Updated: 2023/11/27 18:37:55 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/11/28 15:25:30 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,6 +68,7 @@ static void	ms_str_append(struct s_string *str, const char *s)
 }
 
 
+
 static void	ms_expansion(t_lexer *l, struct s_string *word)
 {
 	char			c;
@@ -76,7 +77,7 @@ static void	ms_expansion(t_lexer *l, struct s_string *word)
 
 	dollar = ms_string_init();
 	l->pos += 1;
-	// after dollar must be under score or alphabet
+
 	while (l->pos < l->len)
 	{
 		if (ms_is_token(l->line[l->pos]) || !ms_is_usalnum(l->line[l->pos]))
@@ -132,66 +133,63 @@ void	ms_tilde(t_lexer *l, struct s_string *word)
 	ms_str_append(word, home);
 }
 
-// char	*ms_rewording(struct s_string *word)
-// {
-// 	char			c;
-// 	struct s_string q;
-// 	size_t 			i;
-
-// 	i = 0;
-// 	q = ms_string_init();
-// 	ms_char_append(&q, '\"');
-// 	while (i < word->len - 1)
-// 	{
-// 		c = word->data[i];
-// 		while (i < word->len && ft_isspace(word->data[i]) && ft_isspace(word->data[i + 1]))
-// 			i += 1;
-// 		if (ft_isspace(c) && !ft_isspace(word->data[i + 1]))
-// 		{
-// 			
-// 			ms_char_append(&q, '\"');
-// 			ms_char_append(&q, word->data[i++]);
-//  			ms_char_append(&q, '\"');
-// 		}
-// 		ms_char_append(&q, word->data[i]);
-// 		i += 1;
-// 	}
-// 	ms_char_append(&q, '\"');
-// 	ms_char_append(&q, '\0');
-// 	return q.data;
-// }
-
-int	ms_token_not_space(int c)
+int	ms_isspecial(int c)
 {
-	return (c == '\'' || c == '|' || c == '>' || c == '<' || c == '&');
+	const int	a = ms_is_quote(c) || c == '~';
+
+	return (a ||  c == '|' || c == '>' || c == '<' || c == '&');
 }
+
 
 char	*ms_rewording(struct s_string *word)
 {
-	int	flag;
+	char			quote;
+	int				flag;
 	struct s_string str;
 	size_t			i;
 
-	i = 0;
+	i = -1;
 	flag = 0;
 	str = ms_string_init();
-	while (i < word->len && word->data[i])
+	quote = 34;
+	while (++i < word->len && word->data[i])
 	{
-		if (ms_token_not_space(word->data[i]))
+		if (word->data[i] == quote)
+			quote += 5;
+		if (ms_isspecial(word->data[i]))
 		{
 			flag = 1;
-			ms_char_append(&str, '\"');
+			ms_char_append(&str, quote);
 		}
 		ms_char_append(&str, word->data[i]);
 		if (flag)
-			ms_char_append(&str, '\"');
+			ms_char_append(&str, quote);
 		flag = 0;
-		i += 1;
 	}
 	free(word->data);
 	ms_char_append(&str, '\0');
 	return str.data;
 }
+
+// int	main()
+// {
+
+// 	struct s_string word;
+
+// 	word = ms_string_init();
+
+// 	ms_str_append(&word, "|");
+
+
+// 	char	*data = ms_rewordin
+
+
+
+
+
+
+// 	return 0;
+// }
 
 #if 1
 char	*ms_get_lexeme(t_lexer *l)
@@ -259,7 +257,7 @@ int	ms_check_quotes(const char *str)
 				i++;
 			if (!str[i] || str[i] != quote)
 			{
-				ms_error("minishell: unclosed quote: %s\n", &quote);
+				ms_error("minishell: unclosed quote: %c\n", quote);
 				return (1);
 			}
 		}

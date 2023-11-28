@@ -63,7 +63,7 @@ int	exec_builtin_cmd(t_array args, int *fd)
 	}
 	if (ft_memcmp(str, "exit", len) == 0)
 	{
-		ms_exit(args.items + 1, args.len - 1);
+		status = ms_exit(args.items + 1, args.len - 1);
 	}
 	free((char*)str);
 	return status;
@@ -103,7 +103,6 @@ int	ms_exec_cmd(t_ast *node, int *fd)
 	{
 		return (0);
 	}
-// 	if (!exec_builtin_cmd((t_array*)&cmd.args, fd))
 	if (!exec_builtin_cmd(cmd.args, fd))
 		return (0);
 	else if (fork() == 0)
@@ -111,12 +110,11 @@ int	ms_exec_cmd(t_ast *node, int *fd)
 		dup2(fd[MS_STDIN], MS_STDIN);
 		dup2(fd[MS_STDOUT], MS_STDOUT);
 		ms_close(&table);
+
+
+
+
 		ms_array_append(&env, NULL);
-
-
-// 		if (*cmd.args.items[0] == '\0')
-// 			exit(0);
-
 
 		path = cmd.args.items[0];
 		ms_cmd_path(&path);

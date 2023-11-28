@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:19:08 by aabourri          #+#    #+#             */
-/*   Updated: 2023/11/27 19:50:56 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/11/28 14:57:17 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,31 +14,42 @@
 
 #define ERR_MSG "numeric argument required"
 
-int	ms_exit(char **argv, int argc)
+
+static int	ms_check_exit_status(const char *str)
 {
-	int		i;
-	int		exit_status;
+	size_t	i;
 
 	i = 0;
+	if (str[i] == '+' || str[i] == '-')
+		i += 1;
+	while (str[i])
+	{
+		if (!ft_isdigit(str[i]))
+		{
+			ms_error("minishell: exit: %s: %s\n", str, ERR_MSG);
+			return (1);
+		}
+		i += 1;
+	}
+	return (0);
+}
+
+
+int	ms_exit(char **argv, const int argc)
+{
+	int		exit_status;
+
 	printf("exit\n");
 	if (argc == 1)
 		exit(0);
-	while (argv[0][i] != '\0')
-	{
-		if (!ft_isdigit(argv[0][i]))
-		{
-			exit_status = 255;
-			ms_error("minishell: exit: %s: %s\n", ERR_MSG, argv[0]);
-			break ;
-		}
-		i++;
-	}
-	if (argc > 2 && argv[0][i] == '\0')
+	if (ms_check_exit_status(*argv))
+		exit_status = 255;
+	else	
+		exit_status = ft_atoi(*argv) % 256;
+	if (argc > 2)
 	{
 		ms_error("minishell: exit: too many arguments\n");
 		exit(1);
 	}
-	if (argv[0][i] == '\0')
-		exit_status = ft_atoi(argv[0]) % 256;
 	exit(exit_status);
 }

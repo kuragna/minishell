@@ -6,7 +6,7 @@
 /*   By: aabourri <aabourri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/17 19:04:35 by aabourri          #+#    #+#             */
-/*   Updated: 2023/11/18 19:51:10 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/11/28 14:55:08 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,5 +59,6 @@ int		ms_cmd_path(char **cmd);
 int		ms_interactive_mode(void);
 void	*ms_expected_token(const t_token_type type);
 char	**ms_envcpy(t_array *env);
+char	*ms_str_tolower(const char *str);
 
 #endif //MINISHELL_H

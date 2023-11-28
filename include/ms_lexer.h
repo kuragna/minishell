@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 18:33:07 by aabourri          #+#    #+#             */
-/*   Updated: 2023/11/25 16:13:20 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/11/28 14:58:06 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,12 +48,6 @@ typedef struct s_array
 	size_t	len;
 }	t_array;
 
-struct s_string
-{
-	char	*data;
-	size_t	cap;
-	size_t	len;
-};
 
 struct s_lexer
 {

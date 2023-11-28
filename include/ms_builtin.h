@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 18:39:21 by aabourri          #+#    #+#             */
-/*   Updated: 2023/11/25 15:13:52 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/11/28 14:56:24 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,13 +23,13 @@ extern t_array env;
 
 # define MS_STDOUT	1
 
-int		ms_env(t_array env);
+int		ms_env(t_array env, int *fd);
 int		ms_echo(char **args, int *fd);
 int		ms_pwd(void);
 int		ms_cd(t_array *env, char *path);
 int		ms_unset(t_array *env, char **args);
 int		ms_export(t_array *env, char **vars);
-void	ms_exit(void);
+int		ms_exit(char **argv, const int argc);
 int		ms_export_(t_array *env, char *var);
 int		ms_start(int c);
 int		ms_symbol(char *str, int c);

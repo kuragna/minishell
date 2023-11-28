@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:15:57 by aabourri          #+#    #+#             */
-/*   Updated: 2023/11/25 15:17:45 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/11/28 14:56:09 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,7 @@ void	ms_env_sort(t_array env)
 	}
 }
 
-int	ms_env(t_array env)
+int	ms_env(t_array env, int *fd)
 {
 	size_t	i;
 
@@ -75,7 +75,7 @@ int	ms_env(t_array env)
 	while (i < env.len)
 	{
 		if (env.items[i])
-			printf("%s\n", env.items[i]);
+			ft_putendl_fd(env.items[i], fd[MS_STDOUT]);
 		i += 1;
 	}
 	return (0);

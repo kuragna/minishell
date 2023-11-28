@@ -114,7 +114,7 @@ void	ms_prompt()
 // TODO: change realloc but make sure function copies sizeof() * len
 int	main(int argc, char **argv, char **envp)
 {
-	atexit(ms_leaks);
+	//atexit(ms_leaks);
 
 	if (ms_interactive_mode())
 		return (1);

@@ -29,9 +29,7 @@ int	ms_cmd_path(char **cmd)
 	size_t	i;
 
 	if (ft_strncmp(*cmd, "./", 2) == 0 || ft_strchr(*cmd, '/'))
-	{
 		return (1);
-	}
 	i =  0;
 	paths = ms_get_paths();
 	while (paths[i] != NULL)
@@ -46,5 +44,24 @@ int	ms_cmd_path(char **cmd)
 	}
 	// TODO: free paths
 	return (paths[i] != NULL);
+}
+
+char	*ms_str_tolower(const char *str)
+{
+	char	*dup;
+	size_t	i;
+
+	i = 0;
+	if (!str)
+		return (NULL);
+	dup = ft_strdup(str);
+	if (!dup)
+		return ((char *)str);
+	while (dup[i])
+	{
+		dup[i] = ft_tolower(dup[i]);
+		i += 1;
+	}
+	return (dup);
 }
 
