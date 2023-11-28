@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:19:08 by aabourri          #+#    #+#             */
-/*   Updated: 2023/11/28 14:57:17 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/11/28 15:42:33 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,12 +44,12 @@ int	ms_exit(char **argv, const int argc)
 		exit(0);
 	if (ms_check_exit_status(*argv))
 		exit_status = 255;
-	else	
-		exit_status = ft_atoi(*argv) % 256;
-	if (argc > 2)
+	else if (argc > 2)
 	{
 		ms_error("minishell: exit: too many arguments\n");
-		exit(1);
+		return (0);
 	}
+	else	
+		exit_status = ft_atoi(*argv) % 256;
 	exit(exit_status);
 }

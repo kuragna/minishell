@@ -6,7 +6,7 @@
 /*   By: aabourri <aabourri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:34:39 by aabourri          #+#    #+#             */
-/*   Updated: 2023/11/28 15:25:30 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/11/28 17:04:34 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,6 +68,7 @@ static void	ms_str_append(struct s_string *str, const char *s)
 }
 
 
+int	exit_status = 127;
 
 static void	ms_expansion(t_lexer *l, struct s_string *word)
 {
@@ -80,6 +81,12 @@ static void	ms_expansion(t_lexer *l, struct s_string *word)
 
 	while (l->pos < l->len)
 	{
+		if (l->line[l->pos] == '?')
+		{
+			char	*s = ft_itoa(exit_status);
+			ms_str_append(word, s);
+			l->pos += 1;
+		}
 		if (ms_is_token(l->line[l->pos]) || !ms_is_usalnum(l->line[l->pos]))
 			break ;
 		c = l->line[l->pos];
@@ -102,13 +109,38 @@ void	ms_quote_consume(t_lexer *l, struct s_string *word, char c)
 {
 	char	ch;
 
+	for (size_t i = 0; i < word->len; i++)
+	{
+		printf("%c", word->data[i]);
+	}
+	printf("\n");
+
+
 	while (l->pos < l->len && l->line[l->pos] != c)
 	{
 		ch = l->line[l->pos + 1];
-		if (c == '\"' && l->line[l->pos] == '$' && ms_start(ch))
+		printf("ch is %c\n", ch);
+		/* if (c == '\"' && l->line[l->pos] == '$' && ch == '?')
+		{
+			char	*s = ft_itoa(exit_status);
+			ms_str_append(word, s);
+			l->pos += 2;
+		} */
+		/* if (c == '\"' && l->line[l->pos] == '$' && !ms_start(ch))
+			l->pos += 2; */
+		/* if (c == '\"' && l->line[l->pos] == '$' && ms_start(ch)) */
+		if (c == '\"' && l->line[l->pos] == '$')
+		{
 			ms_expansion(l, word);
+			if (l->line[l->pos] == '$')
+			{
+				if (l->line[l->pos + 1])
+					continue ;
+			}
+		}
 		if (l->line[l->pos] != c)
 		{
+			//printf("at %c\n", l->line[l->pos]);
 			ms_char_append(word, l->line[l->pos]);
 			l->pos += 1;
 		}
@@ -141,17 +173,18 @@ int	ms_isspecial(int c)
 }
 
 
+
 char	*ms_rewording(struct s_string *word)
 {
-	char			quote;
-	int				flag;
-	struct s_string str;
 	size_t			i;
+	int				flag;
+	char			quote;
+	struct s_string str;
 
 	i = -1;
 	flag = 0;
-	str = ms_string_init();
 	quote = 34;
+	str = ms_string_init();
 	while (++i < word->len && word->data[i])
 	{
 		if (word->data[i] == quote)
@@ -171,26 +204,6 @@ char	*ms_rewording(struct s_string *word)
 	return str.data;
 }
 
-// int	main()
-// {
-
-// 	struct s_string word;
-
-// 	word = ms_string_init();
-
-// 	ms_str_append(&word, "|");
-
-
-// 	char	*data = ms_rewordin
-
-
-
-
-
-
-// 	return 0;
-// }
-
 #if 1
 char	*ms_get_lexeme(t_lexer *l)
 {
@@ -203,12 +216,24 @@ char	*ms_get_lexeme(t_lexer *l)
 	while (l->pos < l->len && !ms_is_token(l->line[l->pos]))
 	{
 		l->pos = ms_trim_left(l);
+
+		/* if (l->line[l->pos] == '$' && l->line[l->pos + 1] == '?')
+		{
+			char	*s = ft_itoa(exit_status);
+			ms_str_append(&word, s);
+			l->pos += 2;
+		} */
+
+
 		if (l->line[l->pos] == '~')
 		{
 			ms_tilde(l, &word);
 		}
-		if (l->line[l->pos] == '$' && ms_start(l->line[l->pos + 1]))
+		/* if (l->line[l->pos] == '$' && !ms_start(l->line[l->pos + 1]))
+			l->pos += 2; */
+		if (l->line[l->pos] == '$')
 		{
+			
 			ms_expansion(l, &word);
 			ms_str_append(&word, &l->line[l->pos]);
 			ms_char_append(&word, '\0');
