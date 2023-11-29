@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 20:00:32 by aabourri          #+#    #+#             */
-/*   Updated: 2023/11/23 20:07:10 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/11/29 17:44:00 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@ int	ms_open(const char *path, int oflag, int mode)
 // 	close(pp[MS_STDOUT]);
 // 	return (pp[MS_STDIN]);
 // }
-//
+
 
 // TODO: fix << with command not found
 
@@ -55,7 +55,7 @@ int	ms_here_doc(const char *dlmtr)
 	char	*line;
 	int		fd;
 
-	fd = ms_open("here-doc", O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	fd = ms_open("/tmp/here-doc", O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (fd == -1)
 		return (-1);
 	while (1)
@@ -72,9 +72,9 @@ int	ms_here_doc(const char *dlmtr)
 		free(line);
 	}
 	close(fd);
-	fd = ms_open("here-doc", O_RDONLY, 0);
+	fd = ms_open("/tmp/here-doc", O_RDONLY, 0);
 	if (fd == -1)
 		return (-1);
-	unlink("here-doc");
+	unlink("/tmp/here-doc");
 	return (fd);
 }

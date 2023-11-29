@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 18:33:07 by aabourri          #+#    #+#             */
-/*   Updated: 2023/11/28 14:58:06 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/11/29 14:58:16 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,12 @@ typedef struct s_array
 	size_t	len;
 }	t_array;
 
+struct s_string
+{
+	char	*data;
+	size_t	cap;
+	size_t	len;
+};
 
 struct s_lexer
 {
@@ -69,5 +75,10 @@ void			*ms_expected_token(const t_token_type type);
 char			*ms_get_lexeme(t_lexer *l);
 char			*ms_getenv(t_array *env, const char *name);
 int				ms_start(int c);
+
+// !
+struct s_string	ms_string_init(void);
+void			ms_char_append(struct s_string *str, const char c);
+void			ms_str_append(struct s_string *str, const char *s);
 
 #endif //MS_LEXER_H

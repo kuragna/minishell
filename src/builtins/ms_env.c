@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:15:57 by aabourri          #+#    #+#             */
-/*   Updated: 2023/11/28 14:56:09 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/11/29 17:23:09 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@ t_array	ms_env_dup(char **envp)
 			ms_array_append(&array, str);
 		i += 1;
 	}
+	ms_array_append(&array, NULL);
 	return (array);
 }
 
@@ -49,11 +50,11 @@ void	ms_env_sort(t_array env)
 	char	*t;
 
 	i = 0;
-	while (i < env.len)
+	while (i < env.len - 1)
 	{
 		j = 0;
 		len = ft_strlen(env.items[i]);
-		while (j < env.len)
+		while (j < env.len - 1)
 		{
 			if (ft_strncmp(env.items[i], env.items[j], len) < 0)
 			{

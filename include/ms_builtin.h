@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 18:39:21 by aabourri          #+#    #+#             */
-/*   Updated: 2023/11/28 14:56:24 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/11/29 16:48:58 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 
 extern t_array env;
 
+# define MS_NVID "not a valid identifier"
 # define MS_STDOUT	1
 
 int		ms_env(t_array env, int *fd);

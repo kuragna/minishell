@@ -6,7 +6,7 @@
 /*   By: aabourri <aabourri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:18:13 by aabourri          #+#    #+#             */
-/*   Updated: 2023/11/25 18:30:54 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/11/29 16:32:59 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,9 +44,9 @@ int	ms_get_idx(t_array *env, const char *var)
 	while (i < env->len && env->items[i])
 	{
 		str = ft_strchr(env->items[i], '=');
-		if (!str)
-			return (-1);
 		len = str - env->items[i];
+		if (!str)
+			len = ft_strlen(env->items[i]);
 		if (sz == len)
 		{
 			if (ft_strncmp(env->items[i], var, len) == 0)

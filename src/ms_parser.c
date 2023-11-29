@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:37:42 by aabourri          #+#    #+#             */
-/*   Updated: 2023/11/26 16:53:43 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/11/29 14:51:16 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -166,7 +166,6 @@ void	ms_redir_add(t_redirs *ptr, char *path, t_token_type type)
 	if (ptr->cap == ptr->len)
 	{
 		ptr->cap *= 2;
-// 		ptr->items = ft_realloc(ptr->items, sizeof(*ptr->items) * ptr->cap);
 		ptr->items = ft_realloc(ptr->items, ptr->len * size, ptr->cap * size);
 	}
 	ptr->items[ptr->len] = item;

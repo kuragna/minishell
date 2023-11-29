@@ -90,7 +90,6 @@ void	ms_test(const char *cmd)
 
 int	ms_exec_cmd(t_ast *node, int *fd)
 {
-
 	const t_cmd cmd = node->cmd;
 	char	*path;
 
@@ -110,16 +109,12 @@ int	ms_exec_cmd(t_ast *node, int *fd)
 		dup2(fd[MS_STDIN], MS_STDIN);
 		dup2(fd[MS_STDOUT], MS_STDOUT);
 		ms_close(&table);
-
-
-
-
 		ms_array_append(&env, NULL);
 
 		path = cmd.args.items[0];
 		ms_cmd_path(&path);
 		// TODO: env.items must end with NULL
-		if (execve(path, cmd.args.items, env.items) == -1)
+		if (execve(path, cmd.args.items, ms_envcpy(&env)) == -1)
 		{
 			ms_test(cmd.args.items[0]);
 		}

@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:33:09 by aabourri          #+#    #+#             */
-/*   Updated: 2023/11/18 19:34:15 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/11/29 15:00:25 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,26 @@ int	ms_catch_signal(void)
 	if (err == -1)
 	{
 		return (ms_error("minishell: %s: %s\n", strerror(errno)));
+	}
+	return (0);
+}
+
+int	ms_interactive_mode(void)
+{
+	struct termios	attr;
+
+	if (!isatty(MS_STDIN))
+	{
+		return (1);
+	}
+	if (tcgetattr(MS_STDIN, &attr) == -1)
+	{
+		return (1);
+	}
+	attr.c_lflag &= ~(ECHOCTL);
+	if (tcsetattr(MS_STDIN, TCSANOW, &attr) == -1)
+	{
+		return (1);
 	}
 	return (0);
 }

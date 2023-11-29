@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:55:52 by aabourri          #+#    #+#             */
-/*   Updated: 2023/11/20 17:23:20 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/11/29 14:50:44 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,5 +89,4 @@ t_token	ms_token_next(t_lexer *l)
 	token.lexeme = ms_get_lexeme(l);
 	return (token);
 }
-
 

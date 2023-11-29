@@ -6,19 +6,14 @@
 /*   By: aabourri <aabourri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:34:39 by aabourri          #+#    #+#             */
-/*   Updated: 2023/11/28 17:04:34 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/11/29 15:19:58 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/ms_lexer.h"
 #include <stdio.h>
 
-struct s_string
-{
-	char	*data;
-	size_t	cap;
-	size_t	len;
-};
+int	exit_status = 127;
 
 static	int	ms_is_usalnum(int c)
 {
@@ -30,45 +25,24 @@ static int	ms_is_quote(int c)
 	return (c == '\"' || c == '\'');
 }
 
-static struct s_string ms_string_init()
+static int	ms_isspecial(int c)
 {
-	struct s_string string;
+	const int	a = ms_is_quote(c) || c == '~';
 
-	string.cap = 8;
-	string.len = 0;
-	string.data = malloc(sizeof(*string.data) * string.cap);
-	return (string);
+	return (a ||  c == '|' || c == '>' || c == '<' || c == '&');
 }
 
-// TODO: check NULL for str->data
-static int	ms_char_append(struct s_string *str, const char c)
+static void	ms_expand_exit_status(t_lexer *l, struct s_string *word)
 {
-	const size_t	size = sizeof(*str->data);
+	char	*str;
 
-	if (str->cap == str->len)
-	{
-		str->cap *= 2;
-		str->data = ft_realloc(str->data, str->len * size, size * str->cap);
-// 		str->data = ft_realloc(str->data, sizeof(*str->data) * str->cap);
-		if (!str->data)
-			return (1);
-	}
-	str->data[str->len] = c;
-	str->len += 1;
-	return (0);
+	if (l->line[l->pos] != '?')
+		return ;
+	str = ft_itoa(exit_status);
+	ms_str_append(word, str);
+	free(str);
+	l->pos += 1;
 }
-
-static void	ms_str_append(struct s_string *str, const char *s)
-{
-	while (s && *s)
-	{
-		ms_char_append(str, *s);
-		s += 1;
-	}
-}
-
-
-int	exit_status = 127;
 
 static void	ms_expansion(t_lexer *l, struct s_string *word)
 {
@@ -76,17 +50,11 @@ static void	ms_expansion(t_lexer *l, struct s_string *word)
 	char			*str;
 	struct s_string dollar;
 
-	dollar = ms_string_init();
 	l->pos += 1;
-
+	dollar = ms_string_init();
 	while (l->pos < l->len)
 	{
-		if (l->line[l->pos] == '?')
-		{
-			char	*s = ft_itoa(exit_status);
-			ms_str_append(word, s);
-			l->pos += 1;
-		}
+		ms_expand_exit_status(l, word);
 		if (ms_is_token(l->line[l->pos]) || !ms_is_usalnum(l->line[l->pos]))
 			break ;
 		c = l->line[l->pos];
@@ -109,38 +77,19 @@ void	ms_quote_consume(t_lexer *l, struct s_string *word, char c)
 {
 	char	ch;
 
-	for (size_t i = 0; i < word->len; i++)
-	{
-		printf("%c", word->data[i]);
-	}
-	printf("\n");
-
-
 	while (l->pos < l->len && l->line[l->pos] != c)
 	{
 		ch = l->line[l->pos + 1];
-		printf("ch is %c\n", ch);
-		/* if (c == '\"' && l->line[l->pos] == '$' && ch == '?')
-		{
-			char	*s = ft_itoa(exit_status);
-			ms_str_append(word, s);
-			l->pos += 2;
-		} */
-		/* if (c == '\"' && l->line[l->pos] == '$' && !ms_start(ch))
-			l->pos += 2; */
-		/* if (c == '\"' && l->line[l->pos] == '$' && ms_start(ch)) */
 		if (c == '\"' && l->line[l->pos] == '$')
 		{
 			ms_expansion(l, word);
-			if (l->line[l->pos] == '$')
+			if (l->line[l->pos] == '$' && l->line[l->pos + 1])
 			{
-				if (l->line[l->pos + 1])
-					continue ;
+				continue ;
 			}
 		}
 		if (l->line[l->pos] != c)
 		{
-			//printf("at %c\n", l->line[l->pos]);
 			ms_char_append(word, l->line[l->pos]);
 			l->pos += 1;
 		}
@@ -154,22 +103,16 @@ void	ms_quote_consume(t_lexer *l, struct s_string *word, char c)
 void	ms_tilde(t_lexer *l, struct s_string *word)
 {
 	const char 	c = l->line[l->pos + 1];
-	const char	*home = ms_getenv(l->env, "HOME");
+	char		*home;
 
 	if (!(ms_is_token(c) || c == '/' || c == '\0'))
 		return ;
+	home = ms_getenv(l->env, "HOME");
 	l->pos += 1;
 	// TODO: we dont need it any more
 // 	if (ft_isspace(l->line[l->pos]))
 // 		l->pos += 1;
 	ms_str_append(word, home);
-}
-
-int	ms_isspecial(int c)
-{
-	const int	a = ms_is_quote(c) || c == '~';
-
-	return (a ||  c == '|' || c == '>' || c == '<' || c == '&');
 }
 
 
@@ -201,7 +144,7 @@ char	*ms_rewording(struct s_string *word)
 	}
 	free(word->data);
 	ms_char_append(&str, '\0');
-	return str.data;
+	return (str.data);
 }
 
 #if 1
@@ -216,24 +159,12 @@ char	*ms_get_lexeme(t_lexer *l)
 	while (l->pos < l->len && !ms_is_token(l->line[l->pos]))
 	{
 		l->pos = ms_trim_left(l);
-
-		/* if (l->line[l->pos] == '$' && l->line[l->pos + 1] == '?')
-		{
-			char	*s = ft_itoa(exit_status);
-			ms_str_append(&word, s);
-			l->pos += 2;
-		} */
-
-
 		if (l->line[l->pos] == '~')
 		{
 			ms_tilde(l, &word);
 		}
-		/* if (l->line[l->pos] == '$' && !ms_start(l->line[l->pos + 1]))
-			l->pos += 2; */
 		if (l->line[l->pos] == '$')
 		{
-			
 			ms_expansion(l, &word);
 			ms_str_append(&word, &l->line[l->pos]);
 			ms_char_append(&word, '\0');

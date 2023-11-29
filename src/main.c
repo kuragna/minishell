@@ -57,7 +57,6 @@ void	ms_prompt()
 	(void) count;
 	(void) ast;
 
-
 	while (1)
 	{
 		lexer.line = readline("$> ");
@@ -71,47 +70,32 @@ void	ms_prompt()
 		if (!ms_peek(&lexer) || ms_check_quotes(lexer.line))
 			continue ;
 		add_history(lexer.line);
-
-#if 0
-		t_token_type type = ms_peek(&lexer);
-		while (type != NEWLINE)
-		{
-			char	*lexeme = ms_token_next(&lexer).lexeme;
-			printf("[TOKEN]: %s | [LEXEME]: %s\n", words[type], lexeme);
-			type = ms_peek(&lexer);
-		}
-	
-
-
-		continue ;
-#endif
-
 		fd[MS_STDIN] = MS_STDIN;
 		fd[MS_STDOUT] = MS_STDOUT;
 
 		//ast = ms_parse_and_or(&lexer);
 		ast = ms_parse_pipe(&lexer);
-		ms_array_append(&env, NULL);
 		if (ast)
 		{
 			count = ms_exec(ast, fd);
 			ms_wait(count);
 		}
 		ms_ast_destroy(ast);
-		ms_close(&table);
+		//ms_close(&table);
 		free(lexer.line);
 	}
 }
 
 
 #if 1
+// TODO: fix sort env
+// TODO: SIGV after unset
 // DONE: fix export
 // DONE: fix $LS2
 // DONE: update shell level
 // TODO: fix export VAR
 // TODO: fix ms_get_idx and ms_getenv
 // TODO: fix builtin via pipeline
-// TODO: change realloc but make sure function copies sizeof() * len
 int	main(int argc, char **argv, char **envp)
 {
 	//atexit(ms_leaks);
