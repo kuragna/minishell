@@ -6,19 +6,19 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 18:44:02 by aabourri          #+#    #+#             */
-/*   Updated: 2023/11/20 16:56:55 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/12/04 14:03:55 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef MS_PARSER_H
 # define MS_PARSER_H
 
-# include <stdio.h>
 # include "../libft/libft.h"
 # include "./ms_lexer.h"
 # include "./ms_malloc.h"
+# include <stdio.h>
 
-# define PERR(...) fprintf(stderr, __VA_ARGS__)
+# define SYTX_ERR "syntax error near unexpected token"
 
 typedef struct s_ast	t_ast;
 typedef struct s_pipe	t_pipe;
@@ -34,7 +34,6 @@ typedef enum e_ast_node
 	NODE_AND,
 	NODE_OR,
 }	t_ast_node;
-
 
 struct s_redir
 {
@@ -81,15 +80,14 @@ t_redir		*ms_redir_node(char *path, t_token_type type);
 t_ast		*ms_pipe_node(t_ast *left, t_ast *right);
 t_ast		*ms_cmd_node(void);
 t_redirs	ms_redirs_init(void);
-char		*ms_get_word(t_lexer *lexer);
 t_array		ms_array_init(void);
 void		ms_redir_add(t_redirs *ptr, char *path, t_token_type type);
 t_ast		*ms_parse_and_or(t_lexer *lexer);
 t_ast		*ms_parse_pipe(t_lexer *lexer);
-t_ast		*ms_parse_cmd(t_lexer *lexer);
-t_ast		*ms_parse_redir(t_lexer *lexer);
-int			ms_parse_args(t_cmd *cmd, t_lexer *lexer);
-int			ms_parse_files(t_redirs *ptr, t_lexer *lexer);
+// t_ast		*ms_parse_cmd(t_lexer *lexer);
+// t_ast		*ms_parse_redir(t_lexer *lexer);
+// int			ms_parse_args(t_cmd *cmd, t_lexer *lexer);
+// int			ms_parse_files(t_redirs *ptr, t_lexer *lexer);
 void		ms_ast_destroy(t_ast *ast);
 
 #endif //MS_PARSER_H

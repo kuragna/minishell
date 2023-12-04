@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:15:57 by aabourri          #+#    #+#             */
-/*   Updated: 2023/11/29 17:23:09 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/12/01 17:29:40 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,7 @@ void	ms_swap(char **a, char **b)
 	*a = *b;
 	*b = c;
 }
+
 
 void	ms_env_sort(t_array env)
 {

@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:21:49 by aabourri          #+#    #+#             */
-/*   Updated: 2023/11/29 17:15:09 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/12/01 17:32:40 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,7 +100,9 @@ int	ms_export(t_array *env, char **items)
 
 	i = 0;
 	if (*items == NULL)
+	{
 		ms_export_print(*env);
+	}
 	while (items[i])
 	{
 		ms_export_(env, items[i]);

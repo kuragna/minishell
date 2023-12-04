@@ -1,7 +1,19 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/12/04 14:09:31 by aabourri          #+#    #+#             */
+/*   Updated: 2023/12/04 14:15:32 by aabourri         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../include/minishell.h"
 #include "../include/ms_builtin.h"
 
-struct s_fd_table table = {0};
+struct s_context	g_ctx;
 
 void	ms_leaks(void)
 {
@@ -22,8 +34,6 @@ char	*words[] = {
 	"WORD"
 };
 
-t_array env;
-
 void	ms_table_add(struct s_fd_table *table, int fd)
 {
 	if (table->len == 1024)
@@ -32,7 +42,7 @@ void	ms_table_add(struct s_fd_table *table, int fd)
 		table->fds[table->len++] = fd;
 }
 
-void	ms_wait(int count)
+static void	ms_wait(int count)
 {
 	int	stat_log;
 	int	i;
@@ -45,17 +55,12 @@ void	ms_wait(int count)
 	}
 }
 
-void	ms_prompt()
+static void	ms_prompt(void)
 {
-	int	fd[2];
-	int	count;
+	int		fd[2];
+	int		count;
 	t_ast	*ast;
 	t_lexer	lexer;
-
-	(void) env;
-	(void) fd;
-	(void) count;
-	(void) ast;
 
 	while (1)
 	{
@@ -66,54 +71,41 @@ void	ms_prompt()
 			break ;
 		}
 		lexer = ms_lexer_init(lexer.line);
-		lexer.env = &env;
 		if (!ms_peek(&lexer) || ms_check_quotes(lexer.line))
 			continue ;
 		add_history(lexer.line);
 		fd[MS_STDIN] = MS_STDIN;
 		fd[MS_STDOUT] = MS_STDOUT;
-
-		//ast = ms_parse_and_or(&lexer);
 		ast = ms_parse_pipe(&lexer);
 		if (ast)
-		{
 			count = ms_exec(ast, fd);
-			ms_wait(count);
-		}
+		ms_wait(count);
 		ms_ast_destroy(ast);
-		//ms_close(&table);
+		ms_close(&g_ctx.table);
 		free(lexer.line);
 	}
 }
 
-
 #if 1
 // TODO: fix sort env
 // TODO: SIGV after unset
-// DONE: fix export
-// DONE: fix $LS2
-// DONE: update shell level
 // TODO: fix export VAR
 // TODO: fix ms_get_idx and ms_getenv
 // TODO: fix builtin via pipeline
 int	main(int argc, char **argv, char **envp)
 {
-	//atexit(ms_leaks);
+	t_array	env;
 
+	(void) argc, (void) argv;
 	if (ms_interactive_mode())
 		return (1);
-// 	if (ms_catch_signal())
-// 		return (1);
-	
+	if (ms_catch_signal())
+		return (1);
 	env = ms_env_dup(envp);
-	ms_update_shlvl(&env);
+	g_ctx.env = &env;
+	ms_update_shlvl(g_ctx.env);
 	ms_prompt();
 	rl_clear_history();
-
-
 	return (0);
-	(void)argc;
-	(void)argv;
-	(void)envp;
 }
 #endif

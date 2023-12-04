@@ -6,7 +6,7 @@
 /*   By: aabourri <aabourri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/17 19:04:35 by aabourri          #+#    #+#             */
-/*   Updated: 2023/11/28 14:55:08 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/12/04 14:01:59 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,13 +30,10 @@
 # include <termios.h>
 
 # include "../libft/libft.h"
-# include "./ms_mem.h"
 # include "./ms_parser.h"
 # include "./ms_exec.h"
 # include "./ms_malloc.h"
 # include "./ms_builtin.h"
-
-# define SYTX_ERR "syntax error near unexpected token"
 
 # define MS_STDERR 	2
 

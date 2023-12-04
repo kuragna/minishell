@@ -6,15 +6,14 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:55:52 by aabourri          #+#    #+#             */
-/*   Updated: 2023/11/29 14:50:44 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/12/04 14:17:57 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../libft/libft.h"
 #include "../include/ms_lexer.h"
 #include "../include/minishell.h"
-
-extern char	*words[];
+// extern char	*words[];
 
 t_lexer	ms_lexer_init(char *line)
 {
@@ -34,6 +33,7 @@ int	ms_trim_left(t_lexer *l)
 	}
 	return (l->pos);
 }
+
 int	ms_is_token(int c)
 {
 	return (ft_isspace(c) || c == '|' || c == '>' || c == '<' || c == '&');
@@ -66,15 +66,37 @@ t_token_type	ms_peek(t_lexer *l)
 	return (WORD);
 }
 
-t_token	ms_token_next(t_lexer *l)
+// t_token	ms_token_next(t_lexer *l)
+// {
+// 	char			c;
+// 	t_token			token;
+
+// 	l->pos = ms_trim_left(l);
+// 	ft_memset(&token, 0, sizeof(token));
+// 	if (l->pos >= l->len)
+// 		return (token);
+// 	c = l->line[l->pos];
+// 	if (ms_is_token(c))
+// 	{
+// 		l->pos += 1;
+// 		if (c == l->line[l->pos] && ms_is_token(l->line[l->pos]))
+// 		{
+// 			l->pos += 1;
+// 		}
+// 		return (token);
+// 	}
+// 	token.type = WORD;
+// 	token.lexeme = ms_get_lexeme(l);
+// 	return (token);
+// }
+
+char	*ms_token_next(t_lexer *l)
 {
-	char			c;
-	t_token			token;
+	char	c;
 
 	l->pos = ms_trim_left(l);
-	ft_memset(&token, 0, sizeof(token));
 	if (l->pos >= l->len)
-		return (token);
+		return (NULL);
 	c = l->line[l->pos];
 	if (ms_is_token(c))
 	{
@@ -83,10 +105,7 @@ t_token	ms_token_next(t_lexer *l)
 		{
 			l->pos += 1;
 		}
-		return (token);
+		return (NULL);
 	}
-	token.type = WORD;
-	token.lexeme = ms_get_lexeme(l);
-	return (token);
+	return (ms_get_lexeme(l));
 }
-

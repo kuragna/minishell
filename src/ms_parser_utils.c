@@ -6,23 +6,40 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:35:46 by aabourri          #+#    #+#             */
-/*   Updated: 2023/11/18 19:44:50 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/12/04 13:26:48 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/ms_parser.h"
 
-t_ast	*ms_and_or_node(t_ast_node node_type, t_ast *left, t_ast *right)
-{
-	t_ast	*ast;
+// t_ast	*ms_and_or_node(t_ast_node node_type, t_ast *left, t_ast *right)
+// {
+// 	t_ast	*ast;
 
-	ast = malloc(sizeof(*ast));
-	if (!ast)
-		return (NULL);
-	ast->type = node_type;
-	ast->and_or.left = left;
-	ast->and_or.right = right;
-	return (ast);
+// 	ast = malloc(sizeof(*ast));
+// 	if (!ast)
+// 		return (NULL);
+// 	ast->type = node_type;
+// 	ast->and_or.left = left;
+// 	ast->and_or.right = right;
+// 	return (ast);
+// }
+
+
+void	ms_redir_add(t_redirs *ptr, char *path, t_token_type type)
+{
+	const size_t	size = sizeof(*ptr->items);
+	t_redir			item;
+
+	item.path = path;
+	item.type = type;
+	if (ptr->cap == ptr->len)
+	{
+		ptr->cap *= 2;
+		ptr->items = ft_realloc(ptr->items, ptr->len * size, ptr->cap * size);
+	}
+	ptr->items[ptr->len] = item;
+	ptr->len += 1;
 }
 
 t_ast	*ms_pipe_node(t_ast *left, t_ast *right)

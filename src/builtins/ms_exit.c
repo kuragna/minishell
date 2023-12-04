@@ -6,14 +6,13 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:19:08 by aabourri          #+#    #+#             */
-/*   Updated: 2023/11/28 15:42:33 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/12/04 13:57:49 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/ms_builtin.h"
 
 #define ERR_MSG "numeric argument required"
-
 
 static int	ms_check_exit_status(const char *str)
 {
@@ -34,7 +33,6 @@ static int	ms_check_exit_status(const char *str)
 	return (0);
 }
 
-
 int	ms_exit(char **argv, const int argc)
 {
 	int		exit_status;
@@ -49,7 +47,7 @@ int	ms_exit(char **argv, const int argc)
 		ms_error("minishell: exit: too many arguments\n");
 		return (0);
 	}
-	else	
+	else
 		exit_status = ft_atoi(*argv) % 256;
 	exit(exit_status);
 }

@@ -6,7 +6,7 @@
 #    By: aabourri <aabourri@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/10/09 14:16:51 by glacroix          #+#    #+#              #
-#    Updated: 2023/11/29 17:55:54 by aabourri         ###   ########.fr        #
+#    Updated: 2023/12/04 14:39:31 by aabourri         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -31,20 +31,20 @@ NAME	   = minishell
 SRCS		=	ms_malloc.c \
 				ms_ast_destroy.c \
 				ms_signal.c \
-				ms_cmd_utilts.c \
+				ms_cmd_utils.c \
 				builtins/ms_env.c \
-				builtins/ms_env_utilts.c \
-				ms_utilts.c \
+				builtins/ms_env_utils.c \
+				ms_utils.c \
 				ms_error.c \
-				ms_ast_print.c \
 				ms_io_handle.c \
 				ms_lexer.c \
 				ms_parser.c \
-				ms_parser_utilts.c \
+				ms_parser_utils.c \
 				ms_exec.c \
 				main.c \
 				ms_envcpy.c \
 				ms_get_lexeme.c \
+				ms_lexeme_utils.c \
 				builtins/ms_exit.c \
 				builtins/ms_unset.c \
 				builtins/ms_echo.c \
@@ -64,7 +64,7 @@ RL			= /Users/${USER}/.brew/opt/readline/
 #Execution
 # **************************************************************************** #
 CC		   = gcc
-CFLAGS	   = -Wall -Werror -Wextra -g3 #-fsanitize=address
+CFLAGS	   = -Wall -Werror -Wextra -g3 -fsanitize=address
 LDFLAGS    = -L$(LDLIBFT) -L$(addsuffix lib, $(RL)) 
 LDFLAGS    += -I$(addsuffix include, $(RL)) -lft -lreadline
 RM		   = rm -rf 

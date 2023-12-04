@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 18:39:21 by aabourri          #+#    #+#             */
-/*   Updated: 2023/11/29 16:48:58 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/12/04 14:03:06 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,8 +18,6 @@
 # include "../libft/libft.h"
 # include "../include/ms_malloc.h"
 # include "./minishell.h"
-
-extern t_array env;
 
 # define MS_NVID "not a valid identifier"
 # define MS_STDOUT	1
