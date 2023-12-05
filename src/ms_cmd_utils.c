@@ -6,17 +6,13 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/29 18:56:56 by aabourri          #+#    #+#             */
-/*   Updated: 2023/12/04 12:38:50 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/12/05 17:13:43 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
 
-// TODO: make sure that memory dont use it after free
-
-extern struct s_context g_ctx;
-
-char	**ms_get_paths(void)
+static char	**ms_get_paths(void)
 {
 	const char	*path = ms_getenv(g_ctx.env, "PATH");
 	char		**paths;
@@ -29,7 +25,7 @@ char	**ms_get_paths(void)
 	return (paths);
 }
 
-char	*ms_path_suffix(char *path, char *cmd)
+static char	*ms_path_suffix(char *path, char *cmd)
 {
 	char	*slash;
 

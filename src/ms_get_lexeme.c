@@ -6,13 +6,11 @@
 /*   By: aabourri <aabourri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:34:39 by aabourri          #+#    #+#             */
-/*   Updated: 2023/12/04 14:41:00 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/12/05 17:18:44 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/ms_lexer.h"
-
-extern struct s_context	g_ctx;
 
 static void	ms_expansion(t_lexer *l, struct s_string *word)
 {
@@ -65,19 +63,19 @@ void	ms_quote_consume(t_lexer *l, struct s_string *word, char c)
 	l->pos += 1;
 }
 
-void	ms_tilde(t_lexer *l, struct s_string *word)
+static void	ms_tilde(t_lexer *l, struct s_string *word)
 {
 	const char	c = l->line[l->pos + 1];
 	char		*home;
 
 	if (!(ms_is_token(c) || c == '/' || c == '\0'))
 		return ;
-	home = ms_getenv(l->env, "HOME");
+	home = ms_getenv(g_ctx.env, "HOME");
 	l->pos += 1;
 	ms_str_append(word, home);
 }
 
-char	*ms_rewording(struct s_string *word)
+static char	*ms_rewording(struct s_string *word)
 {
 	size_t			i;
 	int				flag;
@@ -109,7 +107,6 @@ char	*ms_rewording(struct s_string *word)
 char	*ms_get_lexeme(t_lexer *l)
 {
 	struct s_string	word;
-	char			quote;
 
 	word = ms_string_init();
 	if (!word.data)
@@ -118,37 +115,18 @@ char	*ms_get_lexeme(t_lexer *l)
 	{
 		l->pos = ms_trim_left(l);
 		if (l->line[l->pos] == '~')
-		{
 			ms_tilde(l, &word);
-		}
 		if (l->line[l->pos] == '$')
 		{
 			ms_expansion(l, &word);
 			ms_str_append(&word, &l->line[l->pos]);
 			ms_char_append(&word, '\0');
 			free(l->line);
-			l->pos = 0;
-			l->line = ms_rewording(&word);
+			*l = ms_lexer_init(ms_rewording(&word));
 			free(word.data);
-			l->len = ft_strlen(l->line);
 			return (ms_token_next(l));
 		}
-		else if (ms_is_quote(l->line[l->pos]))
-		{
-			quote = l->line[l->pos];
-			l->pos += 1;
-			ms_quote_consume(l, &word, quote);
-			continue ;
-		}
-		while (l->pos < l->len)
-		{
-			if (ms_is_quote(l->line[l->pos]) || ms_is_token(l->line[l->pos]))
-				break ;
-			ms_char_append(&word, l->line[l->pos]);
-			l->pos += 1;
-			if (l->line[l->pos] == '$')
-				break ;
-		}
+		ms_lexeme_(l, &word);
 	}
 	ms_char_append(&word, '\0');
 	return (word.data);

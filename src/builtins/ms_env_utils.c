@@ -6,7 +6,7 @@
 /*   By: aabourri <aabourri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:18:13 by aabourri          #+#    #+#             */
-/*   Updated: 2023/11/29 16:32:59 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/12/04 19:39:39 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,6 @@ int	ms_symbol(char *str, int c)
 	}
 	return (1);
 }
-
 
 int	ms_get_idx(t_array *env, const char *var)
 {
@@ -57,10 +56,8 @@ int	ms_get_idx(t_array *env, const char *var)
 	return (-1);
 }
 
-
 char	*ms_getenv(t_array *env, const char *name)
 {
-	//return (getenv(name));
 	char	*var;
 	int		pos;
 
@@ -72,6 +69,32 @@ char	*ms_getenv(t_array *env, const char *name)
 	var = ft_strchr(env->items[pos], '=');
 	if (!var)
 		return (NULL);
-	// TODO: cant free it
 	return (var + 1);
+}
+
+char	**ms_env_sort(char **envp)
+{
+	size_t	len;
+	size_t	i;
+	size_t	j;
+	char	*t;
+
+	i = 0;
+	while (envp[i])
+	{
+		j = 0;
+		len = ft_strlen(envp[i]);
+		while (envp[j])
+		{
+			if (ft_strncmp(envp[i], envp[j], len) < 0)
+			{
+				t = envp[i];
+				envp[i] = envp[j];
+				envp[j] = t;
+			}
+			j += 1;
+		}
+		i += 1;
+	}
+	return (envp);
 }

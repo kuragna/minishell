@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:15:29 by aabourri          #+#    #+#             */
-/*   Updated: 2023/11/23 12:23:09 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/12/05 19:48:24 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,19 +36,21 @@ int	ms_check_opt(char **argv)
 	return (i);
 }
 
-// TODO: use printf for stdin/out change them in child process
-
-int	ms_echo(char **args, int *fd)
+int	ms_echo(int *fd)
 {
+	char	**args;
 	int		flag;
 	size_t	i;
 
 	i = 0;
+	args = g_ctx.items;
 	flag = ms_check_opt(args);
 	i = flag;
 	while (args && args[i] != NULL)
 	{
 		ft_putstr_fd(args[i], fd[MS_STDOUT]);
+		if (args[i + 1])
+			printf(" ");
 		if (args[i + 1])
 			ft_putstr_fd(" ", fd[MS_STDOUT]);
 		i += 1;

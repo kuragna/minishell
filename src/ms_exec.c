@@ -6,68 +6,34 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/04 19:45:48 by aabourri          #+#    #+#             */
-/*   Updated: 2023/12/05 14:24:32 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/12/05 19:50:46 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/ms_exec.h"
 #include "../include/ms_builtin.h"
 
-extern struct s_context	g_ctx;
-
-void	ms_close(struct s_fd_table *table)
-{
-	size_t i;
-
-	i = 0;
-	while (i < table->len)
-	{
-		close(table->fds[i]);
-		i += 1;
-	}
-	table->len = 0;
-}
-
 int	ms_exec_in(t_array args, int *fd)
 {
 	const char		*str = ms_str_tolower(*args.items);
 	const size_t	len = ft_strlen(str) + 1;
+	const t_builtin	cmds[] = {
+	{"echo", ms_echo},	{"cd", ms_cd}, {"pwd", ms_pwd},	{"export", ms_export},
+	{"unset", ms_unset}, {"env", ms_env}, {"exit", ms_exit}};
 	int				status;
+	size_t			i;
 
+	i = -1;
 	status = -1;
-	if (ft_memcmp(str, "cd", len) == 0)
+	g_ctx.items = args.items + 1;
+	while (++i < MS_SIZE)
 	{
-		status = ms_cd(g_ctx.env, args.items[1]);
+		if (ft_strncmp(str, cmds[i].name, len) == 0)
+		{
+			status = cmds[i].run(fd);
+			break ;
+		}
 	}
-	else if (ft_memcmp(str, "env", len) == 0)
-	{
-		status = ms_env(*g_ctx.env, fd);
-	}
-	else if (ft_memcmp(str, "pwd", len) == 0)
-	{
-		status = ms_pwd();
-	}
-	else if (ft_memcmp(str, "echo", len) == 0)
-	{
-		status = ms_echo(args.items + 1, fd);
-	}
-	// function pointer
-	else if (ft_memcmp(str, "export", len) == 0)
-	{
-		status = ms_export(g_ctx.env, args.items + 1);
-	}
-	// function pointer
-	else if (ft_memcmp(str, "unset", len) == 0)
-	{
-		status = ms_unset(g_ctx.env, args.items + 1);
-	}
-	// function pointer
-	else if (ft_memcmp(str, "exit", len) == 0)
-	{
-		status = ms_exit(args.items + 1, args.len - 1);
-	}
-	g_ctx.exit_status = status;
-	free((char*)str);
 	return (status);
 }
 
@@ -102,9 +68,10 @@ int	ms_fork(char **argv, int *fd)
 
 int	ms_exec_cmd(t_ast *node, int *fd)
 {
-	const t_cmd cmd = node->cmd;
+	t_cmd	cmd;
 
-	if (ms_io_handle(&node->cmd.redirs, fd))
+	cmd = node->cmd;
+	if (ms_io_handle(&cmd.redirs, fd))
 		return (0);
 	if (cmd.args.len <= 1 || !*cmd.args.items)
 		return (0);
@@ -114,7 +81,6 @@ int	ms_exec_cmd(t_ast *node, int *fd)
 		return (0);
 	return (1);
 }
-
 
 int	ms_exec(t_ast *ast, int *fd)
 {

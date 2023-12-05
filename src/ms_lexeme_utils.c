@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ms_lexeme_utils.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: aabourri <aabourri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/04 14:32:50 by aabourri          #+#    #+#             */
-/*   Updated: 2023/12/04 14:40:14 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/12/05 15:57:05 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,9 +24,7 @@ int	ms_is_quote(int c)
 
 int	ms_isspecial(int c)
 {
-	const int	a = ms_is_quote(c) || c == '~';
-
-	return (a || c == '|' || c == '>' || c == '<' || c == '&');
+	return (c == '|' || c == '>' || c == '<' || c == '~' || ms_is_quote(c));
 }
 
 void	ms_expand_exit_status(t_lexer *l, struct s_string *word)
@@ -36,6 +34,8 @@ void	ms_expand_exit_status(t_lexer *l, struct s_string *word)
 	if (l->line[l->pos] != '?')
 		return ;
 	str = ft_itoa(g_ctx.exit_status);
+	if (!str)
+		return ;
 	ms_str_append(word, str);
 	free(str);
 	l->pos += 1;

@@ -6,13 +6,11 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 20:00:32 by aabourri          #+#    #+#             */
-/*   Updated: 2023/12/04 13:20:17 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/12/05 17:16:26 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
-
-extern struct s_context	g_ctx;
 
 static int	ms_open(const char *path, int oflag, int mode)
 {

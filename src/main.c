@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/04 14:09:31 by aabourri          #+#    #+#             */
-/*   Updated: 2023/12/04 14:15:32 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/12/05 19:44:14 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,26 +20,25 @@ void	ms_leaks(void)
 	system("leaks -q minishell");
 }
 
-char	*nodes[] = { "NODE_PIPE", "NODE_CMD", "NODE_AND", "NODE_OR"};
-char	*words[] = {
-	"NEWLINE",
-	"PIPE", 
-	"LESS", 
-	"GREAT",
-	"DLESS",
-	"DGREAT",
-	"AND",
-	"OR",
-	"DOLLAR",
-	"WORD"
-};
-
 void	ms_table_add(struct s_fd_table *table, int fd)
 {
 	if (table->len == 1024)
 		return ;
 	if (fd > 2)
 		table->fds[table->len++] = fd;
+}
+
+void	ms_close(struct s_fd_table *table)
+{
+	size_t	i;
+
+	i = 0;
+	while (i < table->len)
+	{
+		close(table->fds[i]);
+		i += 1;
+	}
+	table->len = 0;
 }
 
 static void	ms_wait(int count)
@@ -51,6 +50,10 @@ static void	ms_wait(int count)
 	while (i < count)
 	{
 		wait(&stat_log);
+		if (WIFEXITED(stat_log))
+		{
+			g_ctx.exit_status = WEXITSTATUS(stat_log);
+		}
 		i += 1;
 	}
 }
@@ -87,11 +90,10 @@ static void	ms_prompt(void)
 }
 
 #if 1
-// TODO: fix sort env
-// TODO: SIGV after unset
-// TODO: fix export VAR
-// TODO: fix ms_get_idx and ms_getenv
 // TODO: fix builtin via pipeline
+// TODO: exit status 1 with Ctrl-c
+// TODO: free env in main process
+// TODO: cd if directory doesnt exist any more
 int	main(int argc, char **argv, char **envp)
 {
 	t_array	env;

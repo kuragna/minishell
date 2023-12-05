@@ -6,25 +6,11 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:35:46 by aabourri          #+#    #+#             */
-/*   Updated: 2023/12/04 13:26:48 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/12/04 20:03:16 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/ms_parser.h"
-
-// t_ast	*ms_and_or_node(t_ast_node node_type, t_ast *left, t_ast *right)
-// {
-// 	t_ast	*ast;
-
-// 	ast = malloc(sizeof(*ast));
-// 	if (!ast)
-// 		return (NULL);
-// 	ast->type = node_type;
-// 	ast->and_or.left = left;
-// 	ast->and_or.right = right;
-// 	return (ast);
-// }
-
 
 void	ms_redir_add(t_redirs *ptr, char *path, t_token_type type)
 {

@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:21:49 by aabourri          #+#    #+#             */
-/*   Updated: 2023/12/01 17:32:40 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/12/05 19:49:31 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ void	ms_update_shlvl(t_array *env)
 	env->items[pos] = s;
 }
 
-int	ms_export_(t_array *env, char *var)
+static int	ms_export_(t_array *env, char *var)
 {
 	char	*substr;
 	int		pos;
@@ -80,33 +80,23 @@ int	ms_export_(t_array *env, char *var)
 	return (0);
 }
 
-static void	ms_export_print(t_array env)
+int	ms_export(int *fd)
 {
+	(void)fd;
 	size_t	i;
+	char	**items;
+	int		status;
 
 	i = 0;
-	ms_env_sort(env);
-	while (i < env.len - 1)
-	{
-		if (env.items[i][0])
-			printf("declare -x %s\n", env.items[i]);
-		i += 1;
-	}
-}
-
-int	ms_export(t_array *env, char **items)
-{
-	size_t	i;
-
-	i = 0;
+	status = 0;
+	items = g_ctx.items;
 	if (*items == NULL)
-	{
-		ms_export_print(*env);
-	}
+		ms_export_print(*g_ctx.env);
 	while (items[i])
 	{
-		ms_export_(env, items[i]);
+		if (ms_export_(g_ctx.env, items[i]))
+			status = 1;
 		i += 1;
 	}
-	return (0);
+	return (status);
 }

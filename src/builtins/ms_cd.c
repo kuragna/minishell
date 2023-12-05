@@ -6,13 +6,11 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:12:41 by aabourri          #+#    #+#             */
-/*   Updated: 2023/11/22 19:04:10 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/12/05 19:47:58 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/ms_builtin.h"
-
-#include <assert.h>
 
 // TODO: replace this function
 static int	ms_set_pwd(t_array *env, char *name, int pos)
@@ -29,13 +27,14 @@ static int	ms_set_pwd(t_array *env, char *name, int pos)
 // TODO: simplify this function
 // TODO: print pwd after cd -
 
-int	ms_cd(t_array *env, char *path)
+int	ms_cd(int *fd)
 {
+	(void)fd;
+	t_array *env = g_ctx.env;
 	char	*go;
 	size_t	len;
+	char	*path = *g_ctx.items; // has NULL
 
-	if (!env->items)
-		return (1);
 	go = path;
 	len = ft_strlen(path);
 	if (!path)
@@ -52,7 +51,6 @@ int	ms_cd(t_array *env, char *path)
 	}
 	if (chdir(go) == -1)
 		return (ms_error("minishell: cd: %s: %s\n", path, strerror(errno)));
-	// NOTE: dont remove equal for strjoin
 	go = ms_getenv(env, "PWD");
 	ms_set_pwd(env, ft_strjoin("OLDPWD=", go), ms_get_idx(env, "OLDPWD"));
 	ms_set_pwd(env, ft_strjoin("PWD=", getcwd(NULL, 0)), ms_get_idx(env, "PWD"));
