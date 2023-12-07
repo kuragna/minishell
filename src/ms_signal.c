@@ -6,15 +6,17 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:33:09 by aabourri          #+#    #+#             */
-/*   Updated: 2023/11/29 15:00:25 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/12/07 17:03:39 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
 
-void	ms_sig_handler(int sig)
+#define MS_SIG_SIZE 3
+
+void	ms_signal_handler(int sig)
 {
-	if (sig == SIGQUIT)
+	if (sig != SIGINT)
 	{
 		rl_redisplay();
 		return ;
@@ -27,22 +29,25 @@ void	ms_sig_handler(int sig)
 	rl_redisplay();
 }
 
-int	ms_catch_signal(void)
+int	ms_signal(void)
 {
+	size_t				i;
 	int					err;
 	struct sigaction	sa;
+	const int			sigs[MS_SIG_SIZE] = {SIGINT, SIGQUIT, SIGTSTP};
 
-	sa.sa_handler = ms_sig_handler;
+	i = 0;
+	sa.sa_handler = ms_signal_handler;
 	sa.sa_flags = SA_RESTART;
-	err = sigaction(SIGINT, &sa, NULL);
-	if (err == -1)
+	while (i < MS_SIG_SIZE)
 	{
-		return (ms_error("minishell: %s: %s\n", strerror(errno)));
-	}
-	err = sigaction(SIGQUIT, &sa, NULL);
-	if (err == -1)
-	{
-		return (ms_error("minishell: %s: %s\n", strerror(errno)));
+		err = sigaction(sigs[i], &sa, NULL);
+		if (err == -1)
+		{
+			ms_error("minishell: %s\n", strerror(errno));
+			return (1);
+		}
+		i += 1;
 	}
 	return (0);
 }
