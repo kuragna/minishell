@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/04 14:09:31 by aabourri          #+#    #+#             */
-/*   Updated: 2023/12/05 19:44:14 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/12/07 18:21:21 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,27 +20,6 @@ void	ms_leaks(void)
 	system("leaks -q minishell");
 }
 
-void	ms_table_add(struct s_fd_table *table, int fd)
-{
-	if (table->len == 1024)
-		return ;
-	if (fd > 2)
-		table->fds[table->len++] = fd;
-}
-
-void	ms_close(struct s_fd_table *table)
-{
-	size_t	i;
-
-	i = 0;
-	while (i < table->len)
-	{
-		close(table->fds[i]);
-		i += 1;
-	}
-	table->len = 0;
-}
-
 static void	ms_wait(int count)
 {
 	int	stat_log;
@@ -49,20 +28,42 @@ static void	ms_wait(int count)
 	i = 0;
 	while (i < count)
 	{
-		wait(&stat_log);
+		waitpid(-1, &stat_log, 0);
 		if (WIFEXITED(stat_log))
 		{
 			g_ctx.exit_status = WEXITSTATUS(stat_log);
+		}
+		if (WIFSIGNALED(stat_log))
+		{
+			g_ctx.exit_status = (128 + SIGINT);
 		}
 		i += 1;
 	}
 }
 
-static void	ms_prompt(void)
+static void	ms_prompt_(t_lexer *l)
 {
 	int		fd[2];
 	int		count;
 	t_ast	*ast;
+
+	add_history(l->line);
+	fd[MS_STDIN] = MS_STDIN;
+	fd[MS_STDOUT] = MS_STDOUT;
+	ast = ms_parse_pipe(l);
+	if (ast)
+	{
+		count = ms_exec(ast, fd);
+		if (count)
+			ms_wait(count);
+		ms_ast_destroy(ast);
+		ms_close(&g_ctx.table);
+	}
+	free(l->line);
+}
+
+static void	ms_prompt(void)
+{
 	t_lexer	lexer;
 
 	while (1)
@@ -74,26 +75,26 @@ static void	ms_prompt(void)
 			break ;
 		}
 		lexer = ms_lexer_init(lexer.line);
-		if (!ms_peek(&lexer) || ms_check_quotes(lexer.line))
+		if (!ms_peek(&lexer))
+		{
+			free(lexer.line);
+			g_ctx.exit_status = 0;
 			continue ;
-		add_history(lexer.line);
-		fd[MS_STDIN] = MS_STDIN;
-		fd[MS_STDOUT] = MS_STDOUT;
-		ast = ms_parse_pipe(&lexer);
-		if (ast)
-			count = ms_exec(ast, fd);
-		ms_wait(count);
-		ms_ast_destroy(ast);
-		ms_close(&g_ctx.table);
-		free(lexer.line);
+		}
+		if (ms_check_quotes(lexer.line))
+		{
+			free(lexer.line);
+			g_ctx.exit_status = 1;
+			continue ;
+		}
+		ms_prompt_(&lexer);
 	}
 }
 
 #if 1
-// TODO: fix builtin via pipeline
 // TODO: exit status 1 with Ctrl-c
-// TODO: free env in main process
 // TODO: cd if directory doesnt exist any more
+// TODO: make sure that memory free it
 int	main(int argc, char **argv, char **envp)
 {
 	t_array	env;
@@ -101,13 +102,16 @@ int	main(int argc, char **argv, char **envp)
 	(void) argc, (void) argv;
 	if (ms_interactive_mode())
 		return (1);
-	if (ms_catch_signal())
+	if (ms_signal())
 		return (1);
 	env = ms_env_dup(envp);
 	g_ctx.env = &env;
-	ms_update_shlvl(g_ctx.env);
+	ms_update_shlvl();
 	ms_prompt();
+	ms_array_append(g_ctx.env, NULL);
+	ft_free(g_ctx.env->items);
 	rl_clear_history();
+	atexit(ms_leaks);
 	return (0);
 }
 #endif

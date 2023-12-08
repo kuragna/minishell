@@ -6,7 +6,7 @@
 /*   By: aabourri <aabourri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/17 19:04:35 by aabourri          #+#    #+#             */
-/*   Updated: 2023/12/05 17:13:03 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/12/07 18:07:48 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,22 +39,22 @@
 
 t_array	ms_array_init(void);
 void	ms_array_append(t_array *ptr, char *item);
-void	ms_ast_print(t_ast *ast);
+
 void	ms_table_add(struct s_fd_table *table, int fd);
-void	cmd_print(t_cmd *cmd);
-void	redir_print(struct s_redirs *p);
 void	*ms_malloc(size_t size, char *file, int line);
+
 void	rl_clear_history(void);
 void	rl_replace_line(const char *text, int clear_undo);
-void	ms_sig_handler(int sig);
+
 void	ms_leaks(void);
 void	ms_ast_destroy(t_ast *ast);
 void	ms_close(struct s_fd_table *table);
-int		ms_catch_signal(void);
+int		ms_signal(void);
 int		ms_error(const char *fmt, ...);
 int		ms_cmd_path(char **cmd);
 int		ms_interactive_mode(void);
-void	*ms_expected_token(const t_token_type type);
+// void	*ms_expected_token(const t_token_type type, void *ptr);
+void	*ms_error_token(const t_token_type type, void *ptr);
 char	**ms_envcpy(t_array *env);
 char	*ms_str_tolower(const char *str);
 

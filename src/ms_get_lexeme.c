@@ -6,11 +6,41 @@
 /*   By: aabourri <aabourri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:34:39 by aabourri          #+#    #+#             */
-/*   Updated: 2023/12/05 17:18:44 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/12/07 17:41:47 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/ms_lexer.h"
+#include <stdio.h>
+
+static char	*ms_rewording(const char *str, int quote)
+{
+	size_t			i;
+	int				flag;
+	struct s_string	re;
+
+	i = -1;
+	flag = 0;
+	if (!str)
+		return (NULL);
+	re = ms_string_init();
+	while (re.data && str[++i])
+	{
+		if (str[i] == quote)
+			quote += 5;
+		if (ms_isspecial(str[i]))
+		{
+			flag = 1;
+			ms_char_append(&re, quote);
+		}
+		ms_char_append(&re, str[i]);
+		if (flag)
+			ms_char_append(&re, quote);
+		flag = 0;
+	}
+	ms_char_append(&re, '\0');
+	return (re.data);
+}
 
 static void	ms_expansion(t_lexer *l, struct s_string *word)
 {
@@ -20,7 +50,7 @@ static void	ms_expansion(t_lexer *l, struct s_string *word)
 
 	l->pos += 1;
 	dollar = ms_string_init();
-	while (l->pos < l->len)
+	while (dollar.data && l->pos < l->len)
 	{
 		ms_expand_exit_status(l, word);
 		if (ms_is_token(l->line[l->pos]) || !ms_is_usalnum(l->line[l->pos]))
@@ -31,8 +61,8 @@ static void	ms_expansion(t_lexer *l, struct s_string *word)
 		if (l->line[l->pos] == '$' || !ms_is_usalnum(l->line[l->pos]))
 		{
 			ms_char_append(&dollar, '\0');
-			str = ms_getenv(g_ctx.env, dollar.data);
-			ms_str_append(word, str);
+			str = ms_getenv(dollar.data);
+			ms_str_append(word, ms_rewording(str, 34));
 			dollar.len = 0;
 			if (l->line[l->pos] == '$')
 				l->pos += 1;
@@ -70,38 +100,9 @@ static void	ms_tilde(t_lexer *l, struct s_string *word)
 
 	if (!(ms_is_token(c) || c == '/' || c == '\0'))
 		return ;
-	home = ms_getenv(g_ctx.env, "HOME");
+	home = ms_getenv("HOME");
 	l->pos += 1;
 	ms_str_append(word, home);
-}
-
-static char	*ms_rewording(struct s_string *word)
-{
-	size_t			i;
-	int				flag;
-	char			quote;
-	struct s_string	str;
-
-	i = -1;
-	flag = 0;
-	quote = 34;
-	str = ms_string_init();
-	while (++i < word->len && word->data[i])
-	{
-		if (word->data[i] == quote)
-			quote += 5;
-		if (ms_isspecial(word->data[i]))
-		{
-			flag = 1;
-			ms_char_append(&str, quote);
-		}
-		ms_char_append(&str, word->data[i]);
-		if (flag)
-			ms_char_append(&str, quote);
-		flag = 0;
-	}
-	ms_char_append(&str, '\0');
-	return (str.data);
 }
 
 char	*ms_get_lexeme(t_lexer *l)
@@ -122,8 +123,9 @@ char	*ms_get_lexeme(t_lexer *l)
 			ms_str_append(&word, &l->line[l->pos]);
 			ms_char_append(&word, '\0');
 			free(l->line);
-			*l = ms_lexer_init(ms_rewording(&word));
-			free(word.data);
+			l->pos = 0;
+			l->line = word.data;
+			l->len = ft_strlen(l->line);
 			return (ms_token_next(l));
 		}
 		ms_lexeme_(l, &word);

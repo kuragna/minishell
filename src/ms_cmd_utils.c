@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/29 18:56:56 by aabourri          #+#    #+#             */
-/*   Updated: 2023/12/05 17:13:43 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/12/06 16:58:54 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 static char	**ms_get_paths(void)
 {
-	const char	*path = ms_getenv(g_ctx.env, "PATH");
+	const char	*path = ms_getenv("PATH");
 	char		**paths;
 
 	if (!path)

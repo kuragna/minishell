@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 20:00:32 by aabourri          #+#    #+#             */
-/*   Updated: 2023/12/05 17:16:26 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/12/06 14:22:49 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,7 +100,7 @@ int	ms_io_handle(struct s_redirs *ptr, int *fd)
 				return (1);
 			fd[MS_STDIN] = io[MS_STDIN];
 		}
-		if (ptr->items[i].type == GREAT || ptr->items[i].type == DLESS)
+		if (ptr->items[i].type == DGREAT || ptr->items[i].type == GREAT)
 		{
 			io[1] = ms_redir_output(ptr->items[i].path, ptr->items[i].type);
 			if (io[MS_STDOUT] == -1)

@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 18:33:07 by aabourri          #+#    #+#             */
-/*   Updated: 2023/12/05 19:47:57 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/12/07 18:08:15 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,10 +60,11 @@ struct s_fd_table
 struct s_context
 {
 	struct s_fd_table	table;
-	struct s_array		*env;
-	int					exit_status;
+	t_array				*env;
 	char				**items;
-	// TODO: add fd
+	int					exit_status;
+	int					flag;
+	// TODO: save child pid to kill it
 };
 
 t_token_type	ms_peek(t_lexer *l);
@@ -74,8 +75,8 @@ int				ms_trim_left(t_lexer *l);
 int				ms_error(const char *fmt, ...);
 int				ms_check_quotes(const char *str);
 void			*ms_malloc(size_t size, char *file, int line);
-void			*ms_expected_token(const t_token_type type);
-char			*ms_getenv(t_array *env, const char *name);
+void			*ms_error_token(const t_token_type type, void *ptr);
+char			*ms_getenv(const char *name);
 int				ms_start(int c);
 
 struct s_string	ms_string_init(void);

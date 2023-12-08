@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:19:08 by aabourri          #+#    #+#             */
-/*   Updated: 2023/12/05 19:48:57 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/12/05 19:59:22 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,11 +47,13 @@ static	int	ms_items_size(char **items)
 
 int	ms_exit(int *fd)
 {
-	(void)fd;
-	char	**argv = g_ctx.items;
 	int		exit_status;
-	int		argc = ms_items_size(argv) - 1;
+	char	**argv;
+	int		argc;
 
+	(void)fd;
+	argv = g_ctx.items;
+	argc = ms_items_size(argv) - 1;
 	printf("exit\n");
 	if (argc < 0)
 		exit(0);

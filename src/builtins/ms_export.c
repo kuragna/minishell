@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:21:49 by aabourri          #+#    #+#             */
-/*   Updated: 2023/12/05 19:49:31 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/12/06 17:24:41 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,27 +29,37 @@ static void	ms_env_append(t_array *env, char *var)
 	ms_array_append(env, var);
 }
 
-void	ms_update_shlvl(t_array *env)
+static void	ms_swap(char **a, char **b)
+{
+	char	*c;
+
+	c = *a;
+	*a = *b;
+	*b = c;
+}
+
+void	ms_update_shlvl(void)
 {
 	char		*n;
 	char		*s;
 	int			pos;
 
-	pos = ms_get_idx(env, "SHLVL");
+	pos = ms_get_idx("SHLVL");
 	if (pos == -1)
 	{
-		s = "SHLVL=1";
-		ms_env_append(env, s);
+		s = ft_strdup("SHLVL=1");
+		if (s)
+			ms_env_append(g_ctx.env, s);
 		return ;
 	}
-	s = ft_strchr(env->items[pos], '=');
+	s = ft_strchr(g_ctx.env->items[pos], '=');
 	n = ft_itoa(ft_atoi(s + 1) + 1);
 	s = ft_strjoin("SHLVL=", n);
 	if (!s)
 		return ;
 	free(n);
-	free(env->items[pos]);
-	env->items[pos] = s;
+	free(g_ctx.env->items[pos]);
+	g_ctx.env->items[pos] = s;
 }
 
 static int	ms_export_(t_array *env, char *var)
@@ -62,14 +72,13 @@ static int	ms_export_(t_array *env, char *var)
 		return (ms_error("minishell: export: `%s\': %s\n", var, MS_NVID));
 	len = ft_strchr(var, '=') - var;
 	substr = ft_substr(var, 0, (size_t)len);
-	pos = ms_get_idx(env, substr);
-	if (pos != -1 && len > 0)
-	{
-		free(substr);
-		return (0);
-	}
-	var = ft_strdup(var);
+	pos = ms_get_idx(substr);
 	free(substr);
+	if (len < 0 && pos != -1)
+		return (0);
+	var = ft_strdup(var);
+	if (!var)
+		return (0);
 	if (pos != -1)
 	{
 		free(env->items[pos]);
@@ -77,12 +86,12 @@ static int	ms_export_(t_array *env, char *var)
 		return (0);
 	}
 	ms_env_append(env, var);
+	ms_swap(&env->items[env->len - 1], &env->items[env->len - 2]);
 	return (0);
 }
 
 int	ms_export(int *fd)
 {
-	(void)fd;
 	size_t	i;
 	char	**items;
 	int		status;
@@ -90,8 +99,9 @@ int	ms_export(int *fd)
 	i = 0;
 	status = 0;
 	items = g_ctx.items;
+	(void)fd;
 	if (*items == NULL)
-		ms_export_print(*g_ctx.env);
+		ms_export_print(*g_ctx.env, fd);
 	while (items[i])
 	{
 		if (ms_export_(g_ctx.env, items[i]))

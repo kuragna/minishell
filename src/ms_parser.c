@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:37:42 by aabourri          #+#    #+#             */
-/*   Updated: 2023/12/04 19:43:03 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/12/07 18:27:59 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,11 +27,11 @@ static int	ms_parse_args(t_cmd *cmd, t_lexer *lexer)
 	return (0);
 }
 
-static int	ms_parse_files(struct s_redirs *ptr, t_lexer *lexer)
+static int	ms_parse_files(t_ast *ast, t_lexer *lexer)
 {
 	t_token_type	type;
 
-	if (ptr->items == NULL)
+	if (ast->cmd.redirs.items == NULL)
 		return (1);
 	while (1)
 	{
@@ -41,10 +41,10 @@ static int	ms_parse_files(struct s_redirs *ptr, t_lexer *lexer)
 		ms_token_next(lexer);
 		if (ms_peek(lexer) != WORD)
 		{
-			ms_expected_token(ms_peek(lexer));
+			ms_error_token(ms_peek(lexer), ast);
 			return (1);
 		}
-		ms_redir_add(ptr, ms_token_next(lexer), type);
+		ms_redir_add(&ast->cmd.redirs, ms_token_next(lexer), type);
 	}
 	return (0);
 }
@@ -78,7 +78,7 @@ static t_ast	*ms_parse_redir(t_lexer *lexer)
 	{
 		if (!(ms_peek(lexer) >= LESS && ms_peek(lexer) <= DGREAT))
 			break ;
-		if (ms_parse_files(&node->cmd.redirs, lexer))
+		if (ms_parse_files(node, lexer))
 			return (NULL);
 		if (ms_parse_args(&node->cmd, lexer))
 			return (NULL);
@@ -96,7 +96,7 @@ t_ast	*ms_parse_pipe(t_lexer *lexer)
 
 	type = ms_peek(lexer);
 	if (type == PIPE)
-		return (ms_expected_token(type));
+		return (ms_error_token(type, NULL));
 	left = ms_parse_redir(lexer);
 	if (!left)
 		return (NULL);
@@ -105,7 +105,7 @@ t_ast	*ms_parse_pipe(t_lexer *lexer)
 		ms_token_next(lexer);
 		type = ms_peek(lexer);
 		if (type == NEWLINE)
-			return (ms_expected_token(type));
+			return (ms_error_token(type, left));
 		right = ms_pipe_node(left, ms_parse_pipe(lexer));
 		if (!right)
 			return (NULL);

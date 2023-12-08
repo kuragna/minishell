@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/04 15:53:51 by aabourri          #+#    #+#             */
-/*   Updated: 2023/12/05 15:55:57 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/12/06 18:24:36 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,4 +51,28 @@ void	ms_lexeme_(t_lexer *l, struct s_string *word)
 		if (l->line[l->pos] == '$')
 			break ;
 	}
+}
+
+void	ms_table_add(struct s_fd_table *table, int fd)
+{
+	if (table->len == 1024)
+		return ;
+	if (fd > 2)
+	{
+		table->fds[table->len] = fd;
+		table->len += 1;
+	}
+}
+
+void	ms_close(struct s_fd_table *table)
+{
+	size_t	i;
+
+	i = 0;
+	while (i < table->len)
+	{
+		close(table->fds[i]);
+		i += 1;
+	}
+	table->len = 0;
 }

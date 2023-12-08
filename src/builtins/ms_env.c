@@ -6,11 +6,13 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:15:57 by aabourri          #+#    #+#             */
-/*   Updated: 2023/12/05 19:48:38 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/12/06 17:51:31 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/ms_builtin.h"
+
+extern struct s_context	g_ctx;
 
 t_array	ms_env_dup(char **envp)
 {
@@ -30,15 +32,6 @@ t_array	ms_env_dup(char **envp)
 	return (array);
 }
 
-void	ms_swap(char **a, char **b)
-{
-	char	*c;
-
-	c = *a;
-	*a = *b;
-	*b = c;
-}
-
 static char	**ms_envdup(char **envp, size_t len)
 {
 	size_t	i;
@@ -48,7 +41,7 @@ static char	**ms_envdup(char **envp, size_t len)
 	dup = ms_array_init();
 	if (!dup.items)
 		return (NULL);
-	while (i < len)
+	while (i < len - 1)
 	{
 		if (envp[i] && envp[i][0])
 			ms_array_append(&dup, ft_strdup(envp[i]));
@@ -58,7 +51,7 @@ static char	**ms_envdup(char **envp, size_t len)
 	return (dup.items);
 }
 
-void	ms_export_print(t_array env)
+void	ms_export_print(t_array env, int *fd)
 {
 	char	**dup;
 	size_t	i;
@@ -70,7 +63,7 @@ void	ms_export_print(t_array env)
 	dup = ms_env_sort(dup);
 	while (dup && dup[i])
 	{
-		printf("%s\n", dup[i]);
+		ft_putendl_fd(dup[i], fd[MS_STDOUT]);
 		i += 1;
 	}
 	ft_free(dup);

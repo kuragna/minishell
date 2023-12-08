@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:15:29 by aabourri          #+#    #+#             */
-/*   Updated: 2023/12/05 19:48:24 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/12/07 13:23:43 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ int	ms_check_opt(char **argv)
 	while (argv[i])
 	{
 		arg = argv[i];
-		if (*arg == '-')
+		if (*arg == '-' && *(arg + 1) == 'n')
 			arg += 1;
 		while (*arg && *arg == 'n')
 			arg += 1;
@@ -49,8 +49,6 @@ int	ms_echo(int *fd)
 	while (args && args[i] != NULL)
 	{
 		ft_putstr_fd(args[i], fd[MS_STDOUT]);
-		if (args[i + 1])
-			printf(" ");
 		if (args[i + 1])
 			ft_putstr_fd(" ", fd[MS_STDOUT]);
 		i += 1;

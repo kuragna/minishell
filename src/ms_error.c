@@ -6,13 +6,13 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 20:01:24 by aabourri          #+#    #+#             */
-/*   Updated: 2023/12/05 17:27:39 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/12/07 18:06:33 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
 
-void	*ms_expected_token(const t_token_type type)
+void	*ms_error_token(const t_token_type type, void *ptr)
 {
 	const char	*tokens[] = {
 		"newline",
@@ -23,6 +23,7 @@ void	*ms_expected_token(const t_token_type type)
 		">>",
 	};
 
+	ms_ast_destroy(ptr);
 	if (type > DGREAT)
 		return (NULL);
 	ms_error("minishell: %s `%s\'\n", SYTX_ERR, tokens[type]);
@@ -57,7 +58,7 @@ int	ms_error(const char *fmt, ...)
 	return (1);
 }
 
-void	ms_exec_error(const char *cmd)
+void	ms_error_exec(const char *cmd)
 {
 	int		fd;
 	int		exit_status;
@@ -67,17 +68,17 @@ void	ms_exec_error(const char *cmd)
 	str = strerror(errno);
 	if (!ft_strchr(cmd, '/'))
 	{
-		exit_status = MS_CNF;
-		str = "command not found";
+		if (ms_get_idx("PATH") != -1)
+		{
+			exit_status = MS_CNF;
+			str = "command not found";
+		}
 	}
 	else
 	{
 		fd = open(cmd, O_RDONLY | O_DIRECTORY);
 		if (fd != -1)
-		{
-			errno = EISDIR;
-			str = strerror(errno);
-		}
+			str = strerror(EISDIR);
 		close(fd);
 	}
 	ms_error("minishell: %s: %s\n", cmd, str);
