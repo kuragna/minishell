@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: glacroix <glacroix@student.42madrid.com    +#+  +:+       +#+         #
+#    By: aabourri <aabourri@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/10/09 14:16:51 by glacroix          #+#    #+#              #
-#    Updated: 2023/10/10 15:03:23 by aabourri         ###   ########.fr        #
+#    Updated: 2023/12/07 17:35:24 by aabourri         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -27,15 +27,34 @@ NAME	   = minishell
 
 #SRC & OBJS Details
 # **************************************************************************** #
-SRCS		   = main.c\
-				ms_builtins.c\
-				builtins/ms_cd.c\
-				builtins/ms_echo.c\
-				builtins/ms_pwd.c\
 
+SRCS		=	ms_malloc.c \
+				ms_ast_destroy.c \
+				ms_signal.c \
+				ms_error.c \
+				ms_cmd_utils.c \
+				ms_utils2.c \
+				ms_utils.c \
+				main.c \
+				ms_io_handle.c \
+				ms_exec.c \
+				ms_parser_utils.c \
+				ms_parser.c \
+				ms_get_lexeme.c \
+				ms_lexeme_utils.c \
+				ms_lexer.c \
+				builtins/ms_cd.c \
+				builtins/ms_pwd.c \
+				builtins/ms_env.c \
+				builtins/ms_exit.c \
+				builtins/ms_echo.c \
+				builtins/ms_unset.c \
+				builtins/ms_export.c \
+				builtins/ms_env_utils.c \
 
 OBJ			= $(SRCS:%.c=objs/%.o)
-SRCS			:= $(addprefix src/, $(SRCS))
+SRCS		:= $(addprefix src/, $(SRCS))
+
 
 #Routes
 # **************************************************************************** #
@@ -45,11 +64,10 @@ RL			= /Users/${USER}/.brew/opt/readline/
 #Execution
 # **************************************************************************** #
 CC		   = gcc
-CFLAGS	   = -Wall -Werror -Wextra
+CFLAGS	   = -Wall -Werror -Wextra -g3 #-fsanitize=address
 LDFLAGS    = -L$(LDLIBFT) -L$(addsuffix lib, $(RL)) 
 LDFLAGS    += -I$(addsuffix include, $(RL)) -lft -lreadline
-RM		   = rm -rf
-DEBUG      += -fsanitize=address -g3
+RM		   = rm -rf 
 
 
 #SRC Execution
@@ -61,9 +79,6 @@ $(NAME): libft objs $(OBJ)
 #Makefile Cmds
 # **************************************************************************** #
 all: $(NAME)
-
-test:
-	@echo $(OBJ)
 
 libft: 
 	@make -C ./libft
@@ -85,5 +100,6 @@ fclean: clean
 	@echo $(RED) "\n >>>>>>>> Deleted all *.o and *.a! <<<<<<<< \n" $(RESET)
 
 re: fclean all
+
 
 .PHONY: all clean fclean re libft

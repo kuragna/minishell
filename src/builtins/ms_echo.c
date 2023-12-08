@@ -3,104 +3,59 @@
 /*                                                        :::      ::::::::   */
 /*   ms_echo.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: glacroix <glacroix@student.42madrid>       +#+  +:+       +#+        */
+/*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/10/10 19:23:04 by glacroix          #+#    #+#             */
-/*   Updated: 2023/10/10 19:23:39 by glacroix         ###   ########.fr       */
+/*   Created: 2023/11/18 19:15:29 by aabourri          #+#    #+#             */
+/*   Updated: 2023/12/07 13:23:43 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../include/minishell.h"
+#include "../../include/ms_builtin.h"
 
-#define SINGLE_QUOTE '\''
-#define DOUBLE_QUOTE '\"'
+#include <stdio.h>
 
-static int count_single_quotes(char *text)
+int	ms_check_opt(char **argv)
 {
-	int	i;
-	int count;
+	char	*arg;
+	size_t	i;
 
-	i = -1;
-	count = 0;
-	while (text[++i])
+	if (!*argv || argv[0][0] != '-')
+		return (0);
+	i = 0;
+	while (argv[i])
 	{
-		if (text[i] == SINGLE_QUOTE)
-			count++;
-	}
-	return (count);
-}
-
-static int count_double_quotes(char *text)
-{
-	int	i;
-	int count;
-
-	i = -1;
-	count = 0;
-	while (text[++i])
-	{
-		if (text[i] == DOUBLE_QUOTE)
-			count++;
-	}
-	return (count);
-}
-
-static int	err_quotes_check(char *text)
-{
-	int n_single_quotes = count_single_quotes(text);
-	int n_double_quotes = count_double_quotes(text);
-
-	if (n_single_quotes % 2 != 0 || n_double_quotes % 2 != 0)
-		return (1);
-	return (0);
-}
-
-void	ms_echo(char *text)
-{
-	// TODO: handle trim space
-	// TODO: fix strign if has quotes function printing newline
-	// TODO: with option -n
-	// TODO: trim space from right
-	// TODO: handle multiplle strings
-
-	size_t	i = 0;
-	size_t	j = 0;
-	char *output;
-
-	output = malloc(sizeof(char) * (ft_strlen(text) + 1));
-
-	if (text && *text == MS_DOLLAR)
-		text = getenv(text + 1);
-	if (err_quotes_check(text) == 1)
-	{
-		MS_ERROR("missing a quote\n");
-		return;
-	}
-	while (text && text[i])
-	{
-		//single quotes
-		if (text[i] == SINGLE_QUOTE)
-		{
-			i++;
-			while (text[i] && text[i] != SINGLE_QUOTE)
-				output[j++] = text[i++];
-			while (ft_isprint(text[++i]) == 1 && text[i] != SINGLE_QUOTE)
-				output[j++] = text[i];
-		}
-		/*else if (text[i] == MS_SLASH)
-			i += 1;
-		else if (text[i] == DOUBLE_QUOTE)
-		{
-			i++;
-			while (text[i] && text[i] != DOUBLE_QUOTE)
-				output[j++] = text[i++];
-			while (ft_isprint(text[++i]) == 1 && text[i] != DOUBLE_QUOTE)
-				output[j++] = text[i];
-		}
-		printf("i = %zu | text[i] = %c | end loop\n", i, text[i]);*/
+		arg = argv[i];
+		if (*arg == '-' && *(arg + 1) == 'n')
+			arg += 1;
+		while (*arg && *arg == 'n')
+			arg += 1;
+		if (*arg != '\0')
+			return (i);
 		i += 1;
 	}
-	output[j] = '\0';
-	printf("%s\n", output);
-	free(output);
+	return (i);
+}
+
+int	ms_echo(int *fd)
+{
+	char	**args;
+	int		flag;
+	size_t	i;
+
+	i = 0;
+	args = g_ctx.items;
+	flag = ms_check_opt(args);
+	i = flag;
+	while (args && args[i] != NULL)
+	{
+		ft_putstr_fd(args[i], fd[MS_STDOUT]);
+		if (args[i + 1])
+			ft_putstr_fd(" ", fd[MS_STDOUT]);
+		i += 1;
+	}
+	if (!flag)
+		ft_putstr_fd("\n", fd[MS_STDOUT]);
+	if (fd[MS_STDOUT] > 1)
+		close(fd[MS_STDOUT]);
+	return (0);
 }

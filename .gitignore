@@ -3,3 +3,7 @@ a.out
 *.o
 *.dSYM
 minishell
+*.txt
+.vscode
+*.sh
+test*

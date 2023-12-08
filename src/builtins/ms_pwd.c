@@ -3,23 +3,25 @@
 /*                                                        :::      ::::::::   */
 /*   ms_pwd.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: glacroix <glacroix@student.42madrid>       +#+  +:+       +#+        */
+/*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/10/10 19:25:40 by glacroix          #+#    #+#             */
-/*   Updated: 2023/10/10 19:26:05 by glacroix         ###   ########.fr       */
+/*   Created: 2023/11/18 19:24:14 by aabourri          #+#    #+#             */
+/*   Updated: 2023/12/05 19:59:44 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../include/minishell.h"
+#include "../../include/ms_builtin.h"
 
-int ms_pwd(void)
+int	ms_pwd(int *fd)
 {
-	char	*path = getcwd(NULL, 0);
+	char	*path;
+
+	path = getcwd(NULL, 0);
 	if (path == NULL)
 	{
-		MS_ERROR("minishell: ", path, strerror(ENOENT));
-		return (1);
+		return (ms_error("minishell: %s\n", strerror(errno)));
 	}
+	(void)fd;
 	printf("%s\n", path);
 	free(path);
 	return (0);

@@ -3,15 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: aabourri <aabourri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/17 19:04:35 by aabourri          #+#    #+#             */
-/*   Updated: 2023/10/09 20:37:02 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/12/07 18:07:48 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef MINISHELL_H
-#define MINISHELL_H
+# define MINISHELL_H
 
 # include <readline/readline.h>
 # include <readline/history.h>
@@ -25,48 +25,37 @@
 # include <fcntl.h>
 
 # include <sys/stat.h>
+# include <sys/wait.h>
 # include <dirent.h>
 # include <termios.h>
 
 # include "../libft/libft.h"
+# include "./ms_parser.h"
+# include "./ms_exec.h"
+# include "./ms_malloc.h"
+# include "./ms_builtin.h"
 
-#define MS_SLASH	'\\'
-#define MS_S_QUOTE 	'\''
-#define MS_D_QUOTE 	'\"'
-#define MS_DOLLAR	'$'
+# define MS_STDERR 	2
 
-#define MS_ERROR(...) ms_error(3, __VA_ARGS__)
+t_array	ms_array_init(void);
+void	ms_array_append(t_array *ptr, char *item);
 
-#define MS_STDIN 	0
-#define MS_STDOUT 	1
-#define MS_STDERR 	2
+void	ms_table_add(struct s_fd_table *table, int fd);
+void	*ms_malloc(size_t size, char *file, int line);
 
-
-/* ================= exit status ================= */
-#define MS_CNF 127 // command to found
-/* ================= exit status ================= */
-
-/* ================= readline ================= */
-
-// NOTE: see -> https://42born2code.slack.com/archives/CMX2R5JSW/p1624010153354900
 void	rl_clear_history(void);
-void	rl_replace_line (const char *text, int clear_undo);
-/* ================= readline ================= */
+void	rl_replace_line(const char *text, int clear_undo);
 
-/* ================= builtin ================= */
-
-#include "../include/ms_builtin.h"
-
-/* ================= builtin ================= */
-
-/* ================= General ================= */
-
-void	ms_error(const int size, ...); // exmple: minishell: djsk: command not found
 void	ms_leaks(void);
-void	ms_exec(char *cmd, char **args);
-
-/* ================= General ================= */
-
-
+void	ms_ast_destroy(t_ast *ast);
+void	ms_close(struct s_fd_table *table);
+int		ms_signal(void);
+int		ms_error(const char *fmt, ...);
+int		ms_cmd_path(char **cmd);
+int		ms_interactive_mode(void);
+// void	*ms_expected_token(const t_token_type type, void *ptr);
+void	*ms_error_token(const t_token_type type, void *ptr);
+char	**ms_envcpy(t_array *env);
+char	*ms_str_tolower(const char *str);
 
 #endif //MINISHELL_H
