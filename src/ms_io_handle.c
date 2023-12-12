@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 20:00:32 by aabourri          #+#    #+#             */
-/*   Updated: 2023/12/06 14:22:49 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/12/11 19:24:01 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,7 +84,7 @@ static int	ms_redir_output(const char *path, const t_token_type type)
 	return (fd);
 }
 
-int	ms_io_handle(struct s_redirs *ptr, int *fd)
+int	ms_io_handle(struct s_redirs *ptr, t_data *data)
 {
 	int		io[2];
 	size_t	i;
@@ -98,17 +98,17 @@ int	ms_io_handle(struct s_redirs *ptr, int *fd)
 			io[0] = ms_redir_input(ptr->items[i].path, ptr->items[i].type);
 			if (io[MS_STDIN] == -1)
 				return (1);
-			fd[MS_STDIN] = io[MS_STDIN];
+			data->fd[MS_STDIN] = io[MS_STDIN];
 		}
 		if (ptr->items[i].type == DGREAT || ptr->items[i].type == GREAT)
 		{
 			io[1] = ms_redir_output(ptr->items[i].path, ptr->items[i].type);
 			if (io[MS_STDOUT] == -1)
 				return (1);
-			fd[MS_STDOUT] = io[MS_STDOUT];
+			data->fd[MS_STDOUT] = io[MS_STDOUT];
 		}
-		ms_table_add(&g_ctx.table, io[MS_STDIN]);
-		ms_table_add(&g_ctx.table, io[MS_STDOUT]);
+		ms_table_add(&data->table, io[MS_STDIN]);
+		ms_table_add(&data->table, io[MS_STDOUT]);
 	}
 	return (0);
 }

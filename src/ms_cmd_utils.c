@@ -6,15 +6,15 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/29 18:56:56 by aabourri          #+#    #+#             */
-/*   Updated: 2023/12/06 16:58:54 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/12/11 14:43:17 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
 
-static char	**ms_get_paths(void)
+static char	**ms_get_paths(t_array *env)
 {
-	const char	*path = ms_getenv("PATH");
+	const char	*path = ms_getenv(env, "PATH");
 	char		**paths;
 
 	if (!path)
@@ -38,7 +38,7 @@ static char	*ms_path_suffix(char *path, char *cmd)
 	return (path);
 }
 
-int	ms_cmd_path(char **cmd)
+int	ms_cmd_path(t_array *env, char **cmd)
 {
 	int		i;
 	int		re;
@@ -48,7 +48,7 @@ int	ms_cmd_path(char **cmd)
 	if (ft_strncmp(*cmd, "./", 2) == 0 || ft_memchr(*cmd, '/', 1))
 		return (1);
 	i = 0;
-	paths = ms_get_paths();
+	paths = ms_get_paths(env);
 	if (paths == NULL)
 		return (0);
 	while (paths[i] != NULL)

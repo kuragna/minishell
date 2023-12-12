@@ -6,13 +6,11 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:15:57 by aabourri          #+#    #+#             */
-/*   Updated: 2023/12/06 17:51:31 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/12/11 15:51:48 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/ms_builtin.h"
-
-extern struct s_context	g_ctx;
 
 t_array	ms_env_dup(char **envp)
 {
@@ -69,17 +67,17 @@ void	ms_export_print(t_array env, int *fd)
 	ft_free(dup);
 }
 
-int	ms_env(int *fd)
+int	ms_env(t_data *data)
 {
 	size_t	i;
 	t_array	env;
 
 	i = 0;
-	env = *g_ctx.env;
+	env = *data->env;
 	while (i < env.len)
 	{
 		if (ft_strchr(env.items[i], '='))
-			ft_putendl_fd(env.items[i], fd[MS_STDOUT]);
+			ft_putendl_fd(env.items[i], data->fd[MS_STDOUT]);
 		i += 1;
 	}
 	return (0);

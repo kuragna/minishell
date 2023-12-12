@@ -6,26 +6,26 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:12:41 by aabourri          #+#    #+#             */
-/*   Updated: 2023/12/07 16:09:25 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/12/12 13:10:27 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/ms_builtin.h"
 
-static int	ms_set_pwd(char *go)
+static int	ms_set_pwd(t_array *env, const char *go)
 {
 	char	*str[2];
 	int		pos;
 
-	pos = ms_get_idx("OLDPWD");
+	pos = ms_get_idx(env, "OLDPWD");
 	if (pos == -1)
 		return (ms_error("minishell: cd: OLDPWD not set\n"));
 	str[0] = ft_strjoin("OLDPWD=", go);
 	if (!str[0])
 		return (1);
-	free(g_ctx.env->items[pos]);
-	g_ctx.env->items[pos] = str[0];
-	pos = ms_get_idx("PWD");
+	free(env->items[pos]);
+	env->items[pos] = str[0];
+	pos = ms_get_idx(env, "PWD");
 	if (pos != -1)
 	{
 		str[1] = getcwd(NULL, 0);
@@ -35,13 +35,13 @@ static int	ms_set_pwd(char *go)
 		free(str[1]);
 		if (!str[0])
 			return (1);
-		free(g_ctx.env->items[pos]);
-		g_ctx.env->items[pos] = str[0];
+		free(env->items[pos]);
+		env->items[pos] = str[0];
 	}
 	return (0);
 }
 
-static char	*ms_cd_(const char *path)
+static char	*ms_cd_(t_array *env, const char *path)
 {
 	const size_t	len = ft_strlen(path);
 	char			*go;
@@ -49,7 +49,7 @@ static char	*ms_cd_(const char *path)
 	go = (char *)path;
 	if (!path)
 	{
-		go = ms_getenv("HOME");
+		go = ms_getenv(env, "HOME");
 		if (!go)
 		{
 			ms_error("minishell: cd: HOME not set\n");
@@ -59,7 +59,7 @@ static char	*ms_cd_(const char *path)
 	else if (ft_strncmp(path, "-", len) == 0
 		|| ft_strncmp(path, "--", len) == 0)
 	{
-		go = ms_getenv("OLDPWD");
+		go = ms_getenv(env, "OLDPWD");
 		if (!go)
 		{
 			ms_error("minishell: cd: OLDPWD not set\n");
@@ -69,15 +69,14 @@ static char	*ms_cd_(const char *path)
 	return (go);
 }
 
-int	ms_cd(int *fd)
+int	ms_cd(t_data *data)
 {
-	const char		*path = *g_ctx.items;
+	const char		*path = *(data->argv + 1);
 	char			*go;
 	DIR				*dir;
 
-	(void)fd;
-	go = ms_cd_(path);
-	if (!go || g_ctx.flag)
+	go = ms_cd_(data->env, path);
+	if (!go || data->flag)
 	{
 		if (go && path)
 		{
@@ -91,8 +90,8 @@ int	ms_cd(int *fd)
 	}
 	if (chdir(go) == -1)
 		return (ms_error("minishell: cd: %s: %s\n", path, strerror(errno)));
-	go = ms_getenv("PWD");
-	if (ms_set_pwd(go))
+	go = ms_getenv(data->env, "PWD");
+	if (ms_set_pwd(data->env, go))
 		return (1);
 	return (0);
 }

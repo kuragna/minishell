@@ -6,11 +6,15 @@
 /*   By: aabourri <aabourri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/04 14:32:50 by aabourri          #+#    #+#             */
-/*   Updated: 2023/12/05 15:57:05 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/12/11 19:54:39 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/ms_lexer.h"
+
+#include <stdio.h>
+
+extern int	g_status;
 
 int	ms_is_usalnum(int c)
 {
@@ -33,7 +37,7 @@ void	ms_expand_exit_status(t_lexer *l, struct s_string *word)
 
 	if (l->line[l->pos] != '?')
 		return ;
-	str = ft_itoa(g_ctx.exit_status);
+	str = ft_itoa(g_status);
 	if (!str)
 		return ;
 	ms_str_append(word, str);

@@ -6,13 +6,15 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:33:09 by aabourri          #+#    #+#             */
-/*   Updated: 2023/12/07 17:03:39 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/12/11 20:08:56 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
 
 #define MS_SIG_SIZE 3
+
+extern int	g_status;
 
 void	ms_signal_handler(int sig)
 {
@@ -21,8 +23,11 @@ void	ms_signal_handler(int sig)
 		rl_redisplay();
 		return ;
 	}
+	g_status = (128 + SIGINT);
 	if (waitpid(-1, NULL, 0) > 0)
+	{
 		return ;
+	}
 	rl_replace_line("", 0);
 	write(MS_STDOUT, "\n", 1);
 	rl_on_new_line();

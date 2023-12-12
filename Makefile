@@ -6,7 +6,7 @@
 #    By: aabourri <aabourri@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/10/09 14:16:51 by glacroix          #+#    #+#              #
-#    Updated: 2023/12/07 17:35:24 by aabourri         ###   ########.fr        #
+#    Updated: 2023/12/11 19:10:40 by aabourri         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -43,14 +43,14 @@ SRCS		=	ms_malloc.c \
 				ms_get_lexeme.c \
 				ms_lexeme_utils.c \
 				ms_lexer.c \
+				builtins/ms_echo.c \
 				builtins/ms_cd.c \
 				builtins/ms_pwd.c \
 				builtins/ms_env.c \
 				builtins/ms_exit.c \
-				builtins/ms_echo.c \
 				builtins/ms_unset.c \
 				builtins/ms_export.c \
-				builtins/ms_env_utils.c \
+				builtins/ms_env_utils.c 
 
 OBJ			= $(SRCS:%.c=objs/%.o)
 SRCS		:= $(addprefix src/, $(SRCS))
@@ -64,9 +64,9 @@ RL			= /Users/${USER}/.brew/opt/readline/
 #Execution
 # **************************************************************************** #
 CC		   = gcc
-CFLAGS	   = -Wall -Werror -Wextra -g3 #-fsanitize=address
+CFLAGS	   = -Wall -Werror -Wextra -g3 -fsanitize=address
 LDFLAGS    = -L$(LDLIBFT) -L$(addsuffix lib, $(RL)) 
-LDFLAGS    += -I$(addsuffix include, $(RL)) -lft -lreadline
+LDFLAGS    += -I$(addsuffix include, $(RL)) -lft -lreadline -lncurses
 RM		   = rm -rf 
 
 
