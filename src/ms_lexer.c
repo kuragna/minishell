@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:55:52 by aabourri          #+#    #+#             */
-/*   Updated: 2023/12/05 17:16:39 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/12/11 16:18:02 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,14 +14,11 @@
 #include "../include/ms_lexer.h"
 #include "../include/minishell.h"
 
-t_lexer	ms_lexer_init(char *line)
+void	ms_lexer_init(t_lexer *l, const char *line)
 {
-	t_lexer	lexer;
-
-	lexer.pos = 0;
-	lexer.line = line;
-	lexer.len = ft_strlen(line);
-	return (lexer);
+	l->pos = 0;
+	l->line = (char *)line;
+	l->len = ft_strlen(line);
 }
 
 int	ms_trim_left(t_lexer *l)

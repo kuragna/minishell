@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 18:33:07 by aabourri          #+#    #+#             */
-/*   Updated: 2023/12/07 18:08:15 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/12/12 12:44:21 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,6 @@
 # include <stdlib.h>
 # include "../include/ms_malloc.h"
 # include "../libft/libft.h"
-
-extern struct s_context	g_ctx;
 
 typedef enum e_token_type
 {
@@ -44,31 +42,31 @@ struct s_string
 	size_t	len;
 };
 
-typedef struct s_lexer
-{
-	char	*line;
-	size_t	len;
-	size_t	pos;
-}	t_lexer;
-
 struct s_fd_table
 {
 	int		fds[1024];
 	size_t	len;
 };
 
-struct s_context
+typedef struct s_data
 {
-	struct s_fd_table	table;
 	t_array				*env;
-	char				**items;
-	int					exit_status;
+	int					fd[2];
 	int					flag;
-	// TODO: save child pid to kill it
-};
+	struct s_fd_table	table;
+	char				**argv;
+}	t_data;
+
+typedef struct s_lexer
+{
+	char	*line;
+	size_t	len;
+	size_t	pos;
+	t_data	data;
+}	t_lexer;
 
 t_token_type	ms_peek(t_lexer *l);
-t_lexer			ms_lexer_init(char *line);
+void			ms_lexer_init(t_lexer *l, const char *line);
 char			*ms_token_next(t_lexer *l);
 int				ms_is_token(int c);
 int				ms_trim_left(t_lexer *l);
@@ -76,7 +74,7 @@ int				ms_error(const char *fmt, ...);
 int				ms_check_quotes(const char *str);
 void			*ms_malloc(size_t size, char *file, int line);
 void			*ms_error_token(const t_token_type type, void *ptr);
-char			*ms_getenv(const char *name);
+char			*ms_getenv(t_array *env, const char *name);
 int				ms_start(int c);
 
 struct s_string	ms_string_init(void);

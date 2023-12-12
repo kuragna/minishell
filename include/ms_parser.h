@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 18:44:02 by aabourri          #+#    #+#             */
-/*   Updated: 2023/12/06 12:39:43 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/12/11 19:33:32 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,6 @@
 # include "./ms_lexer.h"
 # include "./ms_malloc.h"
 # include <stdio.h>
-
-# define SYTX_ERR "syntax error near unexpected token"
 
 typedef struct s_ast	t_ast;
 typedef struct s_pipe	t_pipe;

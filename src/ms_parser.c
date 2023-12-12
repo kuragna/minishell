@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:37:42 by aabourri          #+#    #+#             */
-/*   Updated: 2023/12/07 18:27:59 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/12/11 19:35:42 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ static int	ms_parse_files(t_ast *ast, t_lexer *lexer)
 		ms_token_next(lexer);
 		if (ms_peek(lexer) != WORD)
 		{
-			ms_error_token(ms_peek(lexer), ast);
+			ms_error_token(ms_peek(lexer), NULL);
 			return (1);
 		}
 		ms_redir_add(&ast->cmd.redirs, ms_token_next(lexer), type);
@@ -105,7 +105,7 @@ t_ast	*ms_parse_pipe(t_lexer *lexer)
 		ms_token_next(lexer);
 		type = ms_peek(lexer);
 		if (type == NEWLINE)
-			return (ms_error_token(type, left));
+			return (ms_error_token(type, NULL));
 		right = ms_pipe_node(left, ms_parse_pipe(lexer));
 		if (!right)
 			return (NULL);

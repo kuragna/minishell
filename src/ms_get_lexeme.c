@@ -6,7 +6,7 @@
 /*   By: aabourri <aabourri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:34:39 by aabourri          #+#    #+#             */
-/*   Updated: 2023/12/07 17:41:47 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/12/11 17:17:39 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,7 @@ static void	ms_expansion(t_lexer *l, struct s_string *word)
 		if (l->line[l->pos] == '$' || !ms_is_usalnum(l->line[l->pos]))
 		{
 			ms_char_append(&dollar, '\0');
-			str = ms_getenv(dollar.data);
+			str = ms_getenv(l->data.env, dollar.data);
 			ms_str_append(word, ms_rewording(str, 34));
 			dollar.len = 0;
 			if (l->line[l->pos] == '$')
@@ -100,7 +100,7 @@ static void	ms_tilde(t_lexer *l, struct s_string *word)
 
 	if (!(ms_is_token(c) || c == '/' || c == '\0'))
 		return ;
-	home = ms_getenv("HOME");
+	home = ms_getenv(l->data.env, "HOME");
 	l->pos += 1;
 	ms_str_append(word, home);
 }

@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 20:01:24 by aabourri          #+#    #+#             */
-/*   Updated: 2023/12/07 18:06:33 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/12/11 19:32:15 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ void	*ms_error_token(const t_token_type type, void *ptr)
 	ms_ast_destroy(ptr);
 	if (type > DGREAT)
 		return (NULL);
-	ms_error("minishell: %s `%s\'\n", SYTX_ERR, tokens[type]);
+	ms_error("minishell: %s `%s\'\n", MS_SYTX_ERR, tokens[type]);
 	return (NULL);
 }
 
@@ -68,11 +68,8 @@ void	ms_error_exec(const char *cmd)
 	str = strerror(errno);
 	if (!ft_strchr(cmd, '/'))
 	{
-		if (ms_get_idx("PATH") != -1)
-		{
-			exit_status = MS_CNF;
-			str = "command not found";
-		}
+		exit_status = MS_CNF;
+		str = "command not found";
 	}
 	else
 	{

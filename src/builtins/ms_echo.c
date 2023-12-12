@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:15:29 by aabourri          #+#    #+#             */
-/*   Updated: 2023/12/07 13:23:43 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/12/11 15:40:57 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 #include <stdio.h>
 
-int	ms_check_opt(char **argv)
+static int	ms_check_opt(char **argv)
 {
 	char	*arg;
 	size_t	i;
@@ -36,26 +36,24 @@ int	ms_check_opt(char **argv)
 	return (i);
 }
 
-int	ms_echo(int *fd)
+int	ms_echo(t_data *data)
 {
 	char	**args;
 	int		flag;
 	size_t	i;
 
 	i = 0;
-	args = g_ctx.items;
+	args = data->argv + 1;
 	flag = ms_check_opt(args);
 	i = flag;
 	while (args && args[i] != NULL)
 	{
-		ft_putstr_fd(args[i], fd[MS_STDOUT]);
+		ft_putstr_fd(args[i], data->fd[MS_STDOUT]);
 		if (args[i + 1])
-			ft_putstr_fd(" ", fd[MS_STDOUT]);
+			ft_putstr_fd(" ", data->fd[MS_STDOUT]);
 		i += 1;
 	}
 	if (!flag)
-		ft_putstr_fd("\n", fd[MS_STDOUT]);
-	if (fd[MS_STDOUT] > 1)
-		close(fd[MS_STDOUT]);
+		ft_putstr_fd("\n", data->fd[MS_STDOUT]);
 	return (0);
 }

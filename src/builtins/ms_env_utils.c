@@ -6,7 +6,7 @@
 /*   By: aabourri <aabourri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:18:13 by aabourri          #+#    #+#             */
-/*   Updated: 2023/12/06 17:01:45 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/12/11 17:31:28 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,9 +29,8 @@ int	ms_symbol(char *str, int c)
 	return (1);
 }
 
-int	ms_get_idx(const char *var)
+int	ms_get_idx(t_array *env, const char *var)
 {
-	t_array	*env;
 	char	*str;
 	size_t	len;
 	size_t	sz;
@@ -41,7 +40,6 @@ int	ms_get_idx(const char *var)
 		return (-1);
 	i = 0;
 	sz = ft_strlen(var);
-	env = g_ctx.env;
 	while (i < env->len && env->items[i])
 	{
 		str = ft_strchr(env->items[i], '=');
@@ -58,17 +56,14 @@ int	ms_get_idx(const char *var)
 	return (-1);
 }
 
-// char	*ms_getenv(t_array *env, const char *name)
-char	*ms_getenv(const char *name)
+char	*ms_getenv(t_array *env, const char *name)
 {
-	t_array	*env;
 	char	*var;
 	int		pos;
 
-	env = g_ctx.env;
 	if (env->len == 0)
 		return (NULL);
-	pos = ms_get_idx(name);
+	pos = ms_get_idx(env, name);
 	if (pos == -1)
 		return (NULL);
 	var = ft_strchr(env->items[pos], '=');
