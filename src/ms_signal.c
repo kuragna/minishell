@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:33:09 by aabourri          #+#    #+#             */
-/*   Updated: 2023/12/11 20:08:56 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/12/12 20:08:45 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ void	ms_signal_handler(int sig)
 		return ;
 	}
 	g_status = (128 + SIGINT);
-	if (waitpid(-1, NULL, 0) > 0)
+	if (waitpid(-1, &g_status, 0) > 0)
 	{
 		return ;
 	}
