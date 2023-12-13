@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/04 15:53:51 by aabourri          #+#    #+#             */
-/*   Updated: 2023/12/06 18:24:36 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/12/13 13:36:54 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,12 +44,12 @@ void	ms_lexeme_(t_lexer *l, struct s_string *word)
 	}
 	while (l->pos < l->len)
 	{
+		if (l->line[l->pos] == '$')
+			break ;
 		if (ms_is_quote(l->line[l->pos]) || ms_is_token(l->line[l->pos]))
 			break ;
 		ms_char_append(word, l->line[l->pos]);
 		l->pos += 1;
-		if (l->line[l->pos] == '$')
-			break ;
 	}
 }
 

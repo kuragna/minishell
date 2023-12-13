@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/04 14:09:31 by aabourri          #+#    #+#             */
-/*   Updated: 2023/12/12 13:15:28 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/12/13 13:46:46 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,20 +20,19 @@ void	ms_leaks(void)
 
 int	g_status = 0;
 
-static void	ms_wait(int count)
+static void	ms_wait(t_data *data, int count)
 {
-	int	stat_log;
 	int	i;
 
 	i = 0;
 	while (i < count)
 	{
-		waitpid(-1, &stat_log, 0);
-		if (WIFEXITED(stat_log))
+		waitpid(-1, &g_status, 0);
+		if (WIFEXITED(g_status))
 		{
-			g_status = WEXITSTATUS(stat_log);
+			g_status = WEXITSTATUS(g_status);
 		}
-		if (WIFSIGNALED(stat_log))
+		else if (!data->flag && WIFSIGNALED(g_status))
 		{
 			g_status = (128 + SIGINT);
 		}
@@ -60,7 +59,7 @@ static void	ms_prompt_(t_lexer *l)
 	{
 		count = ms_exec(ast, &l->data);
 		if (count)
-			ms_wait(count);
+			ms_wait(&l->data, count);
 		ms_ast_destroy(ast);
 		ms_close(&l->data.table);
 	}
