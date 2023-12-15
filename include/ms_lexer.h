@@ -63,6 +63,7 @@ typedef struct s_lexer
 	size_t	len;
 	size_t	pos;
 	t_data	data;
+	t_token_type type;
 }	t_lexer;
 
 t_token_type	ms_peek(t_lexer *l);

@@ -6,7 +6,7 @@
 #    By: aabourri <aabourri@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/10/09 14:16:51 by glacroix          #+#    #+#              #
-#    Updated: 2023/12/11 19:10:40 by aabourri         ###   ########.fr        #
+#    Updated: 2023/12/15 19:52:39 by aabourri         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -66,9 +66,8 @@ RL			= /Users/${USER}/.brew/opt/readline/
 CC		   = gcc
 CFLAGS	   = -Wall -Werror -Wextra -g3 -fsanitize=address
 LDFLAGS    = -L$(LDLIBFT) -L$(addsuffix lib, $(RL)) 
-LDFLAGS    += -I$(addsuffix include, $(RL)) -lft -lreadline -lncurses
-RM		   = rm -rf 
-
+LDFLAGS    += -I$(addsuffix include, $(RL)) -lft -lreadline
+RM		   = rm -rf
 
 #SRC Execution
 # **************************************************************************** #

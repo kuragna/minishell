@@ -20,6 +20,16 @@ void	ms_leaks(void)
 
 int	g_status = 0;
 
+
+// TODO: echo < $a -> "a doesnt exist"
+// TODO: expansion within here-doc
+// TODO: exit status if there syntax error -> 258
+// TODO: exit status with different signal
+// TODO: ctrl-c in here-doc need to exit
+// TODO: free env at the end of program
+// TODO: fix export z="a b" and then echo < $z which gives ambigious redirect as an error
+// TODO: know why "echo" -> ctrl-c -> echo $? = 1
+
 static void	ms_wait(t_data *data, int count)
 {
 	int	i;
@@ -34,7 +44,8 @@ static void	ms_wait(t_data *data, int count)
 		}
 		else if (!data->flag && WIFSIGNALED(g_status))
 		{
-			g_status = (128 + SIGINT);
+			fprintf(stderr, "EXIT STATUS = %d\n", WEXITSTATUS(g_status));
+			g_status = (WEXITSTATUS(g_status) + SIGINT);
 		}
 		i += 1;
 	}
@@ -55,6 +66,8 @@ static void	ms_prompt_(t_lexer *l)
 	l->data.fd[MS_STDIN] = MS_STDIN;
 	l->data.fd[MS_STDOUT] = MS_STDOUT;
 	ast = ms_parse_pipe(l);
+	if (!ast)
+		g_status = 258;
 	if (ast)
 	{
 		count = ms_exec(ast, &l->data);

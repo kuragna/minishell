@@ -16,6 +16,7 @@
 
 void	ms_lexer_init(t_lexer *l, const char *line)
 {
+	l->type = 0;
 	l->pos = 0;
 	l->line = (char *)line;
 	l->len = ft_strlen(line);

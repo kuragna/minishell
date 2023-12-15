@@ -18,12 +18,12 @@ extern int	g_status;
 
 void	ms_signal_handler(int sig)
 {
+	g_status = (128 + sig);
 	if (sig != SIGINT)
 	{
 		rl_redisplay();
 		return ;
 	}
-	g_status = (128 + SIGINT);
 	if (waitpid(-1, &g_status, 0) > 0)
 	{
 		return ;

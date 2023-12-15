@@ -117,7 +117,7 @@ char	*ms_get_lexeme(t_lexer *l)
 		l->pos = ms_trim_left(l);
 		if (l->line[l->pos] == '~')
 			ms_tilde(l, &word);
-		if (l->line[l->pos] == '$')
+ 		if (l->line[l->pos] == '$')
 		{
 			ms_expansion(l, &word);
 			ms_str_append(&word, &l->line[l->pos]);

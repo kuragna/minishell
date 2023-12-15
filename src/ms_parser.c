@@ -27,6 +27,16 @@ static int	ms_parse_args(t_cmd *cmd, t_lexer *lexer)
 	return (0);
 }
 
+char	*word[] = {
+	"NEWLINE",
+	"PIPE",
+	"LESS",
+	"GREAT",
+	"DLESS",
+	"DGREAT",
+	"WORD",
+};
+
 static int	ms_parse_files(t_ast *ast, t_lexer *lexer)
 {
 	t_token_type	type;
@@ -38,6 +48,8 @@ static int	ms_parse_files(t_ast *ast, t_lexer *lexer)
 		type = ms_peek(lexer);
 		if (!(type >= LESS && type <= DGREAT))
 			break ;
+		fprintf(stderr, "type: `%s`\n", word[type]);
+		lexer->type = type;		
 		ms_token_next(lexer);
 		if (ms_peek(lexer) != WORD)
 		{
