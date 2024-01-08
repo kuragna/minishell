@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 20:01:24 by aabourri          #+#    #+#             */
-/*   Updated: 2023/12/11 19:32:15 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/12/27 16:29:06 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,10 +24,33 @@ void	*ms_error_token(const t_token_type type, void *ptr)
 	};
 
 	ms_ast_destroy(ptr);
-	if (type > DGREAT)
-		return (NULL);
-	ms_error("minishell: %s `%s\'\n", MS_SYTX_ERR, tokens[type]);
+	if (!(type > DGREAT))
+		ms_error("minishell: %s `%s\'\n", MS_SYTX_ERR, tokens[type]);
 	return (NULL);
+}
+
+void	ms_error_exec(const char *cmd)
+{
+	int		fd;
+	int		exit_status;
+	char	*str;
+
+	exit_status = MS_PD;
+	str = strerror(errno);
+	if (!ft_strchr(cmd, '/'))
+	{
+		exit_status = MS_CNF;
+		str = "command not found";
+	}
+	else
+	{
+		fd = open(cmd, O_RDONLY | O_DIRECTORY);
+		if (fd != -1)
+			str = strerror(EISDIR);
+		close(fd);
+	}
+	ms_error("minishell: %s: %s\n", cmd, str);
+	exit(exit_status);
 }
 
 int	ms_error(const char *fmt, ...)
@@ -56,28 +79,4 @@ int	ms_error(const char *fmt, ...)
 	}
 	va_end(ap);
 	return (1);
-}
-
-void	ms_error_exec(const char *cmd)
-{
-	int		fd;
-	int		exit_status;
-	char	*str;
-
-	exit_status = MS_PD;
-	str = strerror(errno);
-	if (!ft_strchr(cmd, '/'))
-	{
-		exit_status = MS_CNF;
-		str = "command not found";
-	}
-	else
-	{
-		fd = open(cmd, O_RDONLY | O_DIRECTORY);
-		if (fd != -1)
-			str = strerror(EISDIR);
-		close(fd);
-	}
-	ms_error("minishell: %s: %s\n", cmd, str);
-	exit(exit_status);
 }

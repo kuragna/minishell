@@ -24,7 +24,7 @@ int	ms_unset(t_data *data)
 	args = data->argv + 1;
 	while (args[i])
 	{
-		if (!ms_start(*args[i]) || !ms_symbol(args[i], 0))
+		if (!ms_is_start(*args[i]) || !ms_symbol(args[i], 0))
 		{
 			ms_error("minishell: unset: `%s\': %s\n", args[i], MS_NVID);
 			status = 1;

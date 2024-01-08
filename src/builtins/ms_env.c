@@ -76,7 +76,7 @@ int	ms_env(t_data *data)
 	env = *data->env;
 	while (i < env.len)
 	{
-		if (ft_strchr(env.items[i], '='))
+		if (env.items[i] && ft_strchr(env.items[i], '='))
 			ft_putendl_fd(env.items[i], data->fd[MS_STDOUT]);
 		i += 1;
 	}

@@ -28,16 +28,8 @@ typedef int	(*t_fp)(t_data *);
 typedef struct s_builtin
 {
 	const char	*name;
-	t_fp		run;
+	t_fp		exec;
 }	t_builtin;
-
-// int		ms_echo(int *fd);
-// int		ms_pwd(int *fd);
-// int		ms_cd(int *fd);
-// int		ms_unset(int *fd);
-// int		ms_export(int *fd);
-// int		ms_env(int *fd);
-// int		ms_exit(int *fd);
 
 int		ms_echo(t_data *data);
 int		ms_pwd(t_data *data);
@@ -48,7 +40,7 @@ int		ms_env(t_data *data);
 int		ms_exit(t_data *data);
 
 t_array	ms_env_dup(char **envp);
-int		ms_start(int c);
+int		ms_is_start(int c);
 int		ms_symbol(char *str, int c);
 int		ms_get_idx(t_array *env, const char *name);
 int		ms_env_push(t_array *env, char *var);

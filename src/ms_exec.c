@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/04 19:45:48 by aabourri          #+#    #+#             */
-/*   Updated: 2023/12/12 12:44:22 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/12/27 18:00:19 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ int	ms_exec_in(t_data *data)
 {
 	int				status;
 	size_t			i;
-	const char		*str = ms_str_tolower(*data->argv);
+	const char		*str = *data->argv;
 	const size_t	len = ft_strlen(str) + 1;
 	const t_builtin	cmds[MS_SIZE] = {
 	{"echo", ms_echo}, {"cd", ms_cd}, {"pwd", ms_pwd},	{"export", ms_export},
@@ -31,12 +31,11 @@ int	ms_exec_in(t_data *data)
 	{
 		if (ft_strncmp(str, cmds[i].name, len) == 0)
 		{
-			status = cmds[i].run(data);
+			status = cmds[i].exec(data);
 			break ;
 		}
 	}
 	g_status = status;
-	free((char *)str);
 	return (status);
 }
 

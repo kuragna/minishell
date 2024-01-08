@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:33:09 by aabourri          #+#    #+#             */
-/*   Updated: 2023/12/12 20:08:45 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/12/27 16:34:11 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,12 +18,12 @@ extern int	g_status;
 
 void	ms_signal_handler(int sig)
 {
+	g_status = (128 + sig);
 	if (sig != SIGINT)
 	{
 		rl_redisplay();
 		return ;
 	}
-	g_status = (128 + SIGINT);
 	if (waitpid(-1, &g_status, 0) > 0)
 	{
 		return ;

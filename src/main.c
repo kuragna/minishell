@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/04 14:09:31 by aabourri          #+#    #+#             */
-/*   Updated: 2023/12/13 13:46:46 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/12/27 18:01:54 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,20 @@ void	ms_leaks(void)
 }
 
 int	g_status = 0;
+
+// TODO: echo < $a -> "a doesnt exist"
+// TODO: ctrl-c in here-doc need to exit
+// TODO: handle ambigious error
+// TODO: dont expand one dollar
+// DONE: try unset HOME in bash with cd
+// DONE: "'"$HOME"'" -> '/Users/aabourri/'
+// DONE: heredoc -> $HOME -> /Users/aabourri/ -> doesnt have to exit
+// DONE: fix TEST''
+// DONE: "$US"E"R"
+// DONE: expansion within here-doc
+// DONE: exit status with different signal
+// DONE: exit status if there syntax error -> 258
+// DONE: know why "echo" -> ctrl-c -> echo $? = 1 -> try on iterm not vs
 
 static void	ms_wait(t_data *data, int count)
 {
@@ -34,7 +48,7 @@ static void	ms_wait(t_data *data, int count)
 		}
 		else if (!data->flag && WIFSIGNALED(g_status))
 		{
-			g_status = (128 + SIGINT);
+			g_status = (WEXITSTATUS(g_status) + SIGINT);
 		}
 		i += 1;
 	}
@@ -54,14 +68,16 @@ static void	ms_prompt_(t_lexer *l)
 	add_history(l->line);
 	l->data.fd[MS_STDIN] = MS_STDIN;
 	l->data.fd[MS_STDOUT] = MS_STDOUT;
+	l->data.quotes_flag = 0;
 	ast = ms_parse_pipe(l);
+	if (!ast)
+		g_status = 258;
 	if (ast)
 	{
 		count = ms_exec(ast, &l->data);
 		if (count)
 			ms_wait(&l->data, count);
 		ms_ast_destroy(ast);
-		ms_close(&l->data.table);
 	}
 	free(l->line);
 }
@@ -97,14 +113,15 @@ int	main(int argc, char **argv, char **envp)
 
 	(void) argc, (void) argv;
 	ft_memset(&data, 0, sizeof(data));
-	if (ms_interactive_mode())
-		return (1);
+	ms_interactive_mode();
 	if (ms_signal())
 		return (1);
 	env = ms_env_dup(envp);
 	ms_update_shlvl(&env);
 	data.env = &env;
 	ms_prompt(&data);
+	ms_array_append(&env, NULL);
+	ft_free(env.items);
 	rl_clear_history();
 	return (0);
 }
