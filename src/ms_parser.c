@@ -6,12 +6,14 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:37:42 by aabourri          #+#    #+#             */
-/*   Updated: 2023/12/11 19:35:42 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/12/27 16:32:41 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/ms_parser.h"
 #include "../include/ms_builtin.h"
+
+extern int	g_status;
 
 static int	ms_parse_args(t_cmd *cmd, t_lexer *lexer)
 {
@@ -27,18 +29,9 @@ static int	ms_parse_args(t_cmd *cmd, t_lexer *lexer)
 	return (0);
 }
 
-char	*word[] = {
-	"NEWLINE",
-	"PIPE",
-	"LESS",
-	"GREAT",
-	"DLESS",
-	"DGREAT",
-	"WORD",
-};
-
 static int	ms_parse_files(t_ast *ast, t_lexer *lexer)
 {
+	char			*str;
 	t_token_type	type;
 
 	if (ast->cmd.redirs.items == NULL)
@@ -48,15 +41,18 @@ static int	ms_parse_files(t_ast *ast, t_lexer *lexer)
 		type = ms_peek(lexer);
 		if (!(type >= LESS && type <= DGREAT))
 			break ;
-		fprintf(stderr, "type: `%s`\n", word[type]);
-		lexer->type = type;		
+		lexer->prev = type;
 		ms_token_next(lexer);
 		if (ms_peek(lexer) != WORD)
+			return (ms_error_token(ms_peek(lexer), NULL), 1);
+		str = ms_token_next(lexer);
+		if (!str)
 		{
-			ms_error_token(ms_peek(lexer), NULL);
-			return (1);
+			ast->cmd.redirs.len = 0;
+			g_status = 1;
+			break ;
 		}
-		ms_redir_add(&ast->cmd.redirs, ms_token_next(lexer), type);
+		ms_redir_add(&ast->cmd.redirs, str, type);
 	}
 	return (0);
 }
@@ -125,3 +121,8 @@ t_ast	*ms_parse_pipe(t_lexer *lexer)
 	}
 	return (left);
 }
+
+/*
+l->line : cat $HOME $USER
+			  /Users/aaa\0
+*/

@@ -38,4 +38,4 @@ int		ms_exec_pipe(t_ast *node, t_data *data);
 int		ms_exec_cmd(t_ast *node, t_data *data);
 int		ms_exec(t_ast *ast, t_data *data);
 
-#endif //MS_EXEC_H
+#endif // MS_EXEC_H

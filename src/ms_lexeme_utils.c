@@ -26,7 +26,7 @@ int	ms_is_quote(int c)
 	return (c == '\"' || c == '\'');
 }
 
-int	ms_isspecial(int c)
+int	ms_is_special(int c)
 {
 	return (c == '|' || c == '>' || c == '<' || c == '~' || ms_is_quote(c));
 }

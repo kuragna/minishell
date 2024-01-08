@@ -23,6 +23,8 @@ void	ms_redir_add(t_redirs *ptr, char *path, t_token_type type)
 	{
 		ptr->cap *= 2;
 		ptr->items = ft_realloc(ptr->items, ptr->len * size, ptr->cap * size);
+		if (!ptr->items)
+			return ;
 	}
 	ptr->items[ptr->len] = item;
 	ptr->len += 1;

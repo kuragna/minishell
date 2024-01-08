@@ -6,7 +6,7 @@
 #    By: aabourri <aabourri@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/10/09 14:16:51 by glacroix          #+#    #+#              #
-#    Updated: 2023/12/15 19:52:39 by aabourri         ###   ########.fr        #
+#    Updated: 2023/12/27 16:59:57 by aabourri         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -43,6 +43,7 @@ SRCS		=	ms_malloc.c \
 				ms_get_lexeme.c \
 				ms_lexeme_utils.c \
 				ms_lexer.c \
+				ms_heredoc.c \
 				builtins/ms_echo.c \
 				builtins/ms_cd.c \
 				builtins/ms_pwd.c \
@@ -101,4 +102,4 @@ fclean: clean
 re: fclean all
 
 
-.PHONY: all clean fclean re libft
+.PHONY: all clean fclean re libft objs

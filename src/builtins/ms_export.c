@@ -68,7 +68,7 @@ int	ms_export_(t_array *env, char *var)
 	int		pos;
 	int		len;
 
-	if (!ms_start(*var) || !ms_symbol(var + 1, '='))
+	if (!ms_is_start(*var) || !ms_symbol(var + 1, '='))
 		return (ms_error("minishell: export: `%s\': %s\n", var, MS_NVID));
 	len = ft_strchr(var, '=') - var;
 	substr = ft_substr(var, 0, (size_t)len);

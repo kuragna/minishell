@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 18:33:07 by aabourri          #+#    #+#             */
-/*   Updated: 2023/12/12 12:44:21 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/12/27 16:54:51 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 # include <stdlib.h>
 # include "../include/ms_malloc.h"
 # include "../libft/libft.h"
+# include <stdio.h>
 
 typedef enum e_token_type
 {
@@ -44,26 +45,27 @@ struct s_string
 
 struct s_fd_table
 {
-	int		fds[1024];
+	int		fds[9000];
 	size_t	len;
 };
 
 typedef struct s_data
 {
 	t_array				*env;
+	char				**argv;
 	int					fd[2];
 	int					flag;
+	int					quotes_flag;
 	struct s_fd_table	table;
-	char				**argv;
 }	t_data;
 
 typedef struct s_lexer
 {
-	char	*line;
-	size_t	len;
-	size_t	pos;
-	t_data	data;
-	t_token_type type;
+	char			*line;
+	size_t			len;
+	size_t			pos;
+	t_data			data;
+	t_token_type	prev;
 }	t_lexer;
 
 t_token_type	ms_peek(t_lexer *l);
@@ -74,20 +76,25 @@ int				ms_trim_left(t_lexer *l);
 int				ms_error(const char *fmt, ...);
 int				ms_check_quotes(const char *str);
 void			*ms_malloc(size_t size, char *file, int line);
-void			*ms_error_token(const t_token_type type, void *ptr);
 char			*ms_getenv(t_array *env, const char *name);
-int				ms_start(int c);
 
 struct s_string	ms_string_init(void);
 void			ms_char_append(struct s_string *str, const char c);
 void			ms_str_append(struct s_string *str, const char *s);
 
+int				ms_is_start(int c);
 int				ms_is_usalnum(int c);
 int				ms_is_quote(int c);
-int				ms_isspecial(int c);
+int				ms_is_special(int c);
+
 char			*ms_get_lexeme(t_lexer *l);
 void			ms_expand_exit_status(t_lexer *l, struct s_string *word);
 void			ms_lexeme_(t_lexer *l, struct s_string *word);
 void			ms_quote_consume(t_lexer *l, struct s_string *word, char c);
+void			ms_expansion(t_lexer *l, struct s_string *word);
+
+
+char			*ms_heredoc_dlmtr(t_lexer *l, struct s_string *word);
+char			*ms_heredoc_expansion(const char *name, t_data *data);
 
 #endif //MS_LEXER_H

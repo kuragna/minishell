@@ -6,7 +6,7 @@
 /*   By: aabourri <aabourri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:34:39 by aabourri          #+#    #+#             */
-/*   Updated: 2023/12/13 13:33:11 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/12/27 18:03:40 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ static char	*ms_rewording(const char *str, int quote)
 	{
 		if (str[i] == quote)
 			quote += 5;
-		if (ms_isspecial(str[i]))
+		if (ms_is_special(str[i]))
 		{
 			flag = 1;
 			ms_char_append(&re, quote);
@@ -42,7 +42,7 @@ static char	*ms_rewording(const char *str, int quote)
 	return (re.data);
 }
 
-static void	ms_expansion(t_lexer *l, struct s_string *word)
+void	ms_expansion(t_lexer *l, struct s_string *word)
 {
 	char			c;
 	char			*str;
@@ -62,6 +62,11 @@ static void	ms_expansion(t_lexer *l, struct s_string *word)
 		{
 			ms_char_append(&dollar, '\0');
 			str = ms_getenv(l->data.env, dollar.data);
+			if (l->prev >= LESS && l->prev <= DGREAT && ft_strchr(str, ' '))
+			{
+				ms_error("minishell: $%s: ambiguous redirect\n", dollar.data);
+				return ;
+			}
 			ms_str_append(word, ms_rewording(str, 34));
 			dollar.len = 0;
 			if (l->line[l->pos] == '$')
@@ -107,28 +112,35 @@ static void	ms_tilde(t_lexer *l, struct s_string *word)
 
 char	*ms_get_lexeme(t_lexer *l)
 {
+	int				flag;
 	struct s_string	word;
 
+	flag = 0;
 	word = ms_string_init();
 	if (!word.data)
 		return (NULL);
 	while (l->pos < l->len && !ms_is_token(l->line[l->pos]))
 	{
 		l->pos = ms_trim_left(l);
+		if (l->prev == DLESS)
+			return (ms_heredoc_dlmtr(l, &word));
 		if (l->line[l->pos] == '~')
 			ms_tilde(l, &word);
- 		if (l->line[l->pos] == '$')
+		if (l->line[l->pos] == '$')
 		{
-			ms_expansion(l, &word);
-			ms_str_append(&word, &l->line[l->pos]);
-			ms_char_append(&word, '\0');
-			free(l->line);
-			l->pos = 0;
-			l->line = word.data;
-			l->len = ft_strlen(l->line);
-			return (ms_token_next(l));
+			if (ft_isalpha(l->line[l->pos + 1]) || l->line[l->pos + 1] == '_' || l->line[l->pos + 1] == '?')
+			{
+				ms_expansion(l, &word);
+				flag = 1;
+			}
 		}
 		ms_lexeme_(l, &word);
+	}
+	if (flag)
+	{
+		ms_str_append(&word, &l->line[l->pos]);
+		ms_char_append(&word, '\0');
+		return (ms_lexer_init(l, word.data), ms_token_next(l));
 	}
 	ms_char_append(&word, '\0');
 	return (word.data);

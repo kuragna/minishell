@@ -5,6 +5,6 @@
 void	*ms_malloc(size_t size, char *file, int line)
 {
 	void	*p = (malloc)(size);
-	printf("%s:%d -> `%p`\n", file, line, p);
+	fprintf(stderr, "%s:%d -> `%p`\n", file, line, p);
 	return p;
 }

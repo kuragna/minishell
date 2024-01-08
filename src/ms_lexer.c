@@ -16,7 +16,7 @@
 
 void	ms_lexer_init(t_lexer *l, const char *line)
 {
-	l->type = 0;
+	l->prev = 0;
 	l->pos = 0;
 	l->line = (char *)line;
 	l->len = ft_strlen(line);
@@ -50,7 +50,7 @@ t_token_type	ms_peek(t_lexer *l)
 		return (DLESS);
 	if (l->line[l->pos] == '>' && l->line[l->pos + 1] == '>')
 		return (DGREAT);
-	while (i < len)
+	while (i < len && ms_is_token(l->line[l->pos]))
 	{
 		if (l->line[l->pos] == tokens[i])
 			return (i + PIPE);

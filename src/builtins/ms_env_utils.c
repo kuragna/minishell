@@ -6,14 +6,14 @@
 /*   By: aabourri <aabourri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:18:13 by aabourri          #+#    #+#             */
-/*   Updated: 2023/12/11 17:31:28 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/12/27 16:38:47 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/ms_builtin.h"
 #include <stdlib.h>
 
-int	ms_start(int c)
+int	ms_is_start(int c)
 {
 	return (ft_isalpha(c) || c == '_');
 }
@@ -36,20 +36,21 @@ int	ms_get_idx(t_array *env, const char *var)
 	size_t	sz;
 	size_t	i;
 
-	if (!var)
-		return (-1);
 	i = 0;
 	sz = ft_strlen(var);
-	while (i < env->len && env->items[i])
+	while (i < env->len)
 	{
-		str = ft_strchr(env->items[i], '=');
-		len = str - env->items[i];
-		if (!str)
-			len = ft_strlen(env->items[i]);
-		if (sz == len)
+		if (env->items[i])
 		{
-			if (ft_strncmp(env->items[i], var, len) == 0)
-				return (i);
+			str = ft_strchr(env->items[i], '=');
+			len = str - env->items[i];
+			if (!str)
+				len = ft_strlen(env->items[i]);
+			if (sz == len)
+			{
+				if (ft_strncmp(env->items[i], var, len) == 0)
+					return (i);
+			}
 		}
 		i += 1;
 	}

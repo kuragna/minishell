@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/04 15:53:51 by aabourri          #+#    #+#             */
-/*   Updated: 2023/12/13 13:36:54 by aabourri         ###   ########.fr       */
+/*   Updated: 2024/01/08 16:48:30 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ char	**ms_envcpy(t_array *env)
 		return (NULL);
 	while (i < env->len)
 	{
-		if (ft_strchr(env->items[i], '='))
+		if (env->items[i] && ft_strchr(env->items[i], '='))
 			ms_array_append(&e, env->items[i]);
 		i += 1;
 	}
@@ -31,9 +31,9 @@ char	**ms_envcpy(t_array *env)
 	return (e.items);
 }
 
-// TODO: change the name
 void	ms_lexeme_(t_lexer *l, struct s_string *word)
 {
+	char	c;
 	char	quote;
 
 	if (ms_is_quote(l->line[l->pos]))
@@ -44,7 +44,10 @@ void	ms_lexeme_(t_lexer *l, struct s_string *word)
 	}
 	while (l->pos < l->len)
 	{
-		if (l->line[l->pos] == '$')
+		c = l->line[l->pos + 1];
+		if (l->line[l->pos] == '$' && (ft_isalpha(c) || c == '_' || c == '?'))
+			ms_expansion(l, word);
+		if (l->pos >= l->len)
 			break ;
 		if (ms_is_quote(l->line[l->pos]) || ms_is_token(l->line[l->pos]))
 			break ;
@@ -55,7 +58,7 @@ void	ms_lexeme_(t_lexer *l, struct s_string *word)
 
 void	ms_table_add(struct s_fd_table *table, int fd)
 {
-	if (table->len == 1024)
+	if (table->len == 9000)
 		return ;
 	if (fd > 2)
 	{
@@ -74,5 +77,4 @@ void	ms_close(struct s_fd_table *table)
 		close(table->fds[i]);
 		i += 1;
 	}
-	table->len = 0;
 }
