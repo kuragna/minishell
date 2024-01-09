@@ -58,6 +58,6 @@ That's it.
 
 ## References
 
-* [Shell Grammar] (https://pubs.opengroup.org/onlinepubs/009604499/utilities/xcu_chap02.html)
-* [The parser and AST] (https://ruslanspivak.com/lsbasi-part1/)
-* [Bash Reference] (https://www.gnu.org/software/bash/manual/bash.html)
+* [Shell Grammar](https://pubs.opengroup.org/onlinepubs/009604499/utilities/xcu_chap02.html)
+* [The parser and AST](https://ruslanspivak.com/lsbasi-part1/)
+* [Bash Reference](https://www.gnu.org/software/bash/manual/bash.html)
