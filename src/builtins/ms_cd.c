@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:12:41 by aabourri          #+#    #+#             */
-/*   Updated: 2023/12/27 16:36:25 by aabourri         ###   ########.fr       */
+/*   Updated: 2024/01/09 19:46:56 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,7 +76,7 @@ int	ms_cd(t_data *data)
 	DIR				*dir;
 
 	go = ms_cd_(data->env, path);
-	if (!go || data->flag)
+	if (!go || data->pipe_flag)
 	{
 		if (go && path)
 		{

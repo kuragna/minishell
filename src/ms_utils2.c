@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/04 15:53:51 by aabourri          #+#    #+#             */
-/*   Updated: 2024/01/08 16:48:30 by aabourri         ###   ########.fr       */
+/*   Updated: 2024/01/09 20:06:55 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,19 @@ void	ms_lexeme_(t_lexer *l, struct s_string *word)
 		ms_char_append(word, l->line[l->pos]);
 		l->pos += 1;
 	}
+}
+
+char	*ms_lexeme_value(int flag, struct s_string *word, t_lexer *l)
+{
+	if (flag)
+	{
+		ms_str_append(word, &l->line[l->pos]);
+		ms_char_append(word, '\0');
+		ms_lexer_init(l, word->data);
+		return (ms_token_next(l));
+	}
+	ms_char_append(word, '\0');
+	return (word->data);
 }
 
 void	ms_table_add(struct s_fd_table *table, int fd)

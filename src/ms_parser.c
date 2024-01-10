@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:37:42 by aabourri          #+#    #+#             */
-/*   Updated: 2023/12/27 16:32:41 by aabourri         ###   ########.fr       */
+/*   Updated: 2024/01/10 13:46:09 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,8 +121,3 @@ t_ast	*ms_parse_pipe(t_lexer *lexer)
 	}
 	return (left);
 }
-
-/*
-l->line : cat $HOME $USER
-			  /Users/aaa\0
-*/

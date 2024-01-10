@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 18:33:07 by aabourri          #+#    #+#             */
-/*   Updated: 2023/12/27 16:54:51 by aabourri         ###   ########.fr       */
+/*   Updated: 2024/01/10 13:13:16 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,11 @@
 # define MS_LEXER_H
 
 # include <stdlib.h>
-# include "../include/ms_malloc.h"
 # include "../libft/libft.h"
 # include <stdio.h>
+# include <fcntl.h>
+# include <string.h>
+# include <errno.h>
 
 typedef enum e_token_type
 {
@@ -54,7 +56,8 @@ typedef struct s_data
 	t_array				*env;
 	char				**argv;
 	int					fd[2];
-	int					flag;
+	int					pipe_flag;
+	int					heredoc_flag;
 	int					quotes_flag;
 	struct s_fd_table	table;
 }	t_data;
@@ -75,7 +78,6 @@ int				ms_is_token(int c);
 int				ms_trim_left(t_lexer *l);
 int				ms_error(const char *fmt, ...);
 int				ms_check_quotes(const char *str);
-void			*ms_malloc(size_t size, char *file, int line);
 char			*ms_getenv(t_array *env, const char *name);
 
 struct s_string	ms_string_init(void);
@@ -87,14 +89,19 @@ int				ms_is_usalnum(int c);
 int				ms_is_quote(int c);
 int				ms_is_special(int c);
 
+int				ms_open(const char *path, int oflag, int mode);
+
+char			*ms_lexeme_value(int flag, struct s_string *word, t_lexer *l);
 char			*ms_get_lexeme(t_lexer *l);
 void			ms_expand_exit_status(t_lexer *l, struct s_string *word);
 void			ms_lexeme_(t_lexer *l, struct s_string *word);
 void			ms_quote_consume(t_lexer *l, struct s_string *word, char c);
-void			ms_expansion(t_lexer *l, struct s_string *word);
-
+int				ms_expansion(t_lexer *l, struct s_string *word);
 
 char			*ms_heredoc_dlmtr(t_lexer *l, struct s_string *word);
-char			*ms_heredoc_expansion(const char *name, t_data *data);
+char			*ms_heredoc_expansion(char *name, t_data *data);
+void			ms_heredoc_sig_handler(int sig);
+void			ms_heredoc(const int fd, const char *dlmtr, t_data *data);
+int				ms_heredoc_child(char *file_path, char *dlmtr, t_data *data);
 
 #endif //MS_LEXER_H

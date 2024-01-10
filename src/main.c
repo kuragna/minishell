@@ -6,33 +6,14 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/04 14:09:31 by aabourri          #+#    #+#             */
-/*   Updated: 2023/12/27 18:01:54 by aabourri         ###   ########.fr       */
+/*   Updated: 2024/01/10 13:09:41 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
 #include "../include/ms_builtin.h"
 
-void	ms_leaks(void)
-{
-	system("leaks -q minishell");
-}
-
 int	g_status = 0;
-
-// TODO: echo < $a -> "a doesnt exist"
-// TODO: ctrl-c in here-doc need to exit
-// TODO: handle ambigious error
-// TODO: dont expand one dollar
-// DONE: try unset HOME in bash with cd
-// DONE: "'"$HOME"'" -> '/Users/aabourri/'
-// DONE: heredoc -> $HOME -> /Users/aabourri/ -> doesnt have to exit
-// DONE: fix TEST''
-// DONE: "$US"E"R"
-// DONE: expansion within here-doc
-// DONE: exit status with different signal
-// DONE: exit status if there syntax error -> 258
-// DONE: know why "echo" -> ctrl-c -> echo $? = 1 -> try on iterm not vs
 
 static void	ms_wait(t_data *data, int count)
 {
@@ -46,12 +27,20 @@ static void	ms_wait(t_data *data, int count)
 		{
 			g_status = WEXITSTATUS(g_status);
 		}
-		else if (!data->flag && WIFSIGNALED(g_status))
+		else if (!data->pipe_flag && WIFSIGNALED(g_status))
 		{
 			g_status = (WEXITSTATUS(g_status) + SIGINT);
 		}
 		i += 1;
 	}
+}
+
+static void	ms_lexer_set(t_lexer *l)
+{
+	l->data.fd[MS_STDIN] = MS_STDIN;
+	l->data.fd[MS_STDOUT] = MS_STDOUT;
+	l->data.quotes_flag = 0;
+	l->data.heredoc_flag = 0;
 }
 
 static void	ms_prompt_(t_lexer *l)
@@ -66,9 +55,7 @@ static void	ms_prompt_(t_lexer *l)
 		return ;
 	}
 	add_history(l->line);
-	l->data.fd[MS_STDIN] = MS_STDIN;
-	l->data.fd[MS_STDOUT] = MS_STDOUT;
-	l->data.quotes_flag = 0;
+	ms_lexer_set(l);
 	ast = ms_parse_pipe(l);
 	if (!ast)
 		g_status = 258;
@@ -77,6 +64,7 @@ static void	ms_prompt_(t_lexer *l)
 		count = ms_exec(ast, &l->data);
 		if (count)
 			ms_wait(&l->data, count);
+		ms_close(&l->data.table);
 		ms_ast_destroy(ast);
 	}
 	free(l->line);
