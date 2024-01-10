@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/04 14:09:31 by aabourri          #+#    #+#             */
-/*   Updated: 2024/01/10 13:09:41 by aabourri         ###   ########.fr       */
+/*   Updated: 2024/01/10 14:47:07 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,7 @@ static void	ms_lexer_set(t_lexer *l)
 	l->data.fd[MS_STDOUT] = MS_STDOUT;
 	l->data.quotes_flag = 0;
 	l->data.heredoc_flag = 0;
+	l->data.pipe_flag = 0;
 }
 
 static void	ms_prompt_(t_lexer *l)
@@ -91,6 +92,7 @@ static void	ms_prompt(t_data *data)
 			continue ;
 		}
 		ms_prompt_(&l);
+		l.data.heredoc_flag = 1;
 	}
 }
 
