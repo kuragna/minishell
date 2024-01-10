@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/27 16:29:43 by aabourri          #+#    #+#             */
-/*   Updated: 2023/12/27 16:31:53 by aabourri         ###   ########.fr       */
+/*   Updated: 2024/01/09 19:33:19 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,41 +59,58 @@ static void	ms_heredoc_exit_status(struct s_string *word)
 	}
 }
 
-// TODO: divide this two parts
-char	*ms_heredoc_expansion(const char *name, t_data *data)
+int	ms_heredoc_child(char *file_path, char *dlmtr, t_data *data)
 {
-	char			*str;
-	struct s_string	word;
-	struct s_string	dollar;
+	pid_t	pid;
+	int		fd;
 
-	word = ms_string_init();
-	dollar = ms_string_init();
-	while (name && *name)
+	pid = fork();
+	if (pid == -1)
+		return (ms_error("minishell: %s\n", strerror(errno)), -1);
+	if (pid == 0)
+	{
+		signal(SIGINT, ms_heredoc_sig_handler);
+		fd = ms_open(file_path, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+		ms_heredoc(fd, dlmtr, data);
+		close(fd);
+		exit(0);
+	}
+	else
+	{
+		waitpid(pid, &g_status, 0);
+		if (WIFEXITED(g_status) && WEXITSTATUS(g_status) == 1)
+		{
+			data->heredoc_flag = 1;
+			return (g_status = WEXITSTATUS(g_status), -1);
+		}
+	}
+	return (ms_open(file_path, O_RDONLY, 0));
+}
+
+char	*ms_heredoc_expansion(char *name, t_data *data)
+{
+	struct s_string	word[2];
+
+	word[0] = ms_string_init();
+	word[1] = ms_string_init();
+	while (word[0].data && word[1].data && name && *name)
 	{
 		if (*name == '$' && *(name + 1))
 		{
 			name += 1;
 			if (*name == '?')
 			{
-				ms_heredoc_exit_status(&word);
+				ms_heredoc_exit_status(&word[0]);
 				name += 1;
 			}
 			while (*name && *name != '$' && ms_is_usalnum(*name))
-			{
-				ms_char_append(&dollar, *name);
-				name += 1;
-			}
-			ms_char_append(&dollar, '\0');
-			str = ms_getenv(data->env, dollar.data);
-			ms_str_append(&word, str);
-			dollar.len = 0;
+				ms_char_append(&word[1], *name++);
+			ms_char_append(&word[1], '\0');
+			ms_str_append(&word[0], ms_getenv(data->env, word[1].data));
+			word[1].len = 0;
 		}
 		if (*name)
-		{
-			ms_char_append(&word, *name);
-			name += 1;
-		}
+			ms_char_append(&word[0], *name++);
 	}
-	free(dollar.data);
-	return (ms_char_append(&word, '\0'), word.data);
+	return (free(word[1].data), ms_char_append(&word[0], '\0'), word[0].data);
 }

@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:19:08 by aabourri          #+#    #+#             */
-/*   Updated: 2023/12/12 13:11:08 by aabourri         ###   ########.fr       */
+/*   Updated: 2024/01/09 19:47:15 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,7 @@ int	ms_exit(t_data *data)
 	}
 	else
 		exit_status = ft_atoi(*argv) % 256;
-	if (!data->flag)
+	if (!data->pipe_flag)
 		exit(exit_status);
 	return (0);
 }

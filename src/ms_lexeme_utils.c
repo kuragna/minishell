@@ -6,13 +6,11 @@
 /*   By: aabourri <aabourri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/04 14:32:50 by aabourri          #+#    #+#             */
-/*   Updated: 2023/12/13 13:31:34 by aabourri         ###   ########.fr       */
+/*   Updated: 2024/01/10 13:27:09 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/ms_lexer.h"
-
-#include <stdio.h>
 
 extern int	g_status;
 

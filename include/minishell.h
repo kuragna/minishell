@@ -6,7 +6,7 @@
 /*   By: aabourri <aabourri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/17 19:04:35 by aabourri          #+#    #+#             */
-/*   Updated: 2023/12/27 16:55:57 by aabourri         ###   ########.fr       */
+/*   Updated: 2024/01/10 13:13:28 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,6 @@
 # include "../libft/libft.h"
 # include "./ms_parser.h"
 # include "./ms_exec.h"
-# include "./ms_malloc.h"
 # include "./ms_builtin.h"
 
 extern int	g_status;
@@ -41,7 +40,6 @@ t_array	ms_array_init(void);
 void	ms_array_append(t_array *ptr, char *item);
 
 void	ms_table_add(struct s_fd_table *table, int fd);
-void	*ms_malloc(size_t size, char *file, int line);
 
 void	rl_clear_history(void);
 void	rl_replace_line(const char *text, int clear_undo);

@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/04 19:45:48 by aabourri          #+#    #+#             */
-/*   Updated: 2023/12/27 18:00:19 by aabourri         ###   ########.fr       */
+/*   Updated: 2024/01/10 13:09:07 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,6 +74,8 @@ int	ms_exec_cmd(t_ast *node, t_data *data)
 
 	cmd = node->cmd;
 	data->argv = cmd.args.items;
+	if (data->heredoc_flag)
+		return (0);
 	if (ms_io_handle(&cmd.redirs, data))
 		return (0);
 	if (cmd.args.len <= 1 || !*cmd.args.items)
@@ -93,7 +95,7 @@ int	ms_exec(t_ast *ast, t_data *data)
 		return (0);
 	if (ast->type == NODE_PIPE)
 	{
-		data->flag = 1;
+		data->pipe_flag = 1;
 		count = ms_exec_pipe(ast, data);
 	}
 	if (ast->type == NODE_CMD)

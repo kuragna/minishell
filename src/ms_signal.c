@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:33:09 by aabourri          #+#    #+#             */
-/*   Updated: 2023/12/27 16:34:11 by aabourri         ###   ########.fr       */
+/*   Updated: 2024/01/09 17:20:19 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,13 @@ void	ms_signal_handler(int sig)
 	write(MS_STDOUT, "\n", 1);
 	rl_on_new_line();
 	rl_redisplay();
+}
+
+void	ms_heredoc_sig_handler(int sig)
+{
+	(void) sig;
+	write(MS_STDOUT, "\n", 1);
+	exit(1);
 }
 
 int	ms_signal(void)

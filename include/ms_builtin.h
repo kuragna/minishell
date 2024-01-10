@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 18:39:21 by aabourri          #+#    #+#             */
-/*   Updated: 2023/12/12 12:37:41 by aabourri         ###   ########.fr       */
+/*   Updated: 2024/01/10 13:12:36 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,6 @@
 # include <stdlib.h>
 # include <stdio.h>
 # include "../libft/libft.h"
-# include "../include/ms_malloc.h"
 # include "./minishell.h"
 
 # define MS_SIZE	7

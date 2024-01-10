@@ -6,12 +6,13 @@
 /*   By: aabourri <aabourri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:34:39 by aabourri          #+#    #+#             */
-/*   Updated: 2023/12/27 18:03:40 by aabourri         ###   ########.fr       */
+/*   Updated: 2024/01/10 13:31:35 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/ms_lexer.h"
-#include <stdio.h>
+
+#define MS_AMB "ambiguous redirect"
 
 static char	*ms_rewording(const char *str, int quote)
 {
@@ -42,9 +43,8 @@ static char	*ms_rewording(const char *str, int quote)
 	return (re.data);
 }
 
-void	ms_expansion(t_lexer *l, struct s_string *word)
+int	ms_expansion(t_lexer *l, struct s_string *word)
 {
-	char			c;
 	char			*str;
 	struct s_string	dollar;
 
@@ -55,41 +55,37 @@ void	ms_expansion(t_lexer *l, struct s_string *word)
 		ms_expand_exit_status(l, word);
 		if (ms_is_token(l->line[l->pos]) || !ms_is_usalnum(l->line[l->pos]))
 			break ;
-		c = l->line[l->pos];
-		ms_char_append(&dollar, c);
+		ms_char_append(&dollar, l->line[l->pos]);
 		l->pos += 1;
 		if (l->line[l->pos] == '$' || !ms_is_usalnum(l->line[l->pos]))
 		{
 			ms_char_append(&dollar, '\0');
 			str = ms_getenv(l->data.env, dollar.data);
 			if (l->prev >= LESS && l->prev <= DGREAT && ft_strchr(str, ' '))
-			{
-				ms_error("minishell: $%s: ambiguous redirect\n", dollar.data);
-				return ;
-			}
+				return (ms_error("minishell: $%s: %s\n", dollar.data, MS_AMB));
 			ms_str_append(word, ms_rewording(str, 34));
 			dollar.len = 0;
 			if (l->line[l->pos] == '$')
 				l->pos += 1;
 		}
 	}
-	free(dollar.data);
+	return (free(dollar.data), 1);
 }
 
-void	ms_quote_consume(t_lexer *l, struct s_string *word, char c)
+void	ms_quote_consume(t_lexer *l, struct s_string *word, char quote)
 {
 	char	ch;
 
-	while (l->pos < l->len && l->line[l->pos] != c)
+	while (l->pos < l->len && l->line[l->pos] != quote)
 	{
 		ch = l->line[l->pos + 1];
-		if (c == '\"' && l->line[l->pos] == '$')
+		if (quote == '\"' && l->line[l->pos] == '$')
 		{
 			ms_expansion(l, word);
 			if (l->line[l->pos] == '$' && l->line[l->pos + 1])
 				continue ;
 		}
-		if (l->line[l->pos] != c)
+		if (l->line[l->pos] != quote)
 		{
 			ms_char_append(word, l->line[l->pos]);
 			l->pos += 1;
@@ -117,9 +113,7 @@ char	*ms_get_lexeme(t_lexer *l)
 
 	flag = 0;
 	word = ms_string_init();
-	if (!word.data)
-		return (NULL);
-	while (l->pos < l->len && !ms_is_token(l->line[l->pos]))
+	while (word.data && (l->pos < l->len && !ms_is_token(l->line[l->pos])))
 	{
 		l->pos = ms_trim_left(l);
 		if (l->prev == DLESS)
@@ -128,7 +122,7 @@ char	*ms_get_lexeme(t_lexer *l)
 			ms_tilde(l, &word);
 		if (l->line[l->pos] == '$')
 		{
-			if (ft_isalpha(l->line[l->pos + 1]) || l->line[l->pos + 1] == '_' || l->line[l->pos + 1] == '?')
+			if (ms_is_start(l->line[l->pos + 1]) || l->line[l->pos + 1] == '?')
 			{
 				ms_expansion(l, &word);
 				flag = 1;
@@ -136,12 +130,5 @@ char	*ms_get_lexeme(t_lexer *l)
 		}
 		ms_lexeme_(l, &word);
 	}
-	if (flag)
-	{
-		ms_str_append(&word, &l->line[l->pos]);
-		ms_char_append(&word, '\0');
-		return (ms_lexer_init(l, word.data), ms_token_next(l));
-	}
-	ms_char_append(&word, '\0');
-	return (word.data);
+	return (ms_lexeme_value(flag, &word, l));
 }

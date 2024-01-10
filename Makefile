@@ -6,7 +6,7 @@
 #    By: aabourri <aabourri@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/10/09 14:16:51 by glacroix          #+#    #+#              #
-#    Updated: 2023/12/27 16:59:57 by aabourri         ###   ########.fr        #
+#    Updated: 2024/01/10 13:11:20 by aabourri         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -28,8 +28,7 @@ NAME	   = minishell
 #SRC & OBJS Details
 # **************************************************************************** #
 
-SRCS		=	ms_malloc.c \
-				ms_ast_destroy.c \
+SRCS		=	ms_ast_destroy.c \
 				ms_signal.c \
 				ms_error.c \
 				ms_cmd_utils.c \

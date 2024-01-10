@@ -6,13 +6,17 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 20:00:32 by aabourri          #+#    #+#             */
-/*   Updated: 2023/12/27 17:56:15 by aabourri         ###   ########.fr       */
+/*   Updated: 2024/01/09 19:36:52 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
 
-static int	ms_open(const char *path, int oflag, int mode)
+#define MS_PERMS	0644
+
+extern int	g_status;
+
+int	ms_open(const char *path, int oflag, int mode)
 {
 	const int	fd = open(path, oflag, mode);
 
@@ -25,53 +29,45 @@ static int	ms_open(const char *path, int oflag, int mode)
 	return (fd);
 }
 
-static int	ms_heredoc(const char *dlmtr, t_data *data)
+void	ms_heredoc(const int fd, const char *dlmtr, t_data *data)
 {
-	char	*line;
-	char	*str;
-	int		fd;
+	char	*strs[2];
 
-	fd = ms_open("/tmp/ms_here-doc", O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	while (fd != -1 && 1)
 	{
-		line = readline("> ");
-		if (!line || ft_strncmp(line, dlmtr, ft_strlen(line) + 1 == 0))
+		strs[1] = readline("> ");
+		if (!strs[1] || ft_strncmp(strs[1], dlmtr, ft_strlen(strs[1]) + 1) == 0)
 		{
-			free(line);
+			free(strs[1]);
 			break ;
 		}
-		str = line;
+		strs[0] = strs[1];
 		if (!data->quotes_flag)
 		{
-			str = ms_heredoc_expansion(line, data);
-			if (ft_strncmp(str, dlmtr, ft_strlen(str) + 1) == 0)
+			strs[0] = ms_heredoc_expansion(strs[1], data);
+			if (ft_strncmp(strs[0], dlmtr, ft_strlen(strs[0]) + 1) == 0)
 			{
-				free(str);
-				free(line);
+				free(strs[0]);
+				free(strs[1]);
 				break ;
 			}
 		}
-		ft_putendl_fd(str, fd);
-		free(line);
+		ft_putendl_fd(strs[0], fd);
+		free(strs[1]);
 	}
-	close(fd);
-	fd = ms_open("/tmp/ms_here-doc", O_RDONLY, 0);
-	return (fd);
 }
 
 static int	ms_rdr_input(const char *path, t_token_type type, t_data *data)
 {
-	int	fd;
+	int			fd;
 
 	fd = -1;
 	if (type == DLESS)
 	{
-		fd = ms_heredoc(path, data);
+		fd = ms_heredoc_child("/tmp/ms_heredoc", (char *)path, data);
 	}
 	if (type == LESS)
-	{
 		fd = ms_open(path, O_RDONLY, 0);
-	}
 	return (fd);
 }
 
@@ -81,16 +77,15 @@ static int	ms_rdr_output(const char *path, t_token_type type)
 
 	if (type == GREAT)
 	{
-		fd = ms_open(path, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+		fd = ms_open(path, O_WRONLY | O_CREAT | O_TRUNC, MS_PERMS);
 	}
 	if (type == DGREAT)
 	{
-		fd = ms_open(path, O_WRONLY | O_CREAT | O_APPEND, 0644);
+		fd = ms_open(path, O_WRONLY | O_CREAT | O_APPEND, MS_PERMS);
 	}
 	return (fd);
 }
 
-// TODO: change return value to non-fd
 int	ms_io_handle(struct s_redirs *ptr, t_data *data)
 {
 	int		io[2];
