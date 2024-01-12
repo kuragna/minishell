@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 18:44:02 by aabourri          #+#    #+#             */
-/*   Updated: 2024/01/10 13:11:55 by aabourri         ###   ########.fr       */
+/*   Updated: 2024/01/11 15:47:47 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,7 @@ struct s_pipe
 struct s_ast
 {
 	t_ast_node	type;
+	int			flag;
 	union {
 		t_pipe		pipe;
 		t_cmd		cmd;

@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 20:01:24 by aabourri          #+#    #+#             */
-/*   Updated: 2023/12/27 16:29:06 by aabourri         ###   ########.fr       */
+/*   Updated: 2024/01/12 13:11:12 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,8 @@ void	ms_error_exec(const char *cmd)
 		fd = open(cmd, O_RDONLY | O_DIRECTORY);
 		if (fd != -1)
 			str = strerror(EISDIR);
+		if (access(cmd, F_OK) == -1)
+			exit_status = MS_CNF;
 		close(fd);
 	}
 	ms_error("minishell: %s: %s\n", cmd, str);

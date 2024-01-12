@@ -6,16 +6,18 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/04 19:45:48 by aabourri          #+#    #+#             */
-/*   Updated: 2024/01/10 13:09:07 by aabourri         ###   ########.fr       */
+/*   Updated: 2024/01/12 13:18:18 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/ms_exec.h"
 #include "../include/ms_builtin.h"
 
+#include <stdio.h>
+
 extern int	g_status;
 
-int	ms_exec_in(t_data *data)
+int	ms_exec_in(t_data *data, pid_t *last_pid)
 {
 	int				status;
 	size_t			i;
@@ -35,23 +37,23 @@ int	ms_exec_in(t_data *data)
 			break ;
 		}
 	}
+	*last_pid = -1;
 	g_status = status;
 	return (status);
 }
 
-static int	ms_fork(t_data *data, char **argv)
+static int	ms_fork(t_data *data, char **argv, pid_t *pid)
 {
 	char	*path;
 	char	**envp;
-	pid_t	pid;
 
-	pid = fork();
-	if (pid == -1)
+	*pid = fork();
+	if (*pid == -1)
 	{
 		ms_error("minishell: %s\n", strerror(errno));
 		return (1);
 	}
-	if (pid == 0)
+	if (*pid == 0)
 	{
 		dup2(data->fd[MS_STDIN], MS_STDIN);
 		dup2(data->fd[MS_STDOUT], MS_STDOUT);
@@ -68,7 +70,7 @@ static int	ms_fork(t_data *data, char **argv)
 	return (0);
 }
 
-int	ms_exec_cmd(t_ast *node, t_data *data)
+int	ms_exec_cmd(t_ast *node, t_data *data, pid_t *last)
 {
 	t_cmd	cmd;
 
@@ -80,14 +82,14 @@ int	ms_exec_cmd(t_ast *node, t_data *data)
 		return (0);
 	if (cmd.args.len <= 1 || !*cmd.args.items)
 		return (0);
-	if (ms_exec_in(data) != -1)
+	if (ms_exec_in(data, last) != -1)
 		return (0);
-	if (ms_fork(data, cmd.args.items))
+	if (ms_fork(data, cmd.args.items, last))
 		return (0);
 	return (1);
 }
 
-int	ms_exec(t_ast *ast, t_data *data)
+int	ms_exec(t_ast *ast, t_data *data, pid_t *last)
 {
 	int	count;
 
@@ -96,16 +98,16 @@ int	ms_exec(t_ast *ast, t_data *data)
 	if (ast->type == NODE_PIPE)
 	{
 		data->pipe_flag = 1;
-		count = ms_exec_pipe(ast, data);
+		count = ms_exec_pipe(ast, data, last);
 	}
 	if (ast->type == NODE_CMD)
 	{
-		count = ms_exec_cmd(ast, data);
+		count = ms_exec_cmd(ast, data, last);
 	}
 	return (count);
 }
 
-int	ms_exec_pipe(t_ast *node, t_data *data)
+int	ms_exec_pipe(t_ast *node, t_data *data, pid_t *last)
 {
 	const t_ast	*nodes[2] = {node->pipe.left, node->pipe.right};
 	int			count;
@@ -123,10 +125,10 @@ int	ms_exec_pipe(t_ast *node, t_data *data)
 	_data = *data;
 	_data.fd[MS_STDIN] = data->fd[MS_STDIN];
 	_data.fd[MS_STDOUT] = pp[MS_STDOUT];
-	count += ms_exec((t_ast *)nodes[MS_LEFT], &_data);
+	count += ms_exec((t_ast *)nodes[MS_LEFT], &_data, last);
 	_data.fd[MS_STDIN] = pp[MS_STDIN];
 	_data.fd[MS_STDOUT] = data->fd[MS_STDOUT];
-	count += ms_exec((t_ast *)nodes[MS_RIGHT], &_data);
+	count += ms_exec((t_ast *)nodes[MS_RIGHT], &_data, last);
 	ms_close(&data->table);
 	return (count);
 }
