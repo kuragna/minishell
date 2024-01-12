@@ -6,7 +6,7 @@
 /*   By: aabourri <aabourri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:34:39 by aabourri          #+#    #+#             */
-/*   Updated: 2024/01/10 13:31:35 by aabourri         ###   ########.fr       */
+/*   Updated: 2024/01/12 15:38:21 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 #define MS_AMB "ambiguous redirect"
 
-static char	*ms_rewording(const char *str, int quote)
+char	*ms_rewording(const char *str, int quote)
 {
 	size_t			i;
 	int				flag;
@@ -115,6 +115,7 @@ char	*ms_get_lexeme(t_lexer *l)
 	word = ms_string_init();
 	while (word.data && (l->pos < l->len && !ms_is_token(l->line[l->pos])))
 	{
+		printf("l->line -> [%s]\n", &l->line[l->pos]);
 		l->pos = ms_trim_left(l);
 		if (l->prev == DLESS)
 			return (ms_heredoc_dlmtr(l, &word));

@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/04 14:09:31 by aabourri          #+#    #+#             */
-/*   Updated: 2024/01/10 14:47:07 by aabourri         ###   ########.fr       */
+/*   Updated: 2024/01/12 15:38:40 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,21 +15,23 @@
 
 int	g_status = 0;
 
-static void	ms_wait(t_data *data, int count)
+static void	ms_wait(int pipe_flag, int count, pid_t last_pid)
 {
-	int	i;
+	int		i;
+	pid_t	pid;
+	int		status;
 
 	i = 0;
 	while (i < count)
 	{
-		waitpid(-1, &g_status, 0);
-		if (WIFEXITED(g_status))
+		pid = waitpid(-1, &status, 0);
+		if (last_pid != -1 && pid == last_pid && WIFEXITED(status))
 		{
-			g_status = WEXITSTATUS(g_status);
+			g_status = WEXITSTATUS(status);
 		}
-		else if (!data->pipe_flag && WIFSIGNALED(g_status))
+		else if (!pipe_flag && WIFSIGNALED(status))
 		{
-			g_status = (WEXITSTATUS(g_status) + SIGINT);
+			g_status += 128;
 		}
 		i += 1;
 	}
@@ -42,6 +44,7 @@ static void	ms_lexer_set(t_lexer *l)
 	l->data.quotes_flag = 0;
 	l->data.heredoc_flag = 0;
 	l->data.pipe_flag = 0;
+	l->data.pid = -1;
 }
 
 static void	ms_prompt_(t_lexer *l)
@@ -62,9 +65,9 @@ static void	ms_prompt_(t_lexer *l)
 		g_status = 258;
 	if (ast)
 	{
-		count = ms_exec(ast, &l->data);
+		count = ms_exec(ast, &l->data, &l->data.pid);
 		if (count)
-			ms_wait(&l->data, count);
+			ms_wait(l->data.pipe_flag, count, l->data.pid);
 		ms_close(&l->data.table);
 		ms_ast_destroy(ast);
 	}

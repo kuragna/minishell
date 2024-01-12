@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 18:33:07 by aabourri          #+#    #+#             */
-/*   Updated: 2024/01/10 13:13:16 by aabourri         ###   ########.fr       */
+/*   Updated: 2024/01/12 15:23:40 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,11 +14,11 @@
 # define MS_LEXER_H
 
 # include <stdlib.h>
-# include "../libft/libft.h"
 # include <stdio.h>
 # include <fcntl.h>
 # include <string.h>
 # include <errno.h>
+# include "../libft/libft.h"
 
 typedef enum e_token_type
 {
@@ -59,6 +59,7 @@ typedef struct s_data
 	int					pipe_flag;
 	int					heredoc_flag;
 	int					quotes_flag;
+	pid_t				pid;
 	struct s_fd_table	table;
 }	t_data;
 
@@ -96,6 +97,7 @@ char			*ms_get_lexeme(t_lexer *l);
 void			ms_expand_exit_status(t_lexer *l, struct s_string *word);
 void			ms_lexeme_(t_lexer *l, struct s_string *word);
 void			ms_quote_consume(t_lexer *l, struct s_string *word, char c);
+char			*ms_rewording(const char *str, int quote);
 int				ms_expansion(t_lexer *l, struct s_string *word);
 
 char			*ms_heredoc_dlmtr(t_lexer *l, struct s_string *word);
