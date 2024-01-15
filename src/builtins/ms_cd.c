@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:12:41 by aabourri          #+#    #+#             */
-/*   Updated: 2024/01/09 19:46:56 by aabourri         ###   ########.fr       */
+/*   Updated: 2024/01/15 14:41:08 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,11 +82,12 @@ int	ms_cd(t_data *data)
 		{
 			dir = opendir(path);
 			if (dir == NULL)
-				ms_error("minishell: cd: %s: %s\n", path, strerror(errno));
+				return (ms_error("minishell: cd: %s: %s\n",
+						path, strerror(errno)));
 			if (dir)
 				closedir(dir);
 		}
-		return (1);
+		return (0);
 	}
 	if (chdir(go) == -1)
 		return (ms_error("minishell: cd: %s: %s\n", path, strerror(errno)));

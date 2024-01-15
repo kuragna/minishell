@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 18:33:07 by aabourri          #+#    #+#             */
-/*   Updated: 2024/01/15 13:24:04 by aabourri         ###   ########.fr       */
+/*   Updated: 2024/01/15 13:31:16 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@
 # include <errno.h>
 # include "../libft/libft.h"
 
-#define MS_DOLLAR_FLAG	42
+# define MS_DOLLAR_FLAG	42
 
 typedef enum e_token_type
 {
