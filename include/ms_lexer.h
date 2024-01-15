@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 18:33:07 by aabourri          #+#    #+#             */
-/*   Updated: 2024/01/12 15:23:40 by aabourri         ###   ########.fr       */
+/*   Updated: 2024/01/15 13:24:04 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,8 @@
 # include <string.h>
 # include <errno.h>
 # include "../libft/libft.h"
+
+#define MS_DOLLAR_FLAG	42
 
 typedef enum e_token_type
 {
@@ -68,8 +70,9 @@ typedef struct s_lexer
 	char			*line;
 	size_t			len;
 	size_t			pos;
-	t_data			data;
 	t_token_type	prev;
+	int				dollar_flag;
+	t_data			data;
 }	t_lexer;
 
 t_token_type	ms_peek(t_lexer *l);
@@ -95,7 +98,7 @@ int				ms_open(const char *path, int oflag, int mode);
 char			*ms_lexeme_value(int flag, struct s_string *word, t_lexer *l);
 char			*ms_get_lexeme(t_lexer *l);
 void			ms_expand_exit_status(t_lexer *l, struct s_string *word);
-void			ms_lexeme_(t_lexer *l, struct s_string *word);
+char			*ms_lexeme_(t_lexer *l, struct s_string *word);
 void			ms_quote_consume(t_lexer *l, struct s_string *word, char c);
 char			*ms_rewording(const char *str, int quote);
 int				ms_expansion(t_lexer *l, struct s_string *word);
