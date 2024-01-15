@@ -6,7 +6,7 @@
 /*   By: aabourri <aabourri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:34:39 by aabourri          #+#    #+#             */
-/*   Updated: 2024/01/12 15:38:21 by aabourri         ###   ########.fr       */
+/*   Updated: 2024/01/15 13:22:41 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,8 +115,6 @@ char	*ms_get_lexeme(t_lexer *l)
 	word = ms_string_init();
 	while (word.data && (l->pos < l->len && !ms_is_token(l->line[l->pos])))
 	{
-		printf("l->line -> [%s]\n", &l->line[l->pos]);
-		l->pos = ms_trim_left(l);
 		if (l->prev == DLESS)
 			return (ms_heredoc_dlmtr(l, &word));
 		if (l->line[l->pos] == '~')
@@ -126,7 +124,8 @@ char	*ms_get_lexeme(t_lexer *l)
 			if (ms_is_start(l->line[l->pos + 1]) || l->line[l->pos + 1] == '?')
 			{
 				ms_expansion(l, &word);
-				flag = 1;
+				l->dollar_flag = MS_DOLLAR_FLAG;
+				flag = MS_DOLLAR_FLAG;
 			}
 		}
 		ms_lexeme_(l, &word);

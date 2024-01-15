@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:55:52 by aabourri          #+#    #+#             */
-/*   Updated: 2024/01/12 15:24:28 by aabourri         ###   ########.fr       */
+/*   Updated: 2024/01/15 12:29:46 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,9 @@
 
 void	ms_lexer_init(t_lexer *l, const char *line)
 {
-	l->prev = 0;
 	l->pos = 0;
+	l->prev = 0;
+	l->dollar_flag = 0;
 	l->line = (char *)line;
 	l->len = ft_strlen(line);
 }

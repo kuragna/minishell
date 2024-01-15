@@ -6,13 +6,13 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/18 19:19:08 by aabourri          #+#    #+#             */
-/*   Updated: 2024/01/09 19:47:15 by aabourri         ###   ########.fr       */
+/*   Updated: 2024/01/12 15:43:03 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/ms_builtin.h"
 
-int	ms_exit_check(const char *str)
+static int	ms_exit_check(const char *str)
 {
 	size_t	i;
 

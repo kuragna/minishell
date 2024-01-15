@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/04 15:53:51 by aabourri          #+#    #+#             */
-/*   Updated: 2024/01/12 14:54:07 by aabourri         ###   ########.fr       */
+/*   Updated: 2024/01/15 13:23:08 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ char	**ms_envcpy(t_array *env)
 	return (e.items);
 }
 
-void	ms_lexeme_(t_lexer *l, struct s_string *word)
+char	*ms_lexeme_(t_lexer *l, struct s_string *word)
 {
 	char	c;
 	char	quote;
@@ -39,6 +39,8 @@ void	ms_lexeme_(t_lexer *l, struct s_string *word)
 	if (ms_is_quote(l->line[l->pos]))
 	{
 		quote = l->line[l->pos];
+		if (l->dollar_flag)
+			return (ms_lexeme_value(MS_DOLLAR_FLAG, word, l));
 		l->pos += 1;
 		ms_quote_consume(l, word, quote);
 	}
@@ -54,6 +56,7 @@ void	ms_lexeme_(t_lexer *l, struct s_string *word)
 		ms_char_append(word, l->line[l->pos]);
 		l->pos += 1;
 	}
+	return (NULL);
 }
 
 char	*ms_lexeme_value(int flag, struct s_string *word, t_lexer *l)
